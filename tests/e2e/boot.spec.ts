@@ -1,67 +1,131 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 /**
- * HE-1 e2e smoke skeleton — boot path against what exists TODAY.
+ * UI-2 e2e — the boot contract, against the real app graph (main.tsx runs the
+ * boot orchestrator; Playwright's dev-server webServer runs dev mode, so these
+ * specs exercise the same StrictMode double-effect environment users' HMR does).
  *
- * Current reality (until UI-2/UI-3 land): `src/main.tsx` is a dev-preview
- * fixture that registers the app manifests, opens the `demo` module window
- * (IM-3 contract proof) and renders the WindowHost (IM-4a). This spec pins
- * exactly that chain: app loads → host mounts → demo window opens → title
- * bar renders. When the real boot sequence replaces the fixture, these
- * assertions keep holding and the file grows the UI-2 gates (boot ≤2s from
- * `window.__BOOT_TIMELINE`, POST lines, return-visit short-circuit).
+ * Gates (docs/ultron/plan.md UI-2 acceptance):
+ * 1. First visit: POST types the real subsystem lines, then the desktop; the
+ *    whole boot lands ≤2s (`window.__BOOT_TIMELINE` carries boot-start →
+ *    post-complete → desktop-ready) and the demo module does NOT auto-open.
+ * 2. Click skips the POST; any key skips the POST.
+ * 3. Reload (return visit, boot flag set): no POST — post-complete is ABSENT
+ *    from the timeline and desktop-ready lands ≤200ms after boot-start.
+ * 4. prefers-reduced-motion: the static POST variant still completes to desktop.
  *
- * Selectors deliberately ride stable seams (data attributes / ARIA roles the
- * WM ships for accessibility), never CSS pixel details.
+ * Selectors ride stable seams (data-* attributes / roles), never CSS pixels.
  */
 
-test('app loads → window host mounts → demo module window opens with title bar', async ({
+interface MilestoneView {
+  name: string
+  t: number
+  order: number
+}
+
+async function timeline(page: Page): Promise<MilestoneView[]> {
+  return page.evaluate(() =>
+    (window.__BOOT_TIMELINE ?? []).map((m) => ({ name: m.name, t: m.t, order: m.order })),
+  )
+}
+
+/**
+ * Read one milestone, polling: passive effects (which mark desktop-ready) can
+ * land a beat after the element is visible — a one-shot read would race.
+ */
+async function milestone(page: Page, name: string): Promise<MilestoneView> {
+  await expect.poll(async () => (await timeline(page)).some((m) => m.name === name)).toBe(true)
+  return (await timeline(page)).find((m) => m.name === name)!
+}
+
+test('first visit: POST checks real subsystems, then gives way to the desktop (≤2s)', async ({
   page,
 }) => {
   await page.goto('/')
 
-  // IM-4a: the open-windows host is mounted.
-  const host = page.locator('[data-wm-host]')
-  await expect(host).toBeAttached()
+  // The POST well is the first viewport: amber lines inside the recessed well.
+  await expect(page.locator('[data-post-well]')).toBeVisible()
 
-  // IM-3 via the main.tsx fixture: exactly the demo module window is open,
-  // registered through the app registry (title comes from the manifest name).
-  const demoWindow = host.locator('.wm-window[data-app-id="demo"]')
-  await expect(demoWindow).toHaveCount(1)
-  await expect(demoWindow).toBeVisible()
-  await expect(demoWindow).toHaveAttribute('role', 'dialog')
+  // Real subsystem lines type in (toContainText waits out the typing cadence).
+  const archive = page.locator('[data-post-line="archive-integrity"]')
+  await expect(archive).toContainText('ARCHIVE INTEGRITY')
+  await expect(archive).toContainText('SEEDED') // first visit → fresh catalog
+  await expect(page.locator('[data-post-line="module-registry"]')).toContainText('1 MODULE')
+  await expect(page.locator('[data-post-line="plugin-bus"]')).toContainText('READY')
+  await expect(page.locator('[data-post-line="console"]')).toContainText('ONLINE')
+  await expect(page.locator('[data-post-line="os-banner"]')).toContainText('HOLD/OS')
 
-  // Title bar renders: manifest name + chrome controls (min/max/close).
-  const titleBar = demoWindow.locator('.wm-titlebar')
-  await expect(titleBar).toBeVisible()
-  await expect(titleBar.locator('.wm-title')).toHaveText('Demo Module')
-  await expect(titleBar.getByRole('button', { name: 'Minimize' })).toBeVisible()
-  await expect(titleBar.getByRole('button', { name: 'Maximize' })).toBeVisible()
-  await expect(titleBar.getByRole('button', { name: 'Close' })).toBeVisible()
+  // …then the hold lights come up: the desktop stage replaces the POST screen.
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible({ timeout: 10_000 })
+  await expect(page.locator('[data-boot-screen]')).toHaveCount(0)
 
-  // Demo surface mounts through the registry content seam (lazy chunk loads).
-  await expect(demoWindow.locator('[data-wm-content] > *')).toBeVisible()
+  // The WM host is mounted but a first visit opens NO windows (the demo module
+  // no longer auto-opens on the real desktop).
+  await expect(page.locator('[data-wm-host]')).toBeAttached()
+  await expect(page.locator('.wm-window')).toHaveCount(0)
+
+  // TH-1 timeline: full boot ≤2s, phases in order.
+  const start = await milestone(page, 'boot-start')
+  await milestone(page, 'app-mounted')
+  const post = await milestone(page, 'post-complete')
+  const ready = await milestone(page, 'desktop-ready')
+  expect(start.order).toBeLessThan(post.order)
+  expect(post.order).toBeLessThan(ready.order)
+  expect(ready.t - start.t).toBeLessThanOrEqual(2000)
 })
 
-test('TH-1 boot-timeline seam exists after load', async ({ page }) => {
+test('a click anywhere skips the POST straight to the desktop', async ({ page }) => {
   await page.goto('/')
-  await expect(page.locator('[data-wm-host]')).toBeAttached()
+  await expect(page.locator('[data-post-well]')).toBeVisible()
 
-  // `window.__BOOT_TIMELINE` is the TH-1 seam every future boot gate reads
-  // (UI-2's ≤2s assertion). The skeleton marks 'app-mounted' at startup;
-  // poll for it because the mark lands right after the first render commits.
-  await expect
-    .poll(async () => page.evaluate(() => window.__BOOT_TIMELINE?.length ?? 0))
-    .toBeGreaterThan(0)
+  await page.mouse.click(640, 360) // the whole boot screen is the skip control
 
-  const milestones = await page.evaluate(() =>
-    (window.__BOOT_TIMELINE ?? []).map((m) => ({ name: m.name, t: m.t, order: m.order })),
-  )
-  expect(milestones.length).toBeGreaterThan(0)
-  expect(milestones.map((m) => m.name)).toContain('app-mounted')
-  // Milestones are ordered by call; t is a performance.now() reading.
-  for (const m of milestones) {
-    expect(m.t).toBeGreaterThanOrEqual(0)
-    expect(m.order).toBeGreaterThanOrEqual(0)
-  }
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible()
+  const names = (await timeline(page)).map((m) => m.name)
+  expect(names).toContain('post-complete') // a skipped POST still completed
+})
+
+test('any key skips the POST straight to the desktop', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('[data-post-well]')).toBeVisible()
+
+  await page.keyboard.press('Space')
+
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible()
+  expect((await timeline(page)).map((m) => m.name)).toContain('post-complete')
+})
+
+test('reload (return visit, boot flag set) short-circuits the POST', async ({ page }) => {
+  await page.goto('/')
+  // First visit: skip through to the desktop so the boot flag is written.
+  await page.keyboard.press('Space')
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible()
+  expect(await page.evaluate(() => localStorage.getItem('ds:boot'))).not.toBeNull()
+
+  await page.reload()
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible()
+  // The RESUME flash may appear for ≤200ms; the full POST never does.
+  await expect(page.locator('[data-post-line="archive-integrity"]')).toHaveCount(0)
+
+  await milestone(page, 'desktop-ready') // poll past the passive-effect beat
+  const milestones = await timeline(page)
+  const names = milestones.map((m) => m.name)
+  expect(names).toContain('boot-start')
+  expect(names).not.toContain('post-complete') // the short-circuit ran no POST
+
+  const start = milestones.find((m) => m.name === 'boot-start')!
+  const ready = milestones.find((m) => m.name === 'desktop-ready')!
+  expect(ready.t - start.t).toBeLessThanOrEqual(200) // near-instant desktop
+})
+
+test('prefers-reduced-motion: static POST state, then the desktop', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+
+  // The final POST state appears at once (no typing animation to reduce away)…
+  await expect(page.locator('[data-post-line="archive-integrity"]')).toContainText('SEEDED')
+
+  // …holds ~300ms, then the desktop takes over with the milestone intact.
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible()
+  expect((await timeline(page)).map((m) => m.name)).toContain('post-complete')
 })

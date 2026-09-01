@@ -1,0 +1,114 @@
+/* ----------------------------------------------------------------------------
+   Boot sequence styles — UI-2 (The Survey Archive).
+
+   Palette/type/depth come from src/styles/tokens.css + global.css primitives
+   (.well, .scanlines, .engraved) — no custom properties are defined here.
+   Amber lives ONLY inside the recessed POST well; everything outside it is
+   chrome ink. Digits and readouts ride the well's B612 Mono (the .well
+   primitive enforces both).
+---------------------------------------------------------------------------- */
+
+/* Full-viewport POST tableau on the warm near-black hold ground. */
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--chrome-ground);
+  cursor: pointer; /* the whole screen is the skip control */
+}
+
+/* Reduced-motion return visit: no POST at all — just the ground until the
+   hydrated desktop renders. */
+.boot-ground {
+  position: fixed;
+  inset: 0;
+  background: var(--chrome-ground);
+}
+
+.boot-module {
+  width: min(620px, calc(100vw - 48px));
+}
+
+/* Engraved instrument legend above the well. */
+.boot-caption {
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+/* The POST well — .well supplies the recess, the amber and the mono face.
+   min-height locks the panel through the probe → typed-rows swap so the
+   module never jumps; the light-up is the one authored motion moment. */
+.boot-well {
+  min-height: 11em;
+  padding: 22px 26px 20px;
+  font-size: 13px;
+  line-height: 1.95;
+  animation: boot-well-up var(--dur-beat) var(--ease-console) both;
+}
+
+@keyframes boot-well-up {
+  from {
+    opacity: 0.35; /* already visible — the tube warms up, never a blank */
+  }
+}
+
+/* Typed rows. Pending rows hold their height (visibility, not display). */
+.post-line {
+  white-space: pre; /* the dot-leader gutter is part of the text */
+  color: var(--phosphor);
+}
+
+.post-line[data-state='pending'] {
+  visibility: hidden;
+}
+
+.post-line[data-state='typing'] {
+  color: var(--phosphor-bright); /* the fresh line the beam is writing */
+}
+
+/* Final banner — brighter, heavier, set off from the check lines. */
+.post-banner {
+  margin-top: 0.5em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--phosphor-bright);
+}
+
+/* The beam's caret — blinks on the newest line; collapses to a solid block
+   under prefers-reduced-motion via global.css's animation kill-switch. */
+.post-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 1px;
+  transform: translateY(0.14em);
+  background: var(--phosphor-bright);
+  animation: post-caret-blink 1.1s steps(1) infinite;
+}
+
+@keyframes post-caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Skip affordance — chrome vocabulary outside the well, never amber. */
+.boot-skip {
+  margin: 16px 0 0;
+  text-align: center;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+}
+
+/* Desktop stage placeholder (UI-3 replaces): the honest empty hold ground
+   with the WM host layered above it. */
+.desktop-stage {
+  position: fixed;
+  inset: 0;
+  background: var(--chrome-ground);
+}
