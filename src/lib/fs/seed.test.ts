@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { getContent } from '../content'
 import { listChildren, pathOf, findNode, emptyFSState } from './ops'
 import { SEED_EPOCH, seedEnvelope, seedFSState } from './seed'
 import { CURRENT_SCHEMA_VERSION, validateEnvelope } from './schema'
@@ -91,6 +92,19 @@ describe('seed · placeholder marking (MF-3 contract)', () => {
   it('seeds one module reference (the About invitation)', () => {
     const link = findNode(seedFSState(), 'nameplate')
     expect(link).toMatchObject({ kind: 'app-link', appId: 'about', parentId: 'root' })
+  })
+
+  it('Projects drawer exhibits join the content pack (MF-3: node id === project id)', () => {
+    const state = seedFSState()
+    const pack = getContent()
+    for (const project of pack.projects) {
+      const node = findNode(state, project.id)
+      expect(node, project.id).toBeDefined()
+      expect(node).toMatchObject({ kind: 'text', parentId: 'projects', name: `${project.id}.txt` })
+      expect((node as Extract<FSNode, { kind: 'text' }>).content).toContain(project.name)
+    }
+    // one specimen per pack project, plus the reference plate, nothing else
+    expect(listChildren(state, 'projects')).toHaveLength(pack.projects.length + 1)
   })
 })
 

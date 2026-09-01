@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "author": {
+    "name": "[YOUR NAME] [REPLACE VIA CONTENT PACK (MF-3)]",
+    "handle": "[YOUR HANDLE — e.g. @your-name, or delete] [REPLACE VIA CONTENT PACK (MF-3)]",
+    "tagline": "[ONE LINE ABOUT YOU] [REPLACE VIA CONTENT PACK (MF-3)]",
+    "bio": "[2–4 SENTENCES ABOUT YOU — who you are, what you make, what you care about.] [REPLACE VIA CONTENT PACK (MF-3)]",
+    "links": [
+      {
+        "label": "Email",
+        "url": "mailto:you@example.com"
+      },
+      {
+        "label": "Website",
+        "url": "https://example.com/your-name"
+      }
+    ],
+    "skills": ["[SKILL 1]", "[SKILL 2]"],
+    "interests": ["[INTEREST 1]", "[INTEREST 2]"],
+    "missionLog": "[ONE MISSION-LOG LINE — OR DELETE]"
+  },
+  "projects": [
+    {
+      "id": "exhibit-01",
+      "name": "[PROJECT 1 NAME] [REPLACE VIA CONTENT PACK (MF-3)]",
+      "description": "[ONE LINE — WHAT PROJECT ONE DOES] [REPLACE VIA CONTENT PACK (MF-3)]",
+      "tech": ["[TECH 1]", "[TECH 2]"],
+      "liveUrl": "",
+      "repoUrl": "",
+      "screenshotPath": "",
+      "story": ""
+    },
+    {
+      "id": "exhibit-02",
+      "name": "[PROJECT 2 NAME] [REPLACE VIA CONTENT PACK (MF-3)]",
+      "description": "[ONE LINE — WHAT PROJECT TWO DOES] [REPLACE VIA CONTENT PACK (MF-3)]",
+      "tech": ["[TECH 1]", "[TECH 2]"],
+      "liveUrl": "",
+      "repoUrl": "",
+      "screenshotPath": "",
+      "story": ""
+    }
+  ]
+}

@@ -8,12 +8,23 @@
  * "PLACEHOLDER PLATE". No fabricated facts — only catalog furniture
  * (drawers, charter, accession codes) is authored here.
  *
+ * MF-3 join: the Projects drawer's exhibit specimens are DERIVED from the
+ * author content pack (`getContent()` in lib/content) — one `.txt` specimen
+ * per pack project, node id === project id, body composed from the pack
+ * entry. While the pack is the placeholder default these stubs read as
+ * marked placeholders; once a filled content/author.json is embedded, a
+ * catalog RESET (AP-4) accessions the real exhibits. The About nameplate
+ * module reference (id `nameplate` → app `about`) completes the content
+ * wiring point: everything personal lives in the pack, not in the tree.
+ *
  * Determinism: fixed ids, a fixed mission-epoch clock, and allocation via
- * the pure ops mean `seedFSState()` always returns the same value —
- * MF-2's reset path (AP-4) can compare or re-seed freely. Wallpaper
- * alignment (settings default 'star-chart') is NOT this file's concern.
+ * the pure ops mean `seedFSState()` always returns the same value (per
+ * embedded pack) — MF-2's reset path (AP-4) can compare or re-seed freely.
+ * Wallpaper alignment (settings default 'star-chart') is NOT this file's
+ * concern.
  */
 
+import { getContent, type ProjectEntry } from '../content'
 import { createNode, emptyFSState, setIconPosition } from './ops'
 import { CURRENT_SCHEMA_VERSION, type FSEnvelope } from './schema'
 import type { FSState } from './types'
@@ -36,12 +47,36 @@ function placeholderPlate(label: string): string {
 
 const REPLACE_ME = '[PLACEHOLDER SPECIMEN — REPLACE VIA CONTENT PACK (MF-3)]'
 
+/** Compose a seeded exhibit specimen's body from its content-pack entry. */
+function exhibitBody(project: ProjectEntry, index: number): string {
+  const orNone = (value: string): string => (value.length > 0 ? value : 'none listed')
+  return `${REPLACE_ME}
+
+EXHIBIT ${String(index + 1).padStart(2, '0')} — catalog stub (content-pack slot "${project.id}").
+
+Seeded from the author content pack; while placeholders are in place it reads:
+  name: ${project.name}
+  line: ${project.description}
+  tech: ${project.tech.join(', ')}
+  live: ${orNone(project.liveUrl)}
+  repo: ${orNone(project.repoUrl)}
+
+Drop a filled content/author.json at the repo root (content/author.template.md
+is the form) and reset the catalog to accession the real exhibit. The About
+nameplate and Project Browser pick the pack up without a reset.`
+}
+
 /**
  * The seeded catalog. Grown through the REAL ops (createNode/setIconPosition)
  * so seed integrity is enforced by the same rules every later mutation faces.
  */
 export function seedFSState(): FSState {
-  const t = (minutes: number): number => SEED_EPOCH + minutes * 60_000
+  // One minute per accession, in creation order — stable regardless of how
+  // many project slots the embedded pack carries.
+  let minutes = 0
+  const t = (): number => SEED_EPOCH + ++minutes * 60_000
+
+  const pack = getContent()
 
   let state = emptyFSState(SEED_EPOCH)
 
@@ -51,57 +86,41 @@ export function seedFSState(): FSState {
     parentId: 'root',
     name: 'Projects',
     kind: 'folder',
-    now: t(1),
+    now: t(),
   })
   state = createNode(state, {
     id: 'field-notes',
     parentId: 'root',
     name: 'Field Notes',
     kind: 'folder',
-    now: t(2),
+    now: t(),
   })
   state = createNode(state, {
     id: 'archive',
     parentId: 'root',
     name: 'Archive',
     kind: 'folder',
-    now: t(3),
+    now: t(),
   })
 
-  // Projects — catalogued exhibits (stubs until the content pack lands) ----
-  state = createNode(state, {
-    id: 'exhibit-01',
-    parentId: 'projects',
-    name: 'exhibit-01.txt',
-    kind: 'text',
-    now: t(4),
-    content: `${REPLACE_ME}
-
-EXHIBIT 01 — catalog stub.
-
-Real content: one shipped project. Replace this specimen's body with the
-project name, a one-line description, the technologies used, and a live
-URL. The accession code stays; only the label text changes.`,
-  })
-  state = createNode(state, {
-    id: 'exhibit-02',
-    parentId: 'projects',
-    name: 'exhibit-02.txt',
-    kind: 'text',
-    now: t(5),
-    content: `${REPLACE_ME}
-
-EXHIBIT 02 — catalog stub.
-
-Second slot for a shipped project (see exhibit-01). Replace alongside it
-when the content pack arrives, or delete this specimen outright.`,
+  // Projects — catalogued exhibits, one stub per content-pack project slot
+  // (the MF-3 join: exhibit node id === pack project id). ------------------
+  pack.projects.forEach((project, index) => {
+    state = createNode(state, {
+      id: project.id,
+      parentId: 'projects',
+      name: `${project.id}.txt`,
+      kind: 'text',
+      now: t(),
+      content: exhibitBody(project, index),
+    })
   })
   state = createNode(state, {
     id: 'reference-plate',
     parentId: 'projects',
     name: 'reference-plate.png',
     kind: 'image',
-    now: t(6),
+    now: t(),
     src: placeholderPlate('EXHIBIT REFERENCE'),
   })
 
@@ -111,7 +130,7 @@ when the content pack arrives, or delete this specimen outright.`,
     parentId: 'field-notes',
     name: 'field-log.txt',
     kind: 'text',
-    now: t(7),
+    now: t(),
     content: `${REPLACE_ME}
 
 FIELD LOG — standing observations.
@@ -124,7 +143,7 @@ Delete this line when done.`,
     parentId: 'field-notes',
     name: 'observation-plate.png',
     kind: 'image',
-    now: t(8),
+    now: t(),
     src: placeholderPlate('FIELD OBSERVATION'),
   })
 
@@ -134,7 +153,7 @@ Delete this line when done.`,
     parentId: 'archive',
     name: 'decommissioned-exhibit.txt',
     kind: 'text',
-    now: t(9),
+    now: t(),
     content: `${REPLACE_ME}
 
 DECOMMISSIONED — exhibit withdrawn from circulation.
@@ -149,7 +168,7 @@ drawer empty; it persists either way.`,
     parentId: 'root',
     name: 'accession-charter.txt',
     kind: 'text',
-    now: t(10),
+    now: t(),
     content: `${REPLACE_ME}
 
 ACCESSION CHARTER
@@ -170,7 +189,7 @@ Replace this charter's wording when the content pack arrives.`,
     parentId: 'root',
     name: 'Science Officer Nameplate',
     kind: 'app-link',
-    now: t(11),
+    now: t(),
     appId: 'about',
   })
 
