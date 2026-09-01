@@ -1,0 +1,114 @@
+/* ----------------------------------------------------------------------------
+   Window gestures (IM-4b) — resize surfaces + the transient drag treatment.
+
+   Everything here is toggled by the gesture hook (never by React state):
+   - body.wm-gesture-live     — while a gesture is armed (selection kill)
+   - [data-gesture='drag']    — armed MOVE only: the phosphor-persistence
+                                shimmer, the design brief's drag signature.
+                                Adjudicated exception to "phosphor stays in
+                                wells" (design-brief.md line 35 — glass-sheen
+                                on drag rendered as phosphor shimmer), same
+                                family as the title-bar status lamp (UI-1).
+   - [data-gesture='resize']  — armed RESIZE only: brackets brighten, no
+                                phosphor (the shimmer is drag-only by brief).
+   All animation is opacity-only (compositor) — Thor's 60fps budget holds.
+---------------------------------------------------------------------------- */
+
+/* While any gesture is armed the console suspends selection mid-interaction. */
+body.wm-gesture-live {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* -- resize surfaces ----------------------------------------------------------
+   Corner-bracket + edge pulls in brass (a hardware touchpoint — a rack handle
+   IS a grip). At rest only the SE bracket shows, faint; hover lights the grip
+   being taken. touch-action: none per RQ-3 (no pan/zoom hijack of the pull). */
+
+.wm-resize-handle {
+  position: absolute;
+  z-index: 2; /* above the content slot, the gesture surface hierarchy */
+  touch-action: none; /* committed RQ-3 pattern for drag/resize surfaces */
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.wm-resize-handle[data-resize='se'] {
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: se-resize;
+  /* the rack-handle bracket, cut into the corner: two brass ticks */
+  background:
+    linear-gradient(var(--brass-lo), var(--brass-lo)) right 0 bottom 0 / 10px 1.5px,
+    linear-gradient(var(--brass-lo), var(--brass-lo)) right 0 bottom 0 / 1.5px 10px;
+  background-repeat: no-repeat;
+  opacity: 0.7;
+  transition: opacity var(--dur-fast) var(--ease-console);
+}
+
+.wm-resize-handle[data-resize='e'] {
+  right: 0;
+  top: 16px;
+  bottom: 16px;
+  width: 6px;
+  cursor: ew-resize;
+}
+
+.wm-resize-handle[data-resize='s'] {
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  height: 6px;
+  cursor: ns-resize;
+}
+
+.wm-resize-handle:hover,
+.wm-window[data-gesture='resize'] .wm-resize-handle[data-resize='se'] {
+  opacity: 1;
+}
+
+.wm-resize-handle[data-resize='se']:hover,
+.wm-window[data-gesture='resize'] .wm-resize-handle[data-resize='se'] {
+  background-image:
+    linear-gradient(var(--brass-hi), var(--brass-hi)),
+    linear-gradient(var(--brass-hi), var(--brass-hi));
+}
+
+/* -- the phosphor-persistence shimmer (armed move only) -----------------------
+   A thin energized rim + slow decay pulse around the module being dragged —
+   in-world "the module rides the beam", never modern gloss. Painted once
+   (static box-shadow on a pseudo-element), animated via opacity only. */
+
+.wm-window[data-gesture='drag']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3; /* the rim reads over content edges; pointer-transparent */
+  pointer-events: none;
+  border: 1px solid var(--phosphor-dim);
+  box-shadow:
+    0 0 12px var(--phosphor-glow),
+    inset 0 0 10px rgb(255 179 64 / 10%);
+  animation: wm-drag-persistence 1.1s ease-in-out infinite;
+}
+
+@keyframes wm-drag-persistence {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Reduced motion: the persistence collapses to a steady rim (visible
+   end-state, never blank) — the global kill-switch also caps the animation. */
+@media (prefers-reduced-motion: reduce) {
+  .wm-window[data-gesture='drag']::after {
+    animation: none;
+    opacity: 0.45;
+  }
+}

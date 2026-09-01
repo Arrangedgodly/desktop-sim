@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react'
 import { useWMStore, type WindowId, type WindowRecord } from '../stores'
 import { clampGeometryToViewport, maximizedGeometry, type ViewportSize } from './geometry'
+import { useWindowGestures } from './interactions/use-window-gestures'
+import { WindowResizeHandles } from './interactions/ResizeHandles'
 import './wm.css'
 
 export interface WindowFrameProps {
@@ -15,11 +17,14 @@ export interface WindowFrameProps {
 }
 
 /**
- * One instrument-module window (IM-4a shell): title bar + status LED,
- * minimize/maximize/close in console vocabulary, content slot, click-anywhere
- * focus/raise. ARIA dialog pattern with `aria-labelledby` on the title;
- * basic programmatic focusability only — Daredevil's full keyboard map is DD-1.
- * Drag/resize arrive in IM-4b (hence `touch-action: none` on the title bar).
+ * One instrument-module window (IM-4a shell + IM-4b gestures): title bar +
+ * status LED, minimize/maximize/close in console vocabulary, content slot,
+ * click-anywhere focus/raise. ARIA dialog pattern with `aria-labelledby` on
+ * the title; basic programmatic focusability only — Daredevil's full keyboard
+ * map is DD-1. Drag (title bar) and corner-bracket resize (se/e/s) ride the
+ * committed RQ-3 pointer pattern via `useWindowGestures` — transient styles
+ * during the gesture, ONE geometry commit at pointerup. Maximimized modules
+ * are fixed furniture: no drag, no resize handles.
  */
 export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
   // Own-record selector (store layer rule 1): the record reference changes only
@@ -28,6 +33,7 @@ export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
   const record = useWMStore((s) => s.windows[id])
   const focused = useWMStore((s) => s.focusedId === id)
   const rootRef = useRef<HTMLElement | null>(null)
+  const gestures = useWindowGestures({ id, frameRef: rootRef, viewport })
 
   // Move DOM focus to the window when it becomes the focused one — unless focus
   // already sits inside it (an app input must never be stolen by a re-render).
@@ -83,7 +89,7 @@ export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
       onPointerDown={activate}
       style={style}
     >
-      <header className="wm-titlebar">
+      <header className="wm-titlebar" {...gestures.titleBar}>
         {/* Status LED — lit = focused; lamp treatment in wm.css (UI-1). */}
         <span className="wm-led" data-lit={focused} aria-hidden="true" />
         <h2 className="wm-title" id={titleId} title={record.title}>
@@ -122,6 +128,7 @@ export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
       <div className="wm-content parchment-surface" data-wm-content>
         {content ?? <PlaceholderContent appId={record.appId} />}
       </div>
+      {!record.maximized && <WindowResizeHandles handleProps={gestures.resizeHandle} />}
     </section>
   )
 }
