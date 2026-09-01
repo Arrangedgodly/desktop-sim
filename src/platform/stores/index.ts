@@ -20,6 +20,7 @@
  */
 
 export {
+  cascadedGeometry,
   useWMStore,
   type DraggingState,
   type OpenWindowInput,

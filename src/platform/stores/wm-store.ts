@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
+import type { AppLaunchContext } from '../app-registry/contract'
 
 /**
  * WM store — open-window registry, focus + z-order, geometry (IM-2, RQ-2 committed).
@@ -45,6 +46,13 @@ export interface WindowRecord {
   readonly minimized: boolean
   readonly maximized: boolean
   readonly title: string
+  /**
+   * Launch context captured at open (IM-3 `openApp`): why/how this window was
+   * opened. Consumed by the app surface via `appContentFor`; riding on the
+   * record means it survives MF-2 persistence. Absent for platform-level
+   * windows opened directly through the store.
+   */
+  readonly launch?: AppLaunchContext
   readonly openedAt: number
 }
 
@@ -64,6 +72,8 @@ export interface OpenWindowInput {
   /** Omit for multi-instance apps; pass a stable key for singleton apps (IM-3). */
   readonly instanceId?: InstanceId
   readonly title?: string
+  /** IM-3 launch context — stored verbatim on the window record. */
+  readonly launch?: AppLaunchContext
   readonly geometry?: WindowGeometry
 }
 
@@ -113,7 +123,12 @@ const DEFAULT_GEOMETRY: WindowGeometry = { x: 96, y: 64, w: 720, h: 480 }
 const CASCADE_STEP = 32
 const CASCADE_WRAP = 8
 
-function cascadedGeometry(openCount: number): WindowGeometry {
+/**
+ * Default cascade placement for the next window (96/64 origin, 32px step,
+ * wrapping after 8). Pure function of the open-window count. Exported for
+ * IM-3: `openApp` composes manifest size hints over this platform cascade.
+ */
+export function cascadedGeometry(openCount: number): WindowGeometry {
   const offset = (openCount % CASCADE_WRAP) * CASCADE_STEP
   return { ...DEFAULT_GEOMETRY, x: DEFAULT_GEOMETRY.x + offset, y: DEFAULT_GEOMETRY.y + offset }
 }
@@ -184,6 +199,7 @@ export const useWMStore = create<WMState>()(
         minimized: false,
         maximized: false,
         title: input.title ?? input.appId,
+        launch: input.launch,
         openedAt: Date.now(),
       }
       set({

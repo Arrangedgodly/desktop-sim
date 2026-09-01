@@ -1,0 +1,66 @@
+/* Demo app surface styles (IM-3 reference example) — app-owned, app-scoped.
+   Colors ride the provisional platform token block (wm.css) until UI-1 lands. */
+
+.demo-surface {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 16px;
+  font-family: ui-monospace, monospace; /* provisional until UI-1 typefaces */
+  font-size: 12px;
+}
+
+.demo-tag {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.demo-readout {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.demo-readout div {
+  display: flex;
+  gap: 8px;
+}
+
+.demo-readout dt {
+  flex: 0 0 128px;
+  opacity: 0.7;
+}
+
+.demo-readout dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.demo-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.demo-actions button {
+  font: inherit;
+  padding: 4px 10px;
+  color: var(--parchment-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 var(--chrome-edge-hi);
+  cursor: pointer;
+}
+
+.demo-actions button:hover {
+  background: var(--chrome-ground);
+}
+
+.demo-close:hover {
+  background: var(--oxide);
+  color: var(--parchment);
+}

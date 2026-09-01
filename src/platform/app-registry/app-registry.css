@@ -1,0 +1,38 @@
+/* ----------------------------------------------------------------------------
+   App registry content chrome (IM-3) — the two platform-owned surfaces an app
+   itself never renders: the lazy-chunk loading fallback and the unregistered-app
+   notice. Structural styles only; colors ride the provisional token block in
+   src/platform/wm/wm.css (deleted when UI-1's token sheet lands).
+---------------------------------------------------------------------------- */
+
+.app-loading,
+.app-notice {
+  padding: 16px;
+  font-family: ui-monospace, monospace; /* provisional until UI-1 typefaces */
+  font-size: 12px;
+  color: var(--parchment-ink);
+}
+
+.app-loading {
+  opacity: 0.7;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.app-notice {
+  border-left: 2px solid var(--oxide);
+}
+
+.app-notice p {
+  margin: 0 0 6px;
+}
+
+.app-notice-head {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--oxide);
+}
+
+.app-notice code {
+  font-family: inherit;
+}

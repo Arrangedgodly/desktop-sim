@@ -9,7 +9,10 @@
  * - all event handlers go through `useWMStore.getState()` / store actions.
  *
  * Seams left open for the neighbors:
- * - IM-3 apps: `WindowHostProps.contentFor(record) => ReactNode` (omit = placeholder).
+ * - IM-3 apps: `WindowHostProps.contentFor(record) => ReactNode` — WIRED since
+ *   IM-3: the composition root passes `appContentFor` from
+ *   src/platform/app-registry (the WM layer itself stays app-agnostic; omit =
+ *   placeholder label).
  * - IM-4b drag/resize: title bar is the drag surface (`touch-action: none` set);
  *   commit once per gesture via `commitWindowGeometry`, clamp with
  *   `clampGeometryToViewport` (src/platform/wm/geometry.ts).
