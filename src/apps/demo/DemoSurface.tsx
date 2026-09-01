@@ -15,26 +15,30 @@ export default function DemoSurface({ windowId, launch }: AppSurfaceProps) {
   return (
     <div className="demo-surface">
       <p className="demo-tag">IM-3 CONTRACT DEMO</p>
-      <dl className="demo-readout">
-        <div>
-          <dt>launch.source</dt>
-          <dd>
-            <code>{launch.source}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>launch.file</dt>
-          <dd>
-            <code>{fileName}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>windowId</dt>
-          <dd>
-            <code>{windowId}</code>
-          </dd>
-        </div>
-      </dl>
+      <div className="demo-well well">
+        {/* CRT raster — UI-1 scanline primitive; decorative, hidden from AT */}
+        <div className="scanlines" aria-hidden="true" />
+        <dl className="demo-readout">
+          <div>
+            <dt>launch.source</dt>
+            <dd>
+              <code>{launch.source}</code>
+            </dd>
+          </div>
+          <div>
+            <dt>launch.file</dt>
+            <dd>
+              <code>{fileName}</code>
+            </dd>
+          </div>
+          <div>
+            <dt>windowId</dt>
+            <dd>
+              <code>{windowId}</code>
+            </dd>
+          </div>
+        </dl>
+      </div>
       <div className="demo-actions">
         <button type="button" onClick={openAnother}>
           Open another instance

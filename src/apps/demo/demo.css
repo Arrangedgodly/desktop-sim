@@ -1,5 +1,8 @@
 /* Demo app surface styles (IM-3 reference example) — app-owned, app-scoped.
-   Colors ride the provisional platform token block (wm.css) until UI-1 lands. */
+   UI-1: consumes the platform token sheet + console primitives (src/styles/
+   global.css); defines no custom properties of its own. Doubles as the
+   dev-preview fixture for the token system (engraved legend, phosphor well,
+   scanlines, chrome-plate controls). */
 
 .demo-surface {
   display: flex;
@@ -7,18 +10,28 @@
   gap: 12px;
   height: 100%;
   padding: 16px;
-  font-family: ui-monospace, monospace; /* provisional until UI-1 typefaces */
+  font-family: var(--font-mono);
   font-size: 12px;
 }
 
 .demo-tag {
   margin: 0;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
   text-transform: uppercase;
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 45%); /* engraved into the parchment */
+}
+
+/* Machine readout: lives in a recessed phosphor well (amber ONLY here). */
+.demo-well {
+  padding: 12px;
 }
 
 .demo-readout {
+  position: relative; /* keeps content above the scanline overlay */
   display: grid;
   gap: 6px;
   margin: 0;
@@ -31,7 +44,7 @@
 
 .demo-readout dt {
   flex: 0 0 128px;
-  opacity: 0.7;
+  color: var(--phosphor-dim); /* aged amber — secondary well text */
 }
 
 .demo-readout dd {
@@ -46,13 +59,16 @@
   margin-top: auto;
 }
 
+/* Console controls standing on the parchment surface: chrome plates. */
 .demo-actions button {
   font: inherit;
   padding: 4px 10px;
-  color: var(--parchment-ink);
+  color: var(--chrome-ink);
   background: var(--chrome-raised);
   border: 1px solid var(--chrome-edge-lo);
-  box-shadow: inset 1px 1px 0 var(--chrome-edge-hi);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
   cursor: pointer;
 }
 
@@ -60,7 +76,18 @@
   background: var(--chrome-ground);
 }
 
+.demo-actions button:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.demo-actions button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
 .demo-close:hover {
-  background: var(--oxide);
+  background: var(--oxide); /* destructive — oxide only ever means this */
   color: var(--parchment);
 }

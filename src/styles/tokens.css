@@ -1,0 +1,78 @@
+/* ----------------------------------------------------------------------------
+   HOLD/OS design tokens — The Survey Archive (UI-1)
+   docs/ultron/design-brief.md contract blocks are LAW:
+     · warm near-black console chrome (never pure black — hue holds to the floor
+       of the ramp, chroma collapses toward the shadows so neutrals stay warm)
+     · amber phosphor ONLY inside recessed display wells
+     · parchment for text-heavy content surfaces (duality for readability)
+     · brass ONLY at hardware touchpoints (drawer pulls, label frames, thumbs)
+     · oxide red ONLY for warnings/destructive
+   This sheet is the SINGLE definition site for palette + type custom properties.
+   Contrast pairs verified (WCAG, 2026-09-01):
+     chrome-ink on chrome-raised 11.3:1 · chrome-ink-dim on raised 5.1:1
+     engraved-ink on chrome-raised 7.6:1 · phosphor on well-ground 10.8:1
+     phosphor-dim on well-ground 5.6:1 · parchment-ink on parchment 11.0:1
+     parchment-ink-dim on parchment 5.0:1 · oxide-bright on chrome-ground 5.2:1
+     oxide surface under parchment-ink 4.9:1 · brass-lo ring on parchment 5.5:1
+---------------------------------------------------------------------------- */
+
+:root {
+  /* -- console chrome (cassette-futurism instrument modules) ---------------- */
+  --chrome-ground: #201a13; /* warm near-black — module bodies, page ground */
+  --chrome-raised: #2b241a; /* title bars, raised plates, controls */
+  --chrome-sunken: #171209; /* pressed insets, rail grooves */
+  --well-ground: #120d07; /* display-well interior — deepest value in the world */
+  --chrome-edge-hi: #514433; /* bevel light lip (light falls from above) */
+  --chrome-edge-lo: #0c0906; /* bevel dark lip */
+  --chrome-ink: #e6dcc6; /* painted ink on chrome — title-bar text */
+  --chrome-ink-dim: #a3937a; /* secondary chrome text (dims, never grays) */
+  --engraved-ink: #c7b590; /* etched legend ink — darker than painted ink */
+
+  /* -- phosphor (RECESSED DISPLAY WELLS ONLY — glow never leaves a well) ---- */
+  --phosphor: #ffb340; /* lit amber — well text, status lamps */
+  --phosphor-bright: #ffd28a; /* hot highlight — fresh POST line, caret */
+  --phosphor-dim: #b97e24; /* aged amber — well secondary text, scan shading */
+  --phosphor-glow: rgb(255 179 64 / 50%); /* shadow color for glow effects */
+
+  /* -- parchment (content surfaces — catalog labels, Notepad, exhibits) ----- */
+  --parchment: #ece2c9;
+  --parchment-shade: #e0d3b4; /* recessed parchment — wells, zebra rows */
+  --parchment-ink: #33291c;
+  --parchment-ink-dim: #6b5c45; /* secondary content text */
+
+  /* -- brass (hardware touchpoints ONLY: pulls, label frames, scrollbar
+        thumbs — never ornamental) ------------------------------------------- */
+  --brass: #b08d3f;
+  --brass-hi: #d8b25e; /* polished catch-light on brass hardware */
+  --brass-lo: #6b5524; /* brass in shadow — also the focus ring on parchment */
+
+  /* -- oxide (warnings / destructive ONLY) ---------------------------------- */
+  --oxide: #a63d2a; /* guarded toggle covers, destructive surfaces */
+  --oxide-deep: #7c2b1c; /* oxide bevel shadow */
+  --oxide-bright: #e06a4f; /* destructive TEXT on dark chrome */
+
+  /* -- focus ring (in-world; see global.css :focus-visible) ----------------- */
+  --focus-ring: var(--phosphor); /* amber on the console … */
+  /* … and brass-lo on parchment via .parchment-surface (global.css) */
+
+  /* -- typefaces (committed: docs/ultron/research/ui1-typefaces.md) --------- */
+  /* LABEL/UI: tracked caps legends. Chakra Petch digits are PROPORTIONAL
+     (no tnum) — digits in readouts must ride --font-mono instead. */
+  --font-label: 'Chakra Petch', ui-sans-serif, system-ui, sans-serif;
+  /* CONTENT: warm serif for parchment reading surfaces */
+  --font-content: 'Lora', Georgia, 'Times New Roman', serif;
+  /* MONO: timecode/readouts — tabular by construction (Airbus cockpit face) */
+  --font-mono: 'B612 Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Legend metrics. Committed QA flag: Chakra Petch mixed-case can read muddy
+     at 10px — floor is 11px until an in-situ pass proves 10px crisp. */
+  --size-legend: 0.6875rem; /* 11px floor */
+  --size-legend-lg: 0.75rem; /* 12px primary legends */
+  --track-legend: 0.1em; /* tracked caps band 0.08–0.12em */
+
+  /* -- motion (one authored moment; exponential ease-out from a visible
+        default — craft floor) ------------------------------------------------ */
+  --ease-console: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms; /* control feedback */
+  --dur-beat: 240ms; /* module drawer pull, well light-up */
+}

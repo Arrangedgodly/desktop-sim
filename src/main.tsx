@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { apps } from './apps'
+import './styles/global.css' // UI-1: tokens + fonts + console primitives (single mount)
 import { appContentFor, listApps, openApp, registerApps } from './platform/app-registry'
 import { useWMStore } from './platform/stores'
 import { WindowHost } from './platform/wm'

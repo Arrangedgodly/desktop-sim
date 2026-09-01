@@ -1,0 +1,164 @@
+/* ----------------------------------------------------------------------------
+   HOLD/OS global styles — The Survey Archive (UI-1)
+   Mount: src/main.tsx imports this file once; it pulls tokens + fonts and
+   layers the browser-surface theming (selection, caret, focus, scrollbars)
+   and the console's CSS primitives (bevels, engraved legends, phosphor wells,
+   scanlines). No canvases, no blur stacks — gradients and shadows only.
+---------------------------------------------------------------------------- */
+
+@import './tokens.css';
+@import './fonts.css';
+
+/* -- base -------------------------------------------------------------------
+   The console owns the machine: the page ground is the warm near-black hold.
+   Default voice is the LABEL face (chrome text); readout wells force mono,
+   content surfaces force the serif — each role is claimed by its surface. */
+
+html {
+  color-scheme: dark; /* native inputs/controls render as hold equipment */
+  background: var(--chrome-ground);
+  color: var(--chrome-ink);
+  caret-color: var(--phosphor); /* the console's beam */
+  scrollbar-width: thin; /* in-world rail: thin, brass hardware on near-black */
+  scrollbar-color: var(--brass) var(--chrome-sunken);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-label);
+  -webkit-font-smoothing: antialiased; /* warm dark ground; parchment resets below */
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* -- browser surfaces (the parts we did not draw still carry the design) --- */
+
+::selection {
+  background: rgb(255 179 64 / 32%); /* amber wash — reads on chrome AND parchment */
+}
+
+:focus-visible {
+  /* in-world ring: amber beam on the console; brass frame on parchment */
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* -- primitives: bevels (CSS-first, 1px lips + one soft ground shadow) ----- */
+
+/* Raised instrument plate — light lip above, dark lip below. */
+.bevel-raised {
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%),
+    2px 3px 12px rgb(0 0 0 / 45%);
+}
+
+/* Recessed seat — the inverse cut: shadow above, light catching the lower lip. */
+.bevel-recessed {
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+/* Depressed control state — a plate held pressed into the console. */
+.bevel-pressed {
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+/* -- primitive: engraved legend ----------------------------------------------
+   The reverse of beveled chrome: the cut's dark shadow tucked under the
+   stroke, one light lip below it. Etched, never embossed. */
+
+.engraved {
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--engraved-ink);
+  text-shadow:
+    0 1px 0 rgb(0 0 0 / 70%),
+    0 2px 0 rgb(255 230 176 / 12%);
+}
+
+/* Catalog labels pressed into parchment (specimen cards, drawer fronts). */
+.engraved--parchment {
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 45%);
+}
+
+/* -- primitive: phosphor well ------------------------------------------------
+   THE signature surface — amber lives here and only here. Recessed seat,
+   faint tube bloom, glowing ink. Content placed inside rides the mono face;
+   swap-flash fallback digits stay put via tabular-nums. */
+
+.well {
+  position: relative; /* anchors the .scanlines overlay */
+  overflow: hidden;
+  background:
+    radial-gradient(140% 100% at 50% 30%, rgb(255 179 64 / 6%), transparent 68%), var(--well-ground);
+  color: var(--phosphor);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 2px 2px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+  text-shadow: 0 0 6px var(--phosphor-glow); /* the beam's bloom — wells only */
+}
+
+/* -- primitive: scanline overlay ---------------------------------------------
+   Drop inside any positioned surface (a .well); the CRT raster. Subtle by
+   contract: 1px of 24% black every 3px, pointer-transparent. */
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 24%) 2px 3px);
+}
+
+/* -- primitive: parchment content surface -------------------------------------
+   The archive's reading side of the duality — light, warm, serif-set.
+   Scoped overrides: focus ring becomes a brass frame (a hardware touchpoint),
+   scrollbar rides brass-in-shadow, caret/antialiasing rejoin the light world. */
+
+.parchment-surface {
+  --focus-ring: var(--brass-lo);
+
+  background: var(--parchment);
+  color: var(--parchment-ink);
+  font-family: var(--font-content);
+  -webkit-font-smoothing: auto;
+  caret-color: var(--brass-lo);
+  scrollbar-color: var(--brass-lo) var(--parchment-shade);
+}
+
+/* -- reduced motion (global hook) --------------------------------------------
+   The console is a machine at rest unless asked to move: every animation and
+   transition collapses to effectively-none. UI-2's POST ships a static
+   variant on top of this floor; authored moments (drawer pull, phosphor
+   trail) must degrade to their visible end-state, never to blank. */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}

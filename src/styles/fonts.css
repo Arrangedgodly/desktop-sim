@@ -1,0 +1,73 @@
+/* ----------------------------------------------------------------------------
+   HOLD/OS @font-face — self-hosted latin WOFF2 (UI-1)
+   Faces/weights/bytes/licences/provenance: see ./fonts/README.md.
+   Rules of the world:
+     · font-display: swap — ≤38 KB files keep the swap flash brief
+     · unicode-range is Google's latin subset verbatim: a face fetches only
+       when the page uses a covered codepoint
+     · Lora ships ONE variable file covering the full 400–700 ramp
+       (font-weight: 400 700 — the variable-range syntax)
+   Vite emits every WOFF2 as a content-hashed asset (assetsInlineLimit: 0,
+   vite.config.ts) — no base64, real cache-bustable files.
+---------------------------------------------------------------------------- */
+
+/* Chakra Petch 400 — LABEL/UI */
+@font-face {
+  font-family: 'Chakra Petch';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/chakra-petch-latin-400.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Chakra Petch 600 — LABEL/UI (tracked-caps legends) */
+@font-face {
+  font-family: 'Chakra Petch';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./fonts/chakra-petch-latin-600.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Lora variable 400–700 — CONTENT (parchment reading surfaces) */
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./fonts/lora-latin-var-400-700.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* B612 Mono 400 — MONO/timecode (ALL digits in readouts) */
+@font-face {
+  font-family: 'B612 Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/b612-mono-latin-400.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* B612 Mono 700 — MONO emphasis (hierarchy by weight is allowed here;
+   readout hierarchy otherwise rides size/amber-intensity) */
+@font-face {
+  font-family: 'B612 Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./fonts/b612-mono-latin-700.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}

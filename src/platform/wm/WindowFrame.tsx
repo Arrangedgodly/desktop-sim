@@ -84,7 +84,7 @@ export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
       style={style}
     >
       <header className="wm-titlebar">
-        {/* Status LED placeholder — lit = focused; final lamp treatment is UI-1's. */}
+        {/* Status LED — lit = focused; lamp treatment in wm.css (UI-1). */}
         <span className="wm-led" data-lit={focused} aria-hidden="true" />
         <h2 className="wm-title" id={titleId} title={record.title}>
           {record.title}
@@ -119,7 +119,7 @@ export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
           </button>
         </div>
       </header>
-      <div className="wm-content" data-wm-content>
+      <div className="wm-content parchment-surface" data-wm-content>
         {content ?? <PlaceholderContent appId={record.appId} />}
       </div>
     </section>
