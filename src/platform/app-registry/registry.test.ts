@@ -13,7 +13,7 @@ import {
   useAppRegistryStore,
 } from './registry'
 import { useWMStore, type WindowId } from '../stores/wm-store'
-import type { FSPlaceholderNode } from '../stores/fs-store'
+import type { FSNode } from '../../lib/fs'
 
 // Module singletons — snapshot pristine state and hard-reset before each test
 // (same pattern as the store-layer suites).
@@ -41,8 +41,17 @@ function manifest(overrides: Partial<AppManifest> & Pick<AppManifest, 'id'>): Ap
   return { name: overrides.id, icon: StubIcon, mount: StubSurface, ...overrides }
 }
 
-function node(id: string, name = id): FSPlaceholderNode {
-  return { id, parentId: 'root', name, kind: 'text' }
+/** Minimal real FS domain node (MF-1 shape) for file-launch tests. */
+function node(id: string, name = id): FSNode {
+  return {
+    id,
+    parentId: 'root',
+    name,
+    kind: 'text',
+    accession: 'SPC-9001',
+    accessionedAt: 0,
+    content: '',
+  }
 }
 
 function windowIds(): WindowId[] {

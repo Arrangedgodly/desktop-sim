@@ -20,8 +20,8 @@
  */
 
 export {
-  cascadedGeometry,
   useWMStore,
+  cascadedGeometry,
   type DraggingState,
   type OpenWindowInput,
   type WindowGeometry,
@@ -32,16 +32,9 @@ export {
   type InstanceId,
 } from './wm-store'
 
-export {
-  useFSStore,
-  createEmptyFSState,
-  createNodePlaceholder,
-  moveNodePlaceholder,
-  setIconPositionPlaceholder,
-  type CreateNodePlaceholderInput,
-  type FSPlaceholderNode,
-  type FSState,
-  type FSStoreState,
-} from './fs-store'
+// The fs-store holds the MF-1 domain model (`src/lib/fs` — import the pure ops,
+// the envelope/migration harness, and the seed from THERE; this barrel exposes
+// only the store seam itself).
+export { SEED_INITIAL_FS_STATE, useFSStore, type FSState, type FSStoreState } from './fs-store'
 
 export { DEFAULT_WALLPAPER, useSettingsStore, type SettingsState } from './settings-store'

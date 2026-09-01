@@ -61,7 +61,15 @@ describe('appContentFor · registered apps mount in the window content slot', ()
     actState(() => {
       id = openApp('reader', {
         source: 'file',
-        file: { id: 'n1', parentId: 'root', name: 'note-1.txt', kind: 'text' },
+        file: {
+          id: 'n1',
+          parentId: 'root',
+          name: 'note-1.txt',
+          kind: 'text',
+          accession: 'SPC-9001',
+          accessionedAt: 0,
+          content: '',
+        },
       })!
     })
 

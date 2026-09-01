@@ -1,5 +1,5 @@
 import type { ComponentType, LazyExoticComponent } from 'react'
-import type { FSPlaceholderNode } from '../stores/fs-store'
+import type { FSNode, FSNodeKind } from '../../lib/fs'
 
 /**
  * THE APP PLUGIN CONTRACT (IM-3) — source of truth for every type an app author
@@ -7,7 +7,7 @@ import type { FSPlaceholderNode } from '../stores/fs-store'
  * doc and this file disagree, this file wins and the doc gets fixed.
  *
  * Dependency direction is fixed and acyclic:
- *   contract.ts ──(type-only)──▶ stores/fs-store placeholder shape  +  react types
+ *   contract.ts ──(type-only)──▶ lib/fs domain model (MF-1)  +  react types
  *   registry.ts / content.tsx  ──▶ contract.ts + wm-store (runtime)
  *   wm-store ──(type-only)──▶ contract.ts (AppLaunchContext rides on WindowRecord)
  *
@@ -16,15 +16,17 @@ import type { FSPlaceholderNode } from '../stores/fs-store'
  * at startup — zero edits to src/platform/**.
  */
 
-/** FS node kinds, aliasing the fs-store placeholder union. MF-1's real model supersedes the shape; this alias follows. */
-export type FSNodeKind = FSPlaceholderNode['kind']
+/** FS node kinds — the real MF-1 domain union (`src/lib/fs/types.ts`). */
+export type { FSNodeKind }
 
 /**
- * Reference to the filesystem node an app was opened against. Deliberately the
- * fs-store's injected placeholder shape (IM-2 seam) — MF-1's real domain model
- * replaces it and this alias follows. Apps import THIS type, never fs-store's.
+ * Reference to the filesystem node an app was opened against: a full MF-1
+ * catalog node (discriminated on `kind`; carries `accession`, `accessionedAt`,
+ * and the kind-specific `content` / `src` / `appId`). Apps import THIS type —
+ * never `FSNode` from lib/fs — so the contract stays the single import site
+ * if the domain model ever evolves.
  */
-export type FSNodeRef = FSPlaceholderNode
+export type FSNodeRef = FSNode
 
 /** Props every app icon receives. Icons are render-only — no store access. */
 export interface AppIconProps {

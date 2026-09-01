@@ -20,6 +20,7 @@ gets fixed.
 | WM wiring (`appContentFor`) | `src/platform/app-registry/AppSlot.tsx`, `content.tsx` |
 | Public barrel (import everything from here) | `src/platform/app-registry/index.ts` |
 | Window store your app may call into | `src/platform/stores/wm-store.ts` |
+| FS domain model (nodes, pure ops, envelope — aliased by the contract) | `src/lib/fs/` |
 | Living reference example app | `src/apps/demo/` |
 
 Import platform API from `'../../platform/app-registry'` (path adjusted to your
@@ -79,11 +80,13 @@ type AppLaunchContext =
 - Captured once by `openApp` and stored **on the window record** — so it travels
   with the window into persistence (a Notepad window restored after reload still
   knows which file it holds).
-- `FSNodeRef` is currently the fs-store placeholder shape
-  (`{ id, parentId, name, kind }`); MF-1's real domain model will replace the
-  shape and the alias in `contract.ts` follows automatically. **Always import
-  `FSNodeRef` from the contract, never the fs-store type directly** — that is
-  the one import site that keeps your app buildable through that swap.
+- `FSNodeRef` is the real FS domain node from MF-1 (`src/lib/fs/types.ts`), a
+  union discriminated on `kind`. Every node carries `{ id, parentId, name, kind,
+  accession, accessionedAt }`; the kind adds `content` (text), `src` (image),
+  or `appId` (app-link). Treat it as immutable snapshot data — if the tree
+  changed since open, re-read via `useFSStore`. **Always import `FSNodeRef`
+  from the contract, never from `src/lib/fs` directly** — that is the one
+  import site that keeps your app buildable if the domain model evolves.
 
 ## Instance rules (singleton vs multi-instance)
 
@@ -149,8 +152,8 @@ nothing:
   what you need, stop and report it back to the platform lane instead of
   forking the seam.
 - Don't open app windows via `useWMStore.openWindow`.
-- Don't import `FSPlaceholderNode` from `../stores/fs-store` — use the
-  contract's `FSNodeRef` re-export.
+- Don't import `FSNode` from `src/lib/fs` — use the contract's `FSNodeRef`
+  re-export.
 - Don't do store work inside your icon component (render-only).
 - Don't register/unregister at runtime based on user interaction.
 - Don't build your own persistence envelope for data MF-2 already covers (WM,
