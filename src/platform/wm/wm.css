@@ -1,0 +1,154 @@
+/* ----------------------------------------------------------------------------
+   Window manager shell — STRUCTURAL styles only (IM-4a).
+
+   The geometry/interaction structure is IM-4a's; the final Survey Archive skin
+   (exact neutrals, bevels, recessed wells, typefaces) is UI-1's. Semantic custom
+   properties carry provisional values so the shell is legible pre-UI-1 — the
+   block below is the ONLY place they are defined and it is deleted when UI-1's
+   token sheet lands.
+---------------------------------------------------------------------------- */
+
+:root {
+  /* provisional: replaced by UI-1 tokens */
+  --chrome-ground: #211c15; /* warm near-black ground (design brief: not pure black) */
+  --chrome-raised: #2c251c; /* title bar / raised chrome */
+  --chrome-edge-hi: #4d4232; /* bevel light edge */
+  --chrome-edge-lo: #100d08; /* bevel dark edge */
+  --chrome-ink: #d9cfba; /* title-bar text ink */
+  --parchment: #ece2c9; /* content surfaces (design brief duality) */
+  --parchment-ink: #33291c;
+  --phosphor: #f0a828; /* amber — wells only; here: the status LED lamp */
+  --oxide: #a63d2a; /* destructive accent (close affordance) */
+}
+
+/* Host: a fixed pass-through layer above the (future) desktop surface. */
+.wm-host {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.wm-window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  overflow: hidden; /* content clips to the module */
+  background: var(--chrome-ground);
+  color: var(--chrome-ink);
+  /* placeholder bevel — UI-1 owns the real instrument-module bevel */
+  border: 1px solid var(--chrome-edge-hi);
+  box-shadow:
+    1px 1px 0 0 var(--chrome-edge-lo),
+    3px 3px 0 0 rgb(0 0 0 / 40%);
+}
+
+/* Minimized: hidden, NOT unmounted (app state survives until IM-4c restores). */
+.wm-window[data-minimized='true'] {
+  display: none;
+}
+
+.wm-window[data-maximized='true'] {
+  border-style: none; /* full-bleed module */
+}
+
+.wm-window:focus {
+  outline: none;
+}
+.wm-window:focus-visible {
+  outline: 1px solid var(--phosphor);
+  outline-offset: -1px;
+}
+
+.wm-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0 6px 0 10px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  user-select: none; /* becomes the IM-4b drag surface */
+  touch-action: none; /* committed RQ-3 pattern for drag surfaces */
+}
+
+.wm-led {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--chrome-edge-hi);
+}
+.wm-led[data-lit='true'] {
+  background: var(--phosphor);
+  box-shadow: 0 0 4px var(--phosphor);
+}
+
+.wm-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wm-controls {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.wm-control {
+  width: 26px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-family: ui-monospace, monospace; /* provisional until UI-1 typefaces */
+  font-size: 11px;
+  line-height: 1;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 var(--chrome-edge-hi);
+  cursor: pointer;
+}
+.wm-control:hover {
+  background: var(--chrome-ground);
+}
+.wm-control:active {
+  box-shadow: inset 1px 1px 0 var(--chrome-edge-lo);
+}
+.wm-control-close:hover {
+  background: var(--oxide);
+  color: var(--parchment);
+}
+
+.wm-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  background: var(--parchment);
+  color: var(--parchment-ink);
+}
+
+.wm-content-placeholder {
+  padding: 16px;
+  font-family: ui-monospace, monospace; /* provisional until UI-1 typefaces */
+  font-size: 12px;
+}
+.wm-content-placeholder p {
+  margin: 0;
+}
+.wm-content-placeholder-appid {
+  margin-bottom: 4px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
