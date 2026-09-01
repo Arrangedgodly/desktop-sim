@@ -34,6 +34,9 @@ export interface GridMetrics {
  */
 export const DESKTOP_GRID: GridMetrics = { originX: 28, originY: 28, cellW: 104, cellH: 132 }
 
+/** Rows per grid column before the walk moves right (UI-5's arrange shares it). */
+export const MAX_GRID_ROWS = 8
+
 /** Pixel origin (top-left) of one grid slot. */
 export function cellOrigin(position: GridPosition, metrics: GridMetrics = DESKTOP_GRID): {
   left: number
@@ -76,7 +79,8 @@ export function resolveDesktopSlots(
 
   // Column-major walk with a row cap: fill down a column, then move right.
   // 8 rows keeps auto-placed icons above the taskbar-rail territory (IM-4c).
-  const MAX_ROWS = 8
+  // (Shared constant — UI-5's arrange-by-accession re-grids the same way.)
+  const MAX_ROWS = MAX_GRID_ROWS
   let x = 0
   let y = 0
   const nextFree = (): GridPosition => {

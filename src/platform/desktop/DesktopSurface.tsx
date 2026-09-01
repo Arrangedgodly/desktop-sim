@@ -11,6 +11,10 @@
  *   4. window host — the WM's windows (IM-4a; pointer-events none but windows)
  *   5. taskbar — the drawer rail (IM-4c): fixed furniture above every window,
  *      carrying the open-window LEDs, the module launcher and the timecode
+ *   6. context menus (UI-5) — portal chrome above everything, owned by the
+ *      shared MenuProvider (main.tsx); this surface opens the ground menu
+ *      (bare plate) and each specimen's menu, and carries the inline-rename
+ *      editing state the specimen menu's Rename command starts.
  *
  * Selection: single-select via icon click; clicking the bare plate (anywhere
  * that is not a specimen) clears it. Local state by design — selection is a
@@ -33,7 +37,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
-import { listChildren, type FSNode } from '../../lib/fs'
+import { FSError, listChildren, renameNode, type FSNode } from '../../lib/fs'
 import { requestPersistentStorage } from '../../lib/storage/adapter'
 import { useFSStore } from '../stores/fs-store'
 import { useSettingsStore } from '../stores/settings-store'
@@ -41,6 +45,8 @@ import { appContentFor } from '../app-registry'
 import { WindowHost } from '../wm'
 import { useViewportSize } from '../wm/use-viewport-size'
 import { TaskbarRail } from '../taskbar'
+import { buildGroundMenuItems, buildSpecimenMenuItems, MenuProvider, useConsoleMenu } from '../menus'
+import type { MenuAnchor } from '../menus'
 import { DESKTOP_READY, markBootOnce } from '../boot/boot-milestones'
 import { resolveDesktopSlots } from './grid'
 import { WallpaperLayer } from './wallpaper'
@@ -57,10 +63,31 @@ export interface DesktopSurfaceProps {
   readonly firstVisit?: boolean
 }
 
-export function DesktopSurface({ firstVisit = false }: DesktopSurfaceProps) {
+/** Context-menu surfaces that own their own chrome (never the ground menu). */
+const GROUND_MENU_EXCLUDED = '[data-specimen-id], [data-wm-host], [data-taskbar]'
+
+/**
+ * The surface mounts its OWN menu host (UI-5): the ground/specimen menus and
+ * any menu a window's content opens (AP-1's explorer renders inside this
+ * subtree, and React context flows through portals) all share the one
+ * `openMenu(items, anchor)` seam. Self-contained so every mount — app, tests,
+ * stories — is a complete console.
+ */
+export function DesktopSurface(props: DesktopSurfaceProps) {
+  return (
+    <MenuProvider>
+      <DesktopStage {...props} />
+    </MenuProvider>
+  )
+}
+
+function DesktopStage({ firstVisit = false }: DesktopSurfaceProps) {
   const fs = useFSStore((s) => s.fs)
   const docentDismissed = useSettingsStore((s) => s.docentDismissed)
+  const { openMenu } = useConsoleMenu()
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  /** Inline rename (UI-5): the root child whose label is being edited in place. */
+  const [renamingId, setRenamingId] = useState<string | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   // One resize subscription for the whole icon field (drag clamp + snap caps).
   const viewport = useViewportSize()
@@ -122,12 +149,60 @@ export function DesktopSurface({ firstVisit = false }: DesktopSurfaceProps) {
     openSpecimen(node) // IM-5: the routing table (folder/text/image/app-link)
   }
 
+  // -- context menus (UI-5) ----------------------------------------------------
+  // Ground: right-click the bare hold (windows/taskbar/menus keep their own
+  // chrome; a specimen's icon handles its own menu and stops propagation).
+  const handleStageContextMenu = (event: MouseEvent) => {
+    const target = event.target as Element
+    if (target.closest(GROUND_MENU_EXCLUDED)) return
+    event.preventDefault() // the console replaces the native menu
+    openMenu(buildGroundMenuItems(), { kind: 'point', x: event.clientX, y: event.clientY }, {
+      ariaLabel: 'Hold menu',
+    })
+  }
+
+  // Specimen/drawer menu: the icon engages, any live edit ends (a menu open
+  // while another icon edits would fight the input for focus).
+  const handleSpecimenMenu = (node: FSNode, anchor: MenuAnchor) => {
+    setSelectedId(node.id)
+    setRenamingId(null)
+    openMenu(
+      buildSpecimenMenuItems(node, {
+        rename: () => {
+          setSelectedId(node.id)
+          setRenamingId(node.id)
+        },
+      }),
+      anchor,
+      { ariaLabel: `Specimen menu — ${node.name}` },
+    )
+  }
+
+  /** Commit an inline relabel; false = FSError (the icon shakes, keeps editing). */
+  const commitRename = (id: string, name: string): boolean => {
+    try {
+      const { fs: current, commit } = useFSStore.getState()
+      commit(renameNode(current, id, name))
+      setRenamingId(null)
+      return true
+    } catch (error) {
+      if (!(error instanceof FSError)) throw error
+      return false // name-collision / invalid-name: in-world refusal
+    }
+  }
+
   const handleDismissDocent = () => {
     useSettingsStore.getState().dismissDocent()
   }
 
   return (
-    <div className="desktop-stage" data-desktop-stage ref={stageRef} onClick={handleStageClick}>
+    <div
+      className="desktop-stage"
+      data-desktop-stage
+      ref={stageRef}
+      onClick={handleStageClick}
+      onContextMenu={handleStageContextMenu}
+    >
       <WallpaperLayer />
       <div className="icon-field" data-icon-field>
         {rootChildren.map((node) => (
@@ -140,6 +215,10 @@ export function DesktopSurface({ firstVisit = false }: DesktopSurfaceProps) {
             viewport={viewport}
             onSelect={handleSelect}
             onOpen={handleOpen}
+            onMenu={handleSpecimenMenu}
+            editing={renamingId === node.id}
+            onCommitRename={(name) => commitRename(node.id, name)}
+            onCancelRename={() => setRenamingId(null)}
           />
         ))}
       </div>

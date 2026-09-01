@@ -1,0 +1,181 @@
+/* ----------------------------------------------------------------------------
+   Context menus — UI-5 (The Survey Archive).
+   Palette/type/depth consume src/styles/tokens.css + global.css — no custom
+   properties defined here. World law this sheet obeys:
+     · the panel is RECESSED console chrome (a plate pressed into the
+       console), rows are ENGRAVED legends — never parchment cards;
+     · amber phosphor appears ONLY in a radio row's drilled indicator well
+       (the adjudicated status-lamp carve-out, same as the rail's LEDs);
+     · brass nowhere — a menu is not a hardware touchpoint;
+     · oxide ONLY on destructive ink and the guarded commit surface;
+     · no transitions, no animations — furniture, like the rail
+       (reduced-motion safe by construction).
+---------------------------------------------------------------------------- */
+
+.ctx-menu {
+  position: fixed;
+  z-index: 9500; /* above the rail (9000): transient chrome outranks furniture */
+  min-width: 224px;
+  max-width: 300px;
+  padding: 6px;
+  background: var(--chrome-sunken);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    3px 4px 16px rgb(0 0 0 / 55%);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* A menu row: an engraved legend. Hover/focus press the row INTO the panel
+   (the inverse cut) and raise the ink to painted chrome-ink. */
+.ctx-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  text-align: left;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--engraved-ink);
+  text-shadow:
+    0 1px 0 rgb(0 0 0 / 70%),
+    0 2px 0 rgb(255 230 176 / 12%);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.ctx-item:hover,
+.ctx-item:focus-visible {
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border-color: var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+}
+
+.ctx-item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px; /* ring rides inside the row, inside the panel */
+}
+
+.ctx-item:disabled {
+  color: var(--chrome-ink-dim);
+  opacity: 0.55;
+  cursor: default;
+}
+
+.ctx-item-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Destructive ink: oxide-bright on sunken chrome (5.2:1 on the darker
+   chrome-ground — sunken is darker still). The row keeps its press state;
+   only the ink changes. Oxide is warnings/destructive ONLY. */
+.ctx-item[data-destructive='true'] {
+  color: var(--oxide-bright);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 75%);
+}
+
+.ctx-item[data-destructive='true']:hover,
+.ctx-item[data-destructive='true']:focus-visible {
+  color: var(--oxide-bright);
+}
+
+/* The groove between rows: a 1px engraved seam, dark cut + light lip. */
+.ctx-sep {
+  height: 1px;
+  margin: 5px 8px;
+  border: none;
+  background: var(--chrome-edge-lo);
+  box-shadow: 0 1px 0 rgb(255 230 176 / 8%);
+}
+
+/* Radio indicator: a drilled recess; checked carries the amber dot. The
+   lamp-in-a-well carve-out (same precedent as the rail's LEDs). */
+.ctx-radio {
+  position: relative;
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  background: var(--well-ground);
+  border: 1px solid var(--chrome-edge-lo);
+  border-radius: 50%;
+  box-shadow:
+    inset 1px 1px 1px rgb(0 0 0 / 70%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.ctx-radio[data-checked='true']::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--phosphor);
+  box-shadow: 0 0 4px var(--phosphor-glow);
+}
+
+/* -- the guarded step -------------------------------------------------------
+   Prompt + consequence + two rows. The commit row is the guarded oxide
+   surface (parchment ink on oxide, 4.9:1) — the same vocabulary as AP-4's
+   guarded toggle covers; the cancel row stays a plain engraved row. */
+
+.ctx-confirm {
+  display: grid;
+  gap: 2px;
+  padding: 2px;
+}
+
+.ctx-confirm-prompt {
+  margin: 4px 6px 2px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--chrome-ink);
+}
+
+.ctx-confirm-detail {
+  margin: 0 6px 8px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--chrome-ink-dim);
+}
+
+.ctx-confirm-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.ctx-item[data-commit='true'] {
+  color: var(--parchment-ink); /* oxide surface under parchment ink (4.9:1) */
+  text-shadow: 0 1px 0 rgb(0 0 0 / 45%);
+  background: var(--oxide);
+  border-color: var(--oxide-deep);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 230 176 / 18%),
+    inset -1px -1px 0 var(--oxide-deep);
+  justify-content: center;
+  text-align: center;
+}
+
+.ctx-item[data-commit='true']:hover,
+.ctx-item[data-commit='true']:focus-visible {
+  background: var(--oxide-deep);
+  color: var(--parchment-ink);
+}

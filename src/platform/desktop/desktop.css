@@ -344,6 +344,53 @@
   }
 }
 
+/* -- inline rename (UI-5) -------------------------------------------------------
+   The label-edit state on the card itself: the parchment label becomes a
+   field. The frame keeps its brass edge (a label frame IS a hardware
+   touchpoint); the field surface shades one step recessed while editing;
+   the brass-lo focus ring arrives via the parchment scope. A rejected
+   relabel rides the same in-world refusal shake as an invalid drop
+   ([data-drop-rejected], above). */
+
+.specimen-icon[data-editing='true'] {
+  z-index: 4; /* the field under edit reads above its neighbors */
+}
+
+.specimen-rename-input {
+  display: block;
+  width: 100%;
+  padding: 3px 4px 4px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  /* OS floor: an edit field left-aligns its text — a centered single-line
+     field that overflows shows the MIDDLE of a long label (verified in
+     chromium), which reads as broken, not editable. */
+  text-align: left;
+  line-height: 1.35;
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+  background: var(--parchment-shade);
+  border: 1px solid var(--brass);
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 22%),
+    0 1px 3px rgb(0 0 0 / 40%);
+  caret-color: var(--brass-lo);
+}
+
+/* The global amber selection wash vanishes over parchment; the field swaps
+   to a brass wash so the selected label range is VISIBLE while retyping. */
+.specimen-rename-input::selection {
+  background: rgb(176 141 63 / 45%);
+}
+
+.specimen-rename-input:focus-visible {
+  outline: 2px solid var(--brass-lo); /* brass frame on parchment (global) */
+  outline-offset: 0;
+}
+
 /* -- docent callouts ------------------------------------------------------------
    Parchment annotation cards + drawn leader lines. One authored motion: the
    cards settle in with the console ease (staggered); the global
