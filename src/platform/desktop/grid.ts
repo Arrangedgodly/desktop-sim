@@ -10,6 +10,10 @@
  * first free slot until a drag (IM-5) pins it).
  *
  * Pure: no React, no stores, no DOM.
+ *
+ * IM-5 adds the drag-commit math: `slotForPoint` (pixel → snapped slot),
+ * `slotLimitsFor` (viewport caps), `clampIconOrigin` (viewport clamp for the
+ * icon box — distinct from the WM clamp, which floors at window minimums).
  */
 
 import type { GridPosition, IconPositionMap } from '../../lib/fs'
@@ -94,4 +98,69 @@ export function resolveDesktopSlots(
     taken.add(`${slot.x}:${slot.y}`)
   }
   return slots
+}
+
+/* --------------------------------------------------------------------------
+ * Drag math (IM-5) — pixel ↔ slot for the icon-drag commit path.
+ * Deliberately NOT reusing wm/geometry's `clampGeometryToViewport`: that clamp
+ * floors sizes at the WINDOW minimums (320×200), which would inflate an icon
+ * (92px wide) and mis-clamp its origin near the right/bottom edges.
+ * ------------------------------------------------------------------------ */
+
+/** Caps for a committed slot so the whole cell stays on-screen. */
+export interface SlotLimits {
+  readonly maxX: number
+  readonly maxY: number
+}
+
+/**
+ * Slot caps for a viewport: the last column/row whose FULL cell fits inside.
+ * Structural viewport (`{w, h}`) keeps this module free of wm imports.
+ */
+export function slotLimitsFor(
+  viewport: { readonly w: number; readonly h: number },
+  metrics: GridMetrics = DESKTOP_GRID,
+): SlotLimits {
+  return {
+    maxX: Math.max(0, Math.floor((viewport.w - metrics.originX - metrics.cellW) / metrics.cellW)),
+    maxY: Math.max(0, Math.floor((viewport.h - metrics.originY - metrics.cellH) / metrics.cellH)),
+  }
+}
+
+/**
+ * Grid slot for a pixel point (the drag-commit snap): the slot whose cell
+ * ORIGIN is nearest the point, floored at 0 and capped by `limits`
+ * (viewport-derived) — a committed icon can never land off-screen.
+ */
+export function slotForPoint(
+  left: number,
+  top: number,
+  limits?: SlotLimits,
+  metrics: GridMetrics = DESKTOP_GRID,
+): GridPosition {
+  const x = Math.round((left - metrics.originX) / metrics.cellW)
+  const y = Math.round((top - metrics.originY) / metrics.cellH)
+  return {
+    x: limits ? Math.min(Math.max(0, x), limits.maxX) : Math.max(0, x),
+    y: limits ? Math.min(Math.max(0, y), limits.maxY) : Math.max(0, y),
+  }
+}
+
+/**
+ * Clamp an icon's pixel origin so the icon box stays fully inside the viewport
+ * (the transient paint path and the commit path both route through here, so
+ * they can never disagree). An icon larger than the viewport pins to 0.
+ */
+export function clampIconOrigin(
+  left: number,
+  top: number,
+  size: { readonly w: number; readonly h: number },
+  viewport: { readonly w: number; readonly h: number },
+): { left: number; top: number } {
+  const w = Math.min(size.w, viewport.w)
+  const h = Math.min(size.h, viewport.h)
+  return {
+    left: Math.min(Math.max(left, 0), Math.max(0, viewport.w - w)),
+    top: Math.min(Math.max(top, 0), Math.max(0, viewport.h - h)),
+  }
 }

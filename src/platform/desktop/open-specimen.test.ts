@@ -1,16 +1,27 @@
-// UI-3 open seam (IM-5 stub) — routing dispatch, node env (no DOM needed
-// beyond the console placeholder, which is spied).
+// IM-5 open routing — the routing table (pure) + its dispatch through the
+// real registry (node env; the only DOM-adjacent call is openApp's console
+// warn, which is spied).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createNode, emptyFSState, type FSState, type FSNode } from '../../lib/fs'
-import { registerApp, resetAppRegistry } from '../app-registry'
+import {
+  EXPLORER_APP_ID,
+  IMAGE_VIEWER_APP_ID,
+  NOTEPAD_APP_ID,
+  registerApp,
+  resetAppRegistry,
+} from '../app-registry'
 import { useWMStore } from '../stores/wm-store'
-import { openSpecimen } from './open-specimen'
+import { OPEN_ROUTES, openSpecimen, resolveOpenRoute } from './open-specimen'
 import { DemoIcon } from '../../apps/demo/DemoIcon'
 
-/** A probe manifest the stub can really dispatch to. */
-const probeApp = {
-  id: 'probe',
-  name: 'Probe Module',
+/**
+ * A probe manifest registered under a RESERVED id — exactly how AP-1/AP-2/AP-3
+ * will light the routes up. First registration wins, so the reserved id is
+ * genuinely the one routed to.
+ */
+const probeExplorerApp = {
+  id: EXPLORER_APP_ID,
+  name: 'Probe Explorer',
   icon: DemoIcon,
   mount: () => null,
 } as const
@@ -21,9 +32,20 @@ function rootChild(state: FSState, id: string): FSNode {
   return node
 }
 
+function fixture(kind: 'folder' | 'text' | 'image'): FSNode {
+  let state = emptyFSState(0)
+  state = createNode(state, {
+    id: `n-${kind}`,
+    parentId: 'root',
+    name: `N ${kind}`,
+    kind,
+    ...(kind === 'image' ? { src: 'data:image/svg+xml,x' } : {}),
+  })
+  return rootChild(state, `n-${kind}`)
+}
+
 beforeEach(() => {
   resetAppRegistry()
-  registerApp(probeApp)
   useWMStore.setState({ windows: {}, zOrder: [], zCounter: 0, focusedId: null, dragging: null })
 })
 
@@ -31,8 +53,92 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('openSpecimen · app-link dispatches through the registry', () => {
-  it('opens the target app window with a file launch context', () => {
+describe('resolveOpenRoute · the routing table (pure)', () => {
+  it('folder → explorer, text → notepad, image → image-viewer — each with a file launch context', () => {
+    for (const [kind, appId] of [
+      ['folder', EXPLORER_APP_ID],
+      ['text', NOTEPAD_APP_ID],
+      ['image', IMAGE_VIEWER_APP_ID],
+    ] as const) {
+      const node = fixture(kind)
+      expect(resolveOpenRoute(node)).toEqual({ appId, launch: { source: 'file', file: node } })
+    }
+  })
+
+  it('the table is the reserved constants, frozen', () => {
+    expect(OPEN_ROUTES).toEqual({
+      folder: 'explorer',
+      text: 'notepad',
+      image: 'image-viewer',
+    })
+    expect(Object.isFrozen(OPEN_ROUTES)).toBe(true)
+  })
+
+  it('app-link routes to ITS OWN target manifest id', () => {
+    let state = emptyFSState(0)
+    state = createNode(state, {
+      id: 'nameplate',
+      parentId: 'root',
+      name: 'Science Officer Nameplate',
+      kind: 'app-link',
+      appId: 'about',
+    })
+    const node = rootChild(state, 'nameplate')
+    expect(resolveOpenRoute(node)).toEqual({ appId: 'about', launch: { source: 'file', file: node } })
+  })
+})
+
+describe('openSpecimen · dispatch through the registry', () => {
+  it('a folder opens the explorer with the drawer node as its launch context', () => {
+    registerApp(probeExplorerApp)
+    const node = fixture('folder')
+
+    openSpecimen(node)
+
+    const windows = Object.values(useWMStore.getState().windows)
+    expect(windows).toHaveLength(1)
+    expect(windows[0]!.appId).toBe(EXPLORER_APP_ID)
+    expect(windows[0]!.launch).toMatchObject({
+      source: 'file',
+      file: { id: 'n-folder', kind: 'folder' },
+    })
+  })
+
+  it('unregistered fleet ids (today: AP-1/AP-2/AP-3 pending) fail SOFT — warn, no window, no throw', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    for (const kind of ['folder', 'text', 'image'] as const) {
+      expect(() => openSpecimen(fixture(kind))).not.toThrow()
+    }
+    expect(Object.keys(useWMStore.getState().windows)).toHaveLength(0)
+
+    // The dispatch REALLY went to the reserved ids — the soft-fail warnings
+    // name explorer/notepad/image-viewer, in routing order.
+    const warnedIds = warn.mock.calls.map((call) => String(call[1]))
+    expect(warnedIds).toEqual(
+      expect.arrayContaining(['explorer', 'notepad', 'image-viewer']),
+    )
+  })
+
+  it('an app-link to an unregistered app (about, AP-5 pending) fails soft too', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    let state = emptyFSState(0)
+    state = createNode(state, {
+      id: 'nameplate',
+      parentId: 'root',
+      name: 'Science Officer Nameplate',
+      kind: 'app-link',
+      appId: 'about',
+    })
+
+    expect(() => openSpecimen(rootChild(state, 'nameplate'))).not.toThrow()
+    expect(Object.keys(useWMStore.getState().windows)).toHaveLength(0)
+    expect(warn).toHaveBeenCalled()
+  })
+
+  it('a registered app-link opens its target with a file launch context', () => {
+    const probeApp = { id: 'probe', name: 'Probe Module', icon: DemoIcon, mount: () => null } as const
+    registerApp(probeApp)
     let state = emptyFSState(0)
     state = createNode(state, {
       id: 'probe-link',
@@ -51,58 +157,5 @@ describe('openSpecimen · app-link dispatches through the registry', () => {
       source: 'file',
       file: { id: 'probe-link', kind: 'app-link' },
     })
-  })
-
-  it('fails SOFT on an unregistered app id (warn + no window, never a throw)', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    let state = emptyFSState(0)
-    state = createNode(state, {
-      id: 'nameplate',
-      parentId: 'root',
-      name: 'Science Officer Nameplate',
-      kind: 'app-link',
-      appId: 'about', // registered by AP-5, not yet
-    })
-
-    expect(() => openSpecimen(rootChild(state, 'nameplate'))).not.toThrow()
-    expect(Object.keys(useWMStore.getState().windows)).toHaveLength(0)
-    expect(warn).toHaveBeenCalled()
-  })
-})
-
-describe('openSpecimen · folders/files hit the honest console placeholder', () => {
-  it.each(['folder', 'text', 'image'] as const)('kind %s logs the stub, opens nothing', (kind) => {
-    const info = vi.spyOn(console, 'info').mockImplementation(() => {})
-    let state = emptyFSState(0)
-    state = createNode(state, {
-      id: `n-${kind}`,
-      parentId: 'root',
-      name: `N ${kind}`,
-      kind,
-      ...(kind === 'image' ? { src: 'data:image/svg+xml,x' } : {}),
-    })
-
-    openSpecimen(rootChild(state, `n-${kind}`))
-
-    expect(info).toHaveBeenCalledTimes(1)
-    expect(info.mock.calls[0]![0]).toContain('open stub')
-    expect(Object.keys(useWMStore.getState().windows)).toHaveLength(0)
-  })
-
-  it('the placeholder names the specimen (accession + name + kind)', () => {
-    const info = vi.spyOn(console, 'info').mockImplementation(() => {})
-    let state = emptyFSState(0)
-    state = createNode(state, {
-      id: 'projects',
-      parentId: 'root',
-      name: 'Projects',
-      kind: 'folder',
-    })
-    const node = rootChild(state, 'projects')
-
-    openSpecimen(node)
-    expect(String(info.mock.calls[0]![1])).toBe('DRW-0001')
-    expect(String(info.mock.calls[0]![2])).toBe('Projects')
-    expect(String(info.mock.calls[0]![3])).toContain('folder')
   })
 })

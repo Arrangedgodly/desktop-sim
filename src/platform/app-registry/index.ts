@@ -10,6 +10,8 @@
  * - registry API:  registerApp / registerApps / unregisterApp / getApp /
  *   listApps / openApp / useAppRegistryStore (reactive)
  * - WM wiring:     appContentFor → `<WindowHost contentFor={appContentFor} />`
+ * - reserved ids:  EXPLORER/NOTEPAD/IMAGE_VIEWER/SETTINGS/ABOUT/BROWSER_APP_ID
+ *   (+ RESERVED_APP_IDS) — the platform fleet's routing ids (app-ids.ts)
  *
  * Rules (normative, enforced by tests):
  * - apps live in src/apps/<id>/ and are aggregated by src/apps/index.ts;
@@ -50,4 +52,13 @@ export {
   type AppRegistryState,
 } from './registry'
 
+export {
+  ABOUT_APP_ID,
+  BROWSER_APP_ID,
+  EXPLORER_APP_ID,
+  IMAGE_VIEWER_APP_ID,
+  NOTEPAD_APP_ID,
+  RESERVED_APP_IDS,
+  SETTINGS_APP_ID,
+} from './app-ids'
 export { appContentFor } from './content'

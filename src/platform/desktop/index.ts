@@ -1,17 +1,19 @@
 /**
- * Desktop surface (UI-3) — the hold: wallpaper plate layer, pinned specimen
- * icon grid (selection + the open seam), docent first-visit hints, and the WM
- * host layered above. The boot orchestrator (UI-2) renders this once the
- * stores are hydrated.
+ * Desktop surface (UI-3 + IM-5) — the hold: wallpaper plate layer, pinned
+ * specimen icon grid (selection + open routing + drag/drop gestures), docent
+ * first-visit hints, and the WM host layered above. The boot orchestrator
+ * (UI-2) renders this once the stores are hydrated.
  *
  * Module map:
- *   DesktopSurface.tsx   the stage + selection + first-interaction wiring
- *   wallpaper.tsx        plate registry + the layer + the provisional plate
- *   SpecimenIcon.tsx     one pinned specimen card (button)
- *   specimen-glyphs.tsx  the four authored kind glyphs + kind words
- *   DocentCallouts.tsx   first-visit leader-line hints
- *   grid.ts              slot math + fallback slot assignment (pure)
- *   open-specimen.ts     the double-click seam (IM-5 stub)
+ *   DesktopSurface.tsx      the stage + selection + first-interaction wiring
+ *   wallpaper.tsx           plate registry + the layer + the provisional plate
+ *   SpecimenIcon.tsx        one pinned specimen card (button + drag surfaces)
+ *   specimen-glyphs.tsx     the four authored kind glyphs + kind words
+ *   DocentCallouts.tsx      first-visit leader-line hints
+ *   grid.ts                 slot math + fallback assignment + drag snap (pure)
+ *   open-specimen.ts        the double-click ROUTING TABLE (IM-5)
+ *   drop-target.ts          pure drop-on-folder validation (IM-5)
+ *   use-specimen-drag.ts    the icon drag gesture (RQ-3 pattern, IM-5)
  */
 
 export { DesktopSurface, type DesktopSurfaceProps } from './DesktopSurface'
@@ -34,5 +36,26 @@ export {
   type SpecimenGlyphProps,
 } from './specimen-glyphs'
 export { DocentCallouts, type DocentCalloutsProps } from './DocentCallouts'
-export { DESKTOP_GRID, cellCenter, cellOrigin, resolveDesktopSlots, type GridMetrics } from './grid'
-export { openSpecimen } from './open-specimen'
+export {
+  DESKTOP_GRID,
+  cellCenter,
+  cellOrigin,
+  clampIconOrigin,
+  resolveDesktopSlots,
+  slotForPoint,
+  slotLimitsFor,
+  type GridMetrics,
+  type SlotLimits,
+} from './grid'
+export { OPEN_ROUTES, openSpecimen, resolveOpenRoute, type OpenRoute } from './open-specimen'
+export {
+  resolveDropTarget,
+  type DropRejectReason,
+  type DropResolution,
+} from './drop-target'
+export {
+  specimenIdAtPoint,
+  useSpecimenDrag,
+  type SpecimenDrag,
+  type SpecimenDragOptions,
+} from './use-specimen-drag'

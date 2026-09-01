@@ -173,16 +173,17 @@ function subtreeIds(nodes: Readonly<Record<string, FSNode>>, id: string): string
   return doomed
 }
 
-/** Is `candidateId` inside the subtree rooted at `ancestorId` (inclusive)? */
-function isWithinSubtree(
-  nodes: Readonly<Record<string, FSNode>>,
-  candidateId: string,
-  ancestorId: string,
-): boolean {
-  let current: FSNode | undefined = nodes[candidateId]
+/**
+ * Is `candidateId` inside the subtree rooted at `ancestorId` (inclusive)?
+ * Public query — `moveNode` enforces it as cycle prevention, and the desktop's
+ * drop-on-folder validation (IM-5) reuses the same rule to reject a drawer
+ * filed inside its own subtree BEFORE any commit is attempted.
+ */
+export function isWithinSubtree(tree: FSTree, candidateId: string, ancestorId: string): boolean {
+  let current: FSNode | undefined = tree.nodes[candidateId]
   while (current) {
     if (current.id === ancestorId) return true
-    current = current.parentId === null ? undefined : nodes[current.parentId]
+    current = current.parentId === null ? undefined : tree.nodes[current.parentId]
   }
   return false
 }
@@ -297,7 +298,7 @@ export function moveNode(state: FSState, id: string, newParentId: string): FSSta
       `${target.accession} ${JSON.stringify(target.name)} is a specimen, not a drawer`,
     )
   }
-  if (isWithinSubtree(state.nodes, newParentId, id)) {
+  if (isWithinSubtree(state, newParentId, id)) {
     throw new FSError(
       'cycle',
       `a drawer cannot be filed inside its own subtree (${node.accession} → ${target.accession})`,

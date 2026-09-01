@@ -105,7 +105,9 @@
 }
 
 /* A pinned specimen: glyph plate above a parchment catalog label. The button
-   is chrome-transparent — its card is drawn, not chrome. */
+   is chrome-transparent — its card is drawn, not chrome. touch-action: none
+   (RQ-3 drag surface — no pan/zoom hijack of the card) and no text selection
+   (a catalog label is furniture, not prose). */
 .specimen-icon {
   position: absolute;
   display: grid;
@@ -117,6 +119,9 @@
   border: none;
   cursor: default;
   color: var(--engraved-ink);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .specimen-icon:focus {
@@ -228,6 +233,115 @@
   box-shadow:
     0 1px 3px rgb(0 0 0 / 40%),
     inset 0 0 0 1px var(--brass-hi);
+}
+
+/* -- icon drag (IM-5) ------------------------------------------------------------
+   Same discipline as IM-4b (wm/interactions): the card never moves via
+   left/top mid-gesture — the gesture hook paints transform only; ONE commit
+   at pointerup re-renders with new grid left/top. Attribute vocabulary
+   mirrors the window module's:
+     [data-gesture='drag']   armed drag: the card rides above its neighbors as
+                             a pointer-transparent ghost (elementFromPoint
+                             hit-testing, RQ-3) wearing the
+                             phosphor-persistence shimmer — the SAME
+                             adjudicated drag signature as the wm module rim
+                             (design-brief line 35: glass-sheen on drag as
+                             phosphor shimmer; opacity-only, compositor).
+     [data-drop-target]      the drawer under the ghost wears the drawer-pull
+                             affordance — it is about to receive the specimen.
+     [data-drop-rejected]    the soft-fail bounce-back shake (invalid drop). */
+
+.specimen-icon[data-gesture='drag'] {
+  z-index: 5; /* the seized card rides above its neighbors */
+}
+
+.specimen-icon[data-gesture='drag']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2; /* the rim reads over the card; pointer-transparent */
+  pointer-events: none;
+  border: 1px solid var(--phosphor-dim);
+  box-shadow:
+    0 0 12px var(--phosphor-glow),
+    inset 0 0 10px rgb(255 179 64 / 10%);
+  animation: specimen-drag-persistence 1.1s ease-in-out infinite;
+}
+
+@keyframes specimen-drag-persistence {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* The drawer-pull affordance: the target drawer's plate engages its brass
+   frame and leans UP toward the ghost — a rack drawer pulled open to receive
+   the incoming specimen. */
+.specimen-icon[data-drop-target='true'] .specimen-plate {
+  background: var(--chrome-sunken);
+  border-color: var(--brass);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    0 0 0 1px var(--brass-hi),
+    0 3px 10px rgb(0 0 0 / 50%);
+  transform: translateY(-3px);
+  transition:
+    transform var(--dur-fast) var(--ease-console),
+    background var(--dur-fast) var(--ease-console),
+    border-color var(--dur-fast) var(--ease-console),
+    box-shadow var(--dur-fast) var(--ease-console);
+}
+
+.specimen-icon[data-drop-target='true'] .specimen-label {
+  border-color: var(--brass);
+}
+
+/* The refusal: an invalid drop bounces the specimen back to its slot with a
+   short in-world shake. Rides the `translate` property (NOT transform — the
+   gesture hook owns transform) so the shake and any residual transform can
+   never fight. */
+@keyframes specimen-drop-reject {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -7px 0;
+  }
+  55% {
+    translate: 6px 0;
+  }
+  80% {
+    translate: -3px 0;
+  }
+}
+
+.specimen-icon[data-drop-rejected='true'] {
+  animation: specimen-drop-reject 0.32s var(--ease-console);
+}
+
+/* Reduced motion: the persistence collapses to a steady rim, the drawer-pull
+   drops its lean, and the shake resolves to an instant bounce-back — the
+   global kill-switch also caps every animation. */
+@media (prefers-reduced-motion: reduce) {
+  .specimen-icon[data-gesture='drag']::after {
+    animation: none;
+    opacity: 0.45;
+  }
+
+  .specimen-icon[data-drop-target='true'] .specimen-plate {
+    transform: none;
+    transition: none;
+  }
+
+  .specimen-icon[data-drop-rejected='true'] {
+    animation: none;
+  }
 }
 
 /* -- docent callouts ------------------------------------------------------------

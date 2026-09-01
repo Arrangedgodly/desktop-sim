@@ -49,8 +49,15 @@ canonical shape — all fields readonly):
 | `icon` | `AppIconComponent` | yes | React component taking `{ size?: number }`. Render-only; touches no stores. |
 | `mount` | `AppMountComponent` | yes | Your window content. A component accepting `AppSurfaceProps`, **or** `lazy(() => import(...))` — the platform mounts it inside a `Suspense` boundary. Lazy is the recommended pattern. |
 | `singleton` | `boolean` | no (default `false`) | `true` → at most ONE window ever; re-open raises + focuses the existing one. Omit for multi-instance. |
-| `acceptedFileTypes` | `readonly FSNodeKind[]` | no | FS node kinds (`'folder' | 'text' | 'image' | 'app-link'`) your app can open. The desktop's double-click routing consults exactly this list. |
+| `acceptedFileTypes` | `readonly FSNodeKind[]` | no | FS node kinds (`'folder' | 'text' | 'image' | 'app-link'`) your app can open. Declares file-opening capability (explorer child routing / launcher file opens consult it). |
 | `defaultGeometry` | `AppGeometryHints` | no | `{ w, h }` required, `{ x, y }` optional. Omitted origin → platform cascade placement. Hints apply to the first open only; the user's geometry always wins afterwards. |
+
+**Reserved app ids** (IM-5): `explorer`, `notepad`, `image-viewer`, `settings`,
+`about`, `browser` are reserved for the platform's own fleet — named constants
+in `src/platform/app-registry/app-ids.ts`. The desktop's double-click routing
+targets them (`folder` → explorer, `text` → notepad, `image` → image-viewer,
+app-links → their own `appId`); do not ship a third-party app under a reserved
+id. Until an id registers, `openApp` soft-fails on it by design.
 
 ## What your mounted component receives
 

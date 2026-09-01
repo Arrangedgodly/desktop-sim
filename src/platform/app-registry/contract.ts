@@ -113,8 +113,12 @@ export interface AppManifest {
    */
   readonly singleton?: boolean
   /**
-   * FS node kinds this app can open (IM-5 double-click routing consults this:
-   * `listApps().find(app => app.acceptedFileTypes?.includes(node.kind))`).
+   * FS node kinds this app can open. NOTE (IM-5): the DESKTOP's double-click
+   * routing targets the reserved platform ids (app-ids.ts: folder→explorer,
+   * text→notepad, image→image-viewer, app-link→its own appId) rather than
+   * consulting manifests — `acceptedFileTypes` is the capability declaration
+   * the explorer (AP-1) and launcher file-opens consult:
+   * `listApps().find(app => app.acceptedFileTypes?.includes(node.kind))`.
    */
   readonly acceptedFileTypes?: readonly FSNodeKind[]
   /** Suggested first-window size (see {@link AppGeometryHints}). */

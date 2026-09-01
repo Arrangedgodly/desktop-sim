@@ -35,7 +35,7 @@ const HINTS: readonly DocentHintSpec[] = [
   { anchorId: 'nameplate', text: 'Double-click a specimen to open it.' },
   {
     anchorId: 'charter',
-    text: 'Drag to rearrange the hold — the fitting arrives with the next module.',
+    text: 'Drag to rearrange the hold — drop a specimen on a drawer to file it inside.',
   },
   { anchorId: 'archive', text: 'The archive remembers: reload the console and your desk persists.' },
 ]

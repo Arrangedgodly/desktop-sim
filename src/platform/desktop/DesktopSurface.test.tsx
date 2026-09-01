@@ -212,13 +212,16 @@ describe('DesktopSurface · open seam (double-click + Enter)', () => {
     expect(Object.values(useWMStore.getState().windows)[0]!.appId).toBe('probe')
   })
 
-  it('double-clicking a drawer logs the placeholder (IM-5 lands the real routing)', () => {
-    const info = vi.spyOn(console, 'info').mockImplementation(() => {})
+  it('double-clicking a drawer routes to the explorer id (soft-fail until AP-1 registers it)', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     render(<DesktopSurface />)
 
     fireEvent.doubleClick(icon('projects'))
-    expect(info).toHaveBeenCalledTimes(1)
-    expect(String(info.mock.calls[0]![0])).toContain('open stub')
+    // The IM-5 routing table dispatched to the RESERVED explorer id; with no
+    // explorer registered yet, openApp warns (soft) and opens nothing.
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(String(warn.mock.calls[0]![1])).toBe('explorer')
+    expect(Object.keys(useWMStore.getState().windows)).toHaveLength(0)
   })
 })
 

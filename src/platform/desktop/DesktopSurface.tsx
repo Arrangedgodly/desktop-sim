@@ -12,7 +12,13 @@
  *
  * Selection: single-select via icon click; clicking the bare plate (anywhere
  * that is not a specimen) clears it. Local state by design — selection is a
- * view concern, not persisted truth; IM-5 owns whatever gestures grow here.
+ * view concern, not persisted truth. Icon drag (IM-5) lives inside each
+ * SpecimenIcon (use-specimen-drag.ts): transient transform + ONE commit at
+ * pointerup; this surface only supplies the measured viewport (one resize
+ * subscription for the whole field).
+ *
+ * Marquee multi-select was CUT at IM-5 dispatch (recorded deviation):
+ * single-select only, per the plan's "marquee optional (cut if needed)".
  *
  * Roving tabindex floor (DD-1 does the full keyboard map): exactly one icon
  * is tabbable — the selected one, else the first — the rest are -1.
@@ -31,6 +37,7 @@ import { useFSStore } from '../stores/fs-store'
 import { useSettingsStore } from '../stores/settings-store'
 import { appContentFor } from '../app-registry'
 import { WindowHost } from '../wm'
+import { useViewportSize } from '../wm/use-viewport-size'
 import { DESKTOP_READY, markBootOnce } from '../boot/boot-milestones'
 import { resolveDesktopSlots } from './grid'
 import { WallpaperLayer } from './wallpaper'
@@ -52,6 +59,8 @@ export function DesktopSurface({ firstVisit = false }: DesktopSurfaceProps) {
   const docentDismissed = useSettingsStore((s) => s.docentDismissed)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
+  // One resize subscription for the whole icon field (drag clamp + snap caps).
+  const viewport = useViewportSize()
 
   // Field layout: root children in catalog order; positioned nodes keep their
   // slot, unpositioned ones fill the first free slots (grid.ts).
@@ -107,7 +116,7 @@ export function DesktopSurface({ firstVisit = false }: DesktopSurfaceProps) {
   }
 
   const handleOpen = (node: FSNode) => {
-    openSpecimen(node) // IM-5 seam — the whole double-click story routes here
+    openSpecimen(node) // IM-5: the routing table (folder/text/image/app-link)
   }
 
   const handleDismissDocent = () => {
@@ -125,6 +134,7 @@ export function DesktopSurface({ firstVisit = false }: DesktopSurfaceProps) {
             slot={slots[node.id] ?? { x: 0, y: 0 }}
             selected={selectedId === node.id}
             tabbable={tabbableId === node.id}
+            viewport={viewport}
             onSelect={handleSelect}
             onOpen={handleOpen}
           />
