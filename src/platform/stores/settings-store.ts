@@ -20,9 +20,13 @@ export interface SettingsState {
   readonly soundsEnabled: boolean
   /** When true, the desktop follows the OS `prefers-reduced-motion` preference. */
   readonly reducedMotionFollow: boolean
+  /** UI-3 docent hints dismissed — once true they never show again (persisted). */
+  readonly docentDismissed: boolean
   setWallpaper: (wallpaper: string) => void
   setSoundsEnabled: (enabled: boolean) => void
   setReducedMotionFollow: (follow: boolean) => void
+  /** One-way: the docent is seen once. No un-dismiss action exists by design. */
+  dismissDocent: () => void
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -30,8 +34,10 @@ export const useSettingsStore = create<SettingsState>()(
     wallpaper: DEFAULT_WALLPAPER,
     soundsEnabled: false,
     reducedMotionFollow: true,
+    docentDismissed: false,
     setWallpaper: (wallpaper) => set({ wallpaper }),
     setSoundsEnabled: (enabled) => set({ soundsEnabled: enabled }),
     setReducedMotionFollow: (follow) => set({ reducedMotionFollow: follow }),
+    dismissDocent: () => set({ docentDismissed: true }),
   })),
 )

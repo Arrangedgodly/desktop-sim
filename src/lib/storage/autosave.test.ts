@@ -153,7 +153,16 @@ describe('autosave · store seams (subscribeWithSelector)', () => {
       wallpaper: 'phytograph',
       soundsEnabled: true,
       reducedMotionFollow: true,
+      docentDismissed: false,
     })
+  })
+
+  it('a docent dismissal schedules its own save (UI-3 persistence seam)', async () => {
+    const adapter = new MockAdapter()
+    attachAutosave({ adapter, delayMs: 500, now: tick })
+    useSettingsStore.getState().dismissDocent()
+    await vi.advanceTimersByTimeAsync(500)
+    expect(adapter.saved.at(-1)!.settings.docentDismissed).toBe(true)
   })
 })
 

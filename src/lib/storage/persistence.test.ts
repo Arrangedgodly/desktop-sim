@@ -155,6 +155,7 @@ describe('bootPersistence · return visit (round trip save → load → hydrate)
     })
     useSettingsStore.getState().setWallpaper('phytograph')
     useSettingsStore.getState().setSoundsEnabled(true)
+    useSettingsStore.getState().dismissDocent() // UI-3: docent seen once, forever
     await sleep(40)
     await handle.flush()
 
@@ -172,6 +173,7 @@ describe('bootPersistence · return visit (round trip save → load → hydrate)
       wallpaper: 'phytograph',
       soundsEnabled: true,
       reducedMotionFollow: true,
+      docentDismissed: true,
     })
 
     // Hydrated into the stores.
@@ -180,6 +182,7 @@ describe('bootPersistence · return visit (round trip save → load → hydrate)
     expect(restoredWindow.appId).toBe('notepad')
     expect(restoredWindow.launch?.source).toBe('file')
     expect(useSettingsStore.getState().wallpaper).toBe('phytograph')
+    expect(useSettingsStore.getState().docentDismissed).toBe(true) // the docent never returns
     expect(useStorageStatusStore.getState().recovery).toBeNull()
   })
 })

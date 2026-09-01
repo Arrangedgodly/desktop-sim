@@ -9,7 +9,8 @@
  *                                           `dragging` slice deliberately does
  *                                           NOT (RQ-2 discipline), so pointermove
  *                                           storms schedule zero saves
- *   settings [wallpaper, soundsEnabled, reducedMotionFollow] with shallow
+ *   settings [wallpaper, soundsEnabled, reducedMotionFollow,
+ *            docentDismissed] with shallow
  *                                           equality — precise to the persisted
  *                                           projection
  *
@@ -116,7 +117,7 @@ export function createAutosave(options: AutosaveOptions = {}): AutosaveHandle {
     useFSStore.subscribe((s) => s.fs, schedule),
     useWMStore.subscribe((s) => s.windows, schedule),
     useSettingsStore.subscribe(
-      (s) => [s.wallpaper, s.soundsEnabled, s.reducedMotionFollow],
+      (s) => [s.wallpaper, s.soundsEnabled, s.reducedMotionFollow, s.docentDismissed],
       schedule,
       { equalityFn: shallow },
     ),

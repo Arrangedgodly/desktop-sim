@@ -1,0 +1,307 @@
+/* ----------------------------------------------------------------------------
+   Desktop surface styles — UI-3 (The Survey Archive).
+
+   Palette/type/depth consume src/styles/tokens.css + global.css primitives
+   (.engraved, .engraved--parchment, .parchment-surface) — no custom
+   properties are defined here. World law this sheet obeys:
+     · amber phosphor lives ONLY in wells — the wallpaper's amber is PLATE INK
+       (flat printed lines, zero glow); specimen glyphs are engraved chrome.
+     · brass ONLY at hardware touchpoints — here: label frames and the
+       selection brackets (a rack-handle touchpoint), nothing ornamental.
+     · parchment for the reading surfaces — catalog labels and docent cards.
+---------------------------------------------------------------------------- */
+
+/* The stage: the whole hold, back plate for every layer above. */
+.desktop-stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--chrome-ground);
+}
+
+/* -- wallpaper layer ---------------------------------------------------------
+   Click-through by design: bare-plate clicks are the DESKTOP's (selection
+   clearing), never the wallpaper's. The plate fills the layer absolutely. */
+
+.wallpaper-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.wallplate-provisional {
+  position: absolute;
+  inset: 0;
+  /* The provisional plate, CSS-composed (no canvas, one paint):
+     · faint vignette so the ground reads as a lit bed, not a flat fill
+     · fine graticule — 1px ink every 64px, both axes (a survey chart's
+       coordinate grid; the map under the lines is the world itself)
+     · major graticule lines every 256px, one step heavier
+     · four registration rings at the plate corners (print registration)
+     Ink is low-alpha amber/parchment — printed plate ink, never phosphor. */
+  background:
+    /* registration rings: 22px crosshair rings, inset 28px from each corner */
+    radial-gradient(
+      circle 11px at center,
+      transparent 9px,
+      rgb(255 179 64 / 14%) 9.5px,
+      rgb(255 179 64 / 14%) 10.5px,
+      transparent 11px
+    )
+      28px 28px / 22px 22px no-repeat,
+    radial-gradient(
+      circle 11px at center,
+      transparent 9px,
+      rgb(255 179 64 / 14%) 9.5px,
+      rgb(255 179 64 / 14%) 10.5px,
+      transparent 11px
+    )
+      calc(100% - 28px) 28px / 22px 22px no-repeat,
+    radial-gradient(
+      circle 11px at center,
+      transparent 9px,
+      rgb(255 179 64 / 14%) 9.5px,
+      rgb(255 179 64 / 14%) 10.5px,
+      transparent 11px
+    )
+      28px calc(100% - 28px) / 22px 22px no-repeat,
+    radial-gradient(
+      circle 11px at center,
+      transparent 9px,
+      rgb(255 179 64 / 14%) 9.5px,
+      rgb(255 179 64 / 14%) 10.5px,
+      transparent 11px
+    )
+      calc(100% - 28px) calc(100% - 28px) / 22px 22px no-repeat,
+    /* major graticule: 1px at every 256px, both axes */
+    repeating-linear-gradient(to right, rgb(236 226 201 / 5%) 0 1px, transparent 1px 256px),
+    repeating-linear-gradient(to bottom, rgb(236 226 201 / 5%) 0 1px, transparent 1px 256px),
+    /* fine graticule: 1px at every 64px, both axes */
+    repeating-linear-gradient(to right, rgb(255 179 64 / 6%) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(to bottom, rgb(255 179 64 / 6%) 0 1px, transparent 1px 64px),
+    /* the bed: warm near-black with a faint top-light vignette */
+    radial-gradient(120% 90% at 50% 24%, rgb(255 230 176 / 3%), transparent 70%),
+    var(--chrome-ground);
+}
+
+/* The plate's honest legend — engraved chrome voice, never amber text. */
+.wallplate-legend {
+  position: absolute;
+  left: 56px;
+  bottom: 44px;
+  margin: 0;
+  font-size: var(--size-legend);
+  color: var(--chrome-ink-dim);
+  opacity: 0.72;
+}
+
+/* -- icon field ----------------------------------------------------------------
+   Absolute playground for the specimen cards; the cards place themselves
+   (left/top from the grid math in grid.ts). */
+
+.icon-field {
+  position: absolute;
+  inset: 0;
+}
+
+/* A pinned specimen: glyph plate above a parchment catalog label. The button
+   is chrome-transparent — its card is drawn, not chrome. */
+.specimen-icon {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 92px;
+  padding: 10px 4px 8px;
+  background: transparent;
+  border: none;
+  cursor: default;
+  color: var(--engraved-ink);
+}
+
+.specimen-icon:focus {
+  outline: none;
+}
+
+.specimen-icon:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.specimen-icon:hover .specimen-plate {
+  background: rgb(0 0 0 / 28%); /* the card's plate picks up the hold's shadow */
+}
+
+/* The glyph plate: a shallow recess the specimen sits in. */
+.specimen-plate {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--chrome-edge-lo);
+  background: var(--chrome-raised);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+  transition: background var(--dur-fast) var(--ease-console);
+}
+
+/* Selection: rack-handle corner brackets in brass, cut INTO the plate — the
+   console's "this unit is engaged" mark. Drawn as eight short gradient ticks,
+   one pair per corner; brass is a hardware touchpoint, which a selection
+   handle is. Hidden (not painted) while unselected. */
+.specimen-marks {
+  position: absolute;
+  inset: 3px;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(var(--brass-hi), var(--brass-hi)) left 0 top 0 / 8px 1.5px,
+    linear-gradient(var(--brass-hi), var(--brass-hi)) left 0 top 0 / 1.5px 8px,
+    linear-gradient(var(--brass-hi), var(--brass-hi)) right 0 top 0 / 8px 1.5px,
+    linear-gradient(var(--brass-hi), var(--brass-hi)) right 0 top 0 / 1.5px 8px,
+    linear-gradient(var(--brass-hi), var(--brass-hi)) left 0 bottom 0 / 8px 1.5px,
+    linear-gradient(var(--brass-hi), var(--brass-hi)) left 0 bottom 0 / 1.5px 8px,
+    linear-gradient(var(--brass-hi), var(--brass-hi)) right 0 bottom 0 / 8px 1.5px,
+    linear-gradient(var(--brass-hi), var(--brass-hi)) right 0 bottom 0 / 1.5px 8px;
+  background-repeat: no-repeat;
+  transition: opacity var(--dur-fast) var(--ease-console);
+}
+
+.specimen-marks[data-selected='true'] {
+  opacity: 1;
+}
+
+.specimen-icon[data-selected='true'] {
+  color: var(--chrome-ink); /* the glyph ink rises when engaged */
+}
+
+.specimen-icon[data-selected='true'] .specimen-plate {
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    0 0 0 1px var(--brass-lo); /* the brass frame joins the brackets */
+}
+
+/* The parchment catalog label: engraved name over the accession code. The
+   label frame is brass-in-shadow — a sanctioned hardware touchpoint. */
+.specimen-label {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  width: 100%;
+  padding: 3px 4px 4px;
+  text-align: center;
+  background: var(--parchment);
+  border: 1px solid var(--brass-lo);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 40%);
+}
+
+.specimen-name {
+  max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* catalog tags wrap to three ruled lines, like the sheet glyph */
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+}
+
+.specimen-accession {
+  font-family: var(--font-mono); /* catalog numbers ride the tabular face */
+  font-size: var(--size-legend);
+  line-height: 1;
+  color: var(--parchment-ink-dim);
+}
+
+.specimen-icon[data-selected='true'] .specimen-label {
+  border-color: var(--brass);
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 40%),
+    inset 0 0 0 1px var(--brass-hi);
+}
+
+/* -- docent callouts ------------------------------------------------------------
+   Parchment annotation cards + drawn leader lines. One authored motion: the
+   cards settle in with the console ease (staggered); the global
+   prefers-reduced-motion kill-switch collapses it to instant. */
+
+.docent {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* the cards re-enable; the layer never blocks the stage */
+}
+
+.docent-leaders {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.docent-leader {
+  stroke: var(--brass);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 4; /* a survey leader: dashed, never a hard rule */
+}
+
+.docent-card {
+  position: absolute;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 224px;
+  padding: 9px 10px;
+  pointer-events: auto;
+  animation: docent-settle var(--dur-beat) var(--ease-console) both;
+}
+
+.docent-text {
+  margin: 0;
+  font-family: var(--font-content);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--parchment-ink);
+}
+
+.docent-close {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  margin: -2px -2px 0 0;
+  font-family: var(--font-label);
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--parchment-ink-dim);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.docent-close:hover {
+  color: var(--parchment-ink);
+  border-color: var(--brass-lo);
+}
+
+.docent-close:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass-lo on parchment via the primitive */
+}
+
+@keyframes docent-settle {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}

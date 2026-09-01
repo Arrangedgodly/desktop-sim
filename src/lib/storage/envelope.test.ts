@@ -41,7 +41,12 @@ describe('readStoredState · current-version envelopes', () => {
           openedAt: 42,
         },
       ],
-      settings: { wallpaper: 'phytograph', soundsEnabled: true, reducedMotionFollow: false },
+      settings: {
+        wallpaper: 'phytograph',
+        soundsEnabled: true,
+        reducedMotionFollow: false,
+        docentDismissed: true,
+      },
     }
     expect(readStoredState(state)).toEqual(state)
   })
@@ -130,6 +135,7 @@ describe('readStoredState · v0 → migrate → v1 (MF-1 chain through the whole
       wallpaper: 'star-chart',
       soundsEnabled: false,
       reducedMotionFollow: true,
+      docentDismissed: false,
     })
   })
 })
@@ -194,11 +200,12 @@ describe('sanitizeWindows · per-entry degradation', () => {
 })
 
 describe('sanitizeSettings · per-field defaults', () => {
-  it('non-record input → defaults (sounds stay muted)', () => {
+  it('non-record input → defaults (sounds stay muted, docent undismissed)', () => {
     expect(sanitizeSettings(undefined)).toEqual({
       wallpaper: 'star-chart',
       soundsEnabled: false,
       reducedMotionFollow: true,
+      docentDismissed: false,
     })
   })
 
@@ -209,12 +216,19 @@ describe('sanitizeSettings · per-field defaults', () => {
       wallpaper: 'star-chart',
       soundsEnabled: false,
       reducedMotionFollow: false,
+      docentDismissed: false,
     })
     expect(sanitizeSettings({ wallpaper: 'graticule', soundsEnabled: true })).toEqual({
       wallpaper: 'graticule',
       soundsEnabled: true,
       reducedMotionFollow: true,
+      docentDismissed: false,
     })
+  })
+
+  it('a dismissed docent stays dismissed; junk falls back to undismissed', () => {
+    expect(sanitizeSettings({ docentDismissed: true }).docentDismissed).toBe(true)
+    expect(sanitizeSettings({ docentDismissed: 'yes' }).docentDismissed).toBe(false)
   })
 })
 

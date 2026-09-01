@@ -39,6 +39,7 @@ export function buildStoredState(now: number = Date.now()): StoredState {
       wallpaper: settings.wallpaper,
       soundsEnabled: settings.soundsEnabled,
       reducedMotionFollow: settings.reducedMotionFollow,
+      docentDismissed: settings.docentDismissed,
     },
   }
 }
@@ -73,6 +74,7 @@ export function hydrateStores(state: StoredState): void {
   settings.setWallpaper(state.settings.wallpaper)
   settings.setSoundsEnabled(state.settings.soundsEnabled)
   settings.setReducedMotionFollow(state.settings.reducedMotionFollow)
+  if (state.settings.docentDismissed) settings.dismissDocent() // one-way, never un-dismissed
 }
 
 /** Exposed for diagnostics/AP-4: the schema version this whole envelope rides. */

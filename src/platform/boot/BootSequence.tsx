@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { appContentFor, listApps } from '../app-registry'
+import { listApps } from '../app-registry'
 import { useFSStore } from '../stores/fs-store'
-import { WindowHost } from '../wm'
 import type { BootResult } from '../../lib/storage/persistence'
 import { useStorageStatusStore } from '../../lib/storage/status'
 import { seedStoredState } from '../../lib/storage/stored-state'
@@ -15,7 +14,8 @@ import {
   type PostSnapshot,
 } from './post-machine'
 import { buildPostLines, buildResumeLine, type PostSubsystemReport } from './post-lines'
-import { DESKTOP_READY, markBootOnce, POST_COMPLETE } from './boot-milestones'
+import { POST_COMPLETE, markBootOnce } from './boot-milestones'
+import { DesktopSurface } from '../desktop'
 import './boot.css'
 
 /**
@@ -144,7 +144,7 @@ export function BootSequence({ boot, firstVisit, reducedMotion }: BootSequencePr
     else skipRequested.current = true
   }, [controller])
 
-  if (result !== null && postDone) return <DesktopSurface />
+  if (result !== null && postDone) return <DesktopSurface firstVisit={result.firstVisit} />
   if (mode === 'none') return <div className="boot-ground" data-boot-ground />
   return <PostScreen controller={controller} onSkip={skip} />
 }
@@ -244,20 +244,8 @@ function PostLineRow({
 }
 
 /* --------------------------------------------------------------------------
- * Desktop surface — UI-3 replaces this stage; until then it is the honest
- * empty hold: token-styled ground + the WM host over it. Windows render ONLY
- * from the hydrated store (a restored session reopens; a first visit opens
- * nothing — the demo module no longer auto-opens on the real desktop).
+ * Desktop surface — owned by UI-3 (`src/platform/desktop`): wallpaper plate
+ * layer, pinned specimen icon grid, docent hints, and the WM host above.
+ * The boot verdict rides in as a prop so first-visit-only features (the
+ * docent) key off the real boot result, not the pacing hint.
  * ------------------------------------------------------------------------ */
-
-function DesktopSurface() {
-  useEffect(() => {
-    markBootOnce(DESKTOP_READY)
-  }, [])
-
-  return (
-    <div className="desktop-stage" data-desktop-stage>
-      <WindowHost contentFor={appContentFor} />
-    </div>
-  )
-}

@@ -104,11 +104,3 @@
   text-transform: uppercase;
   color: var(--chrome-ink-dim);
 }
-
-/* Desktop stage placeholder (UI-3 replaces): the honest empty hold ground
-   with the WM host layered above it. */
-.desktop-stage {
-  position: fixed;
-  inset: 0;
-  background: var(--chrome-ground);
-}

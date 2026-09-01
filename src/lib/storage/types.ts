@@ -33,11 +33,18 @@ export interface PersistedSettings {
   readonly soundsEnabled: boolean
   /** Follow the OS `prefers-reduced-motion` preference (UI-1/DD-2). */
   readonly reducedMotionFollow: boolean
+  /** UI-3 docent hints dismissed (one-way once true). */
+  readonly docentDismissed: boolean
 }
 
 /** Defaults for fields a loaded (v0/migrated/partial) envelope may not carry. */
 export function defaultPersistedSettings(): PersistedSettings {
-  return { wallpaper: DEFAULT_WALLPAPER, soundsEnabled: false, reducedMotionFollow: true }
+  return {
+    wallpaper: DEFAULT_WALLPAPER,
+    soundsEnabled: false,
+    reducedMotionFollow: true,
+    docentDismissed: false,
+  }
 }
 
 /**

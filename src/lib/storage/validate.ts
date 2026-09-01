@@ -110,6 +110,8 @@ export function sanitizeSettings(raw: unknown): PersistedSettings {
       typeof raw['reducedMotionFollow'] === 'boolean'
         ? raw['reducedMotionFollow']
         : defaults.reducedMotionFollow,
+    docentDismissed:
+      typeof raw['docentDismissed'] === 'boolean' ? raw['docentDismissed'] : defaults.docentDismissed,
   }
 }
 
