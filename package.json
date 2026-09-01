@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "perf": "node scripts/perf/run-perf.ts"
   },
   "dependencies": {
     "idb-keyval": "^6.3.0",
