@@ -9,6 +9,8 @@
  *      single-click selection and the double-click open seam
  *   3. docent callouts — first visit only, dismissed on any interaction
  *   4. window host — the WM's windows (IM-4a; pointer-events none but windows)
+ *   5. taskbar — the drawer rail (IM-4c): fixed furniture above every window,
+ *      carrying the open-window LEDs, the module launcher and the timecode
  *
  * Selection: single-select via icon click; clicking the bare plate (anywhere
  * that is not a specimen) clears it. Local state by design — selection is a
@@ -38,6 +40,7 @@ import { useSettingsStore } from '../stores/settings-store'
 import { appContentFor } from '../app-registry'
 import { WindowHost } from '../wm'
 import { useViewportSize } from '../wm/use-viewport-size'
+import { TaskbarRail } from '../taskbar'
 import { DESKTOP_READY, markBootOnce } from '../boot/boot-milestones'
 import { resolveDesktopSlots } from './grid'
 import { WallpaperLayer } from './wallpaper'
@@ -142,6 +145,7 @@ export function DesktopSurface({ firstVisit = false }: DesktopSurfaceProps) {
       </div>
       {docentVisible && <DocentCallouts slots={slots} onDismiss={handleDismissDocent} />}
       <WindowHost contentFor={appContentFor} />
+      <TaskbarRail />
     </div>
   )
 }

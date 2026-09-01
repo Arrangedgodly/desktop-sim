@@ -13,6 +13,9 @@
  *                  reduced-motion static variant. ABSENT on return visits
  *                  (the boot-flag short-circuit runs no POST at all).
  * - desktop-ready  the desktop surface first rendered (stores hydrated first)
+ * - taskbar-ready  the drawer rail mounted (IM-4c; effects run children-first,
+ *                  so it typically lands just BEFORE desktop-ready — the rail
+ *                  is part of the desktop's first frame, not a phase after it)
  */
 
 import {
@@ -24,6 +27,7 @@ import {
 export const BOOT_START = 'boot-start'
 export const POST_COMPLETE = 'post-complete'
 export const DESKTOP_READY = 'desktop-ready'
+export const TASKBAR_READY = 'taskbar-ready'
 
 /** Mark a milestone only if no milestone of that name exists yet. */
 export function markBootOnce(name: string): BootMilestone | null {

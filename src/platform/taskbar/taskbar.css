@@ -1,0 +1,318 @@
+/* ----------------------------------------------------------------------------
+   Taskbar drawer rail — IM-4c (The Survey Archive).
+
+   Palette/type/depth consume src/styles/tokens.css + global.css primitives
+   (.well, .scanlines, .engraved) — no custom properties are defined here.
+   World law this sheet obeys:
+     · brass ONLY at hardware touchpoints — the module-drawer PULL (and its
+       grip), nothing ornamental;
+     · amber phosphor ONLY inside recessed wells — the timecode readout (the
+       .well primitive) and each LED's lamp, which sits in its own drilled
+       recess (the adjudicated status-lamp carve-out, now in a well);
+     · no transitions, no animations — the rail is furniture (reduced-motion
+       safe by construction; hover/press swap state instantly).
+---------------------------------------------------------------------------- */
+
+/* The rail: the hold's bottom drawer rail. Fixed furniture above every
+   window (store z starts at 1 and counts user raises, so 9000 clears it with
+   room to spare); raised chrome with a light lip catching the rail's top. */
+.tb-rail {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 10px;
+  background: var(--chrome-raised);
+  border-top: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 0 1px 0 var(--chrome-edge-hi),
+    0 -2px 10px rgb(0 0 0 / 40%);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* -- module drawer pull (brass hardware) -----------------------------------
+   The rail's one brass touchpoint: a pull plate with a two-slot grip. Dark
+   ink on brass (5.5:1); the catch-light lip is brass-hi above, shadow below. */
+
+.tb-launcher-anchor {
+  position: relative; /* the menu anchors to the pull */
+  flex: 0 0 auto;
+}
+
+.tb-pull {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 30px;
+  padding: 0 12px 0 14px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ground); /* engraved ink on brass (5.5:1) */
+  text-shadow: 0 1px 0 rgb(255 230 176 / 25%);
+  background: var(--brass);
+  border: 1px solid var(--brass-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--brass-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 40%),
+    1px 2px 6px rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.tb-pull:hover {
+  background: var(--brass-hi);
+}
+
+.tb-pull:active,
+.tb-pull[aria-expanded='true'] {
+  background: var(--brass);
+  box-shadow:
+    inset 1px 1px 2px rgb(0 0 0 / 45%),
+    inset -1px -1px 0 var(--brass-hi);
+}
+
+/* The grip: two dark finger slots cut into the plate — a pull, not a label. */
+.tb-pull-grip {
+  width: 14px;
+  height: 12px;
+  opacity: 0.55;
+  background:
+    linear-gradient(var(--chrome-ground), var(--chrome-ground)) left center / 3px 12px no-repeat,
+    linear-gradient(var(--chrome-ground), var(--chrome-ground)) right center / 3px 12px no-repeat;
+}
+
+/* -- module drawer menu ------------------------------------------------------ */
+
+.tb-launcher {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  z-index: 1; /* above the LED channel inside the rail's stacking context */
+  min-width: 236px;
+  padding: 8px;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%),
+    2px 3px 14px rgb(0 0 0 / 55%);
+}
+
+.tb-launcher-head {
+  margin: 2px 6px 8px;
+  font-size: var(--size-legend);
+}
+
+.tb-launcher-empty {
+  margin: 2px 6px 8px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  letter-spacing: 0.04em;
+  color: var(--chrome-ink-dim);
+}
+
+.tb-launch-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 7px;
+  text-align: left;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  letter-spacing: 0.04em;
+  color: var(--chrome-ink);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.tb-launch-item:hover {
+  background: var(--chrome-ground);
+  border-color: var(--chrome-edge-lo);
+}
+
+/* Each module's glyph sits in a shallow recess — same cut as the icon plates. */
+.tb-launch-glyph {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  color: var(--engraved-ink);
+  background: var(--chrome-sunken);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.tb-launch-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -- open-window LED channel -------------------------------------------------
+   A recessed groove the indicators sit in; it scrolls horizontally when the
+   fleet outgrows the rail (thin brass scrollbar from global.css). */
+
+.tb-leds {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  height: 34px;
+  padding: 0 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: var(--chrome-sunken);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.tb-led {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  height: 26px;
+  padding: 0 9px 0 6px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--engraved-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.tb-led:hover {
+  color: var(--chrome-ink);
+  background: var(--chrome-ground);
+}
+
+.tb-led[data-focused='true'] {
+  color: var(--chrome-ink);
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+/* Minimized: the whole indicator sits dimmed (and brightens on approach). */
+.tb-led[data-minimized='true'] {
+  color: var(--chrome-ink-dim);
+  opacity: 0.62;
+}
+
+.tb-led[data-minimized='true']:hover {
+  opacity: 1;
+}
+
+/* Module unavailable (IM-3): the caption swaps to the notice vocabulary; a
+   dashed edge marks the fault — never oxide, this is not a destructive state. */
+.tb-led[data-module-unavailable='true'] {
+  color: var(--chrome-ink-dim);
+  border-style: dashed;
+}
+
+/* The lamp: a drilled recess in the indicator plate (the phosphor carve-out
+   earns its well). Lit = phosphor for the focused module; dim = aged amber
+   for a stowed one; dark = open but out of focus. */
+.tb-led-lamp {
+  position: relative;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  background:
+    radial-gradient(120% 120% at 50% 35%, rgb(255 179 64 / 5%), transparent 70%),
+    var(--well-ground);
+  border: 1px solid var(--chrome-edge-lo);
+  border-radius: 50%;
+  box-shadow:
+    inset 1px 1px 1px rgb(0 0 0 / 70%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.tb-led-lamp::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--chrome-edge-hi);
+}
+
+.tb-led-lamp[data-lit='true']::after {
+  background: var(--phosphor);
+  box-shadow: 0 0 5px var(--phosphor-glow);
+}
+
+.tb-led-lamp[data-dim='true']::after {
+  background: var(--phosphor-dim);
+}
+
+/* -- OS legend + version chip ------------------------------------------------- */
+
+.tb-plate {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  margin-right: 2px;
+}
+
+.tb-os {
+  margin: 0;
+}
+
+/* Version digits ride the cockpit mono face (Chakra Petch digits are
+   proportional — the committed typeface decision). */
+.tb-version {
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  color: var(--chrome-ink-dim);
+  background: var(--chrome-sunken);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+/* -- timecode well --------------------------------------------------------------
+   The .well primitive supplies the ground, amber, bloom, mono face and the
+   tabular numerals; the scanlines overlay rides inside (.well clips). */
+
+.tb-timecode {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  min-width: 96px;
+  height: 28px;
+  padding: 0 12px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.tb-timecode-digits {
+  line-height: 1;
+}
