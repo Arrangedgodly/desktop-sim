@@ -5,6 +5,9 @@ import './styles/global.css' // UI-1: tokens + fonts + console primitives (singl
 import { appContentFor, listApps, openApp, registerApps } from './platform/app-registry'
 import { useWMStore } from './platform/stores'
 import { WindowHost } from './platform/wm'
+// Leaf import (not the lib/perf barrel) so the entry graph pulls in only the
+// timing seam, never the fps/gesture probe modules.
+import { markBootMilestone } from './lib/perf/boot-timeline'
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {
@@ -31,3 +34,8 @@ createRoot(rootElement).render(
     <WindowHost contentFor={appContentFor} />
   </StrictMode>,
 )
+
+// Skeleton boot milestone (HE-1 e2e seam): one mark so `window.__BOOT_TIMELINE`
+// exists after load. UI-2 replaces/expands this into the real timeline
+// (first-paint, interactive, POST phases) and e2e grows the ≤2s boot gate.
+markBootMilestone('app-mounted')
