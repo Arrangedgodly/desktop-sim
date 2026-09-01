@@ -83,6 +83,18 @@ interface RaisedSlice {
   readonly zCounter: number
 }
 
+/**
+ * Persisted-session snapshot (MF-2 hydration input). `windows` is in bottom → top
+ * stacking order (the persisted zOrder); the map, `zOrder`, `zCounter` and focus
+ * are reconstructed from it. Records are restored VERBATIM (geometry, z, minimized,
+ * `launch` context per IM-3) — not re-opened through `openWindow` — so a restored
+ * session is byte-identical to the saved one. Windows whose app is no longer
+ * registered still restore; AppSlot renders its MODULE UNAVAILABLE notice.
+ */
+export interface WMSessionSnapshot {
+  readonly windows: readonly WindowRecord[]
+}
+
 export interface WMState {
   readonly windows: Readonly<Record<WindowId, WindowRecord>>
   /** Bottom → top stacking order. */
@@ -91,6 +103,13 @@ export interface WMState {
   /** Monotonic z source; lives in state so a persisted WM snapshot restores sanely. */
   readonly zCounter: number
   readonly dragging: DraggingState | null
+
+  /**
+   * Replace the whole session from a persisted snapshot (MF-2 loader) — one atomic
+   * set, mirroring the fs-store `init` seam. Rebuilds `zOrder`/`zCounter`/focus from
+   * the array order and clears any live drag.
+   */
+  hydrate: (session: WMSessionSnapshot) => void
 
   /**
    * Register a window (or raise/focus/restore the existing one when appId+instanceId
@@ -176,6 +195,20 @@ export const useWMStore = create<WMState>()(
     focusedId: null,
     zCounter: 0,
     dragging: null,
+
+    hydrate: (session) => {
+      const windows: Record<WindowId, WindowRecord> = {}
+      for (const record of session.windows) windows[record.id] = record
+      const zOrder = session.windows.map((record) => record.id)
+      const zCounter = session.windows.reduce((max, record) => Math.max(max, record.z), 0)
+      set({
+        windows,
+        zOrder,
+        zCounter,
+        focusedId: topmostFocusable(windows, zOrder),
+        dragging: null,
+      })
+    },
 
     openWindow: (input) => {
       const state = get()

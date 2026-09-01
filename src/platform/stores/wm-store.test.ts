@@ -239,3 +239,63 @@ describe('wm-store · two-phase drag commits (RQ-2)', () => {
     expect(useWMStore.getState()).toBe(before)
   })
 })
+
+// ---------------------------------------------------------------------------
+// MF-2 · hydrate seam (persisted-session restore) — additive; the loader lives
+// in src/lib/storage.
+// ---------------------------------------------------------------------------
+describe('wm-store · hydrate (MF-2 persistence seam)', () => {
+  it('restores windows verbatim and rebuilds zOrder/zCounter from array order', () => {
+    const a = open('a')
+    const b = open('b')
+    const c = open('c')
+    const before = useWMStore.getState()
+    // A captured session: b (bottom), a, c minimized (top).
+    const session = {
+      windows: [
+        { ...before.windows[b]!, z: 4 },
+        { ...before.windows[a]!, z: 7 },
+        { ...before.windows[c]!, z: 9, minimized: true },
+      ],
+    }
+
+    useWMStore.getState().hydrate(session)
+
+    const after = useWMStore.getState()
+    expect(Object.keys(after.windows)).toHaveLength(3)
+    expect(after.zOrder).toEqual([b, a, c])
+    expect(after.zCounter).toBe(9)
+    expect(after.windows[b]!.z).toBe(4) // record restored verbatim, not re-cascaded
+    expect(after.windows[c]!.minimized).toBe(true)
+    expect(after.focusedId).toBe(a) // topmost non-minimized
+    expect(after.dragging).toBeNull()
+  })
+
+  it('restores launch contexts (IM-3) on the records untouched', () => {
+    const id = useWMStore.getState().openWindow({
+      appId: 'notepad',
+      instanceId: 'file:spc-1',
+      title: 'note',
+      launch: { source: 'file', file: { id: 'spc-1', name: 'note.txt' } as never },
+    })
+    const captured = [useWMStore.getState().windows[id]!]
+    useWMStore.setState(initialWM, true)
+
+    useWMStore.getState().hydrate({ windows: captured })
+
+    const restored = useWMStore.getState().windows[id]!
+    expect(restored.launch).toEqual(captured[0]!.launch)
+    expect(restored.instanceId).toBe('file:spc-1')
+  })
+
+  it('an empty snapshot clears the session and focus', () => {
+    open('a')
+    open('b')
+    useWMStore.getState().hydrate({ windows: [] })
+    const after = useWMStore.getState()
+    expect(after.windows).toEqual({})
+    expect(after.zOrder).toEqual([])
+    expect(after.focusedId).toBeNull()
+    expect(after.zCounter).toBe(0)
+  })
+})
