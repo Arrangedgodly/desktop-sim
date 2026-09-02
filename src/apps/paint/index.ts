@@ -42,7 +42,11 @@ export const paintApp: AppManifest = {
   mount: PaintSurface,
   // singleton omitted → false: one painter window per plate (file-instance dedupe)
   acceptedFileTypes: ['image'], // routing-inert — the viewer owns the double-click route
-  defaultGeometry: { w: 1000, h: 720 },
+  // 1000×600: at the cascade origin (y=64) the whole window — strip
+  // included — clears the 44px drawer rail on a 720-tall viewport (a
+  // 720-tall window puts its guard strip under the rail; found in e2e).
+  // The plate displays aspect-fit regardless, crisp via its dpr backing.
+  defaultGeometry: { w: 1000, h: 600 },
   // HU-2 title-follow: a file-opened window is titled by its plate from the
   // very first paint (the surface keeps following live renames after).
   titleForLaunch: (launch) => (launch.source === 'file' ? launch.file.name : undefined),

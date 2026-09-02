@@ -312,8 +312,11 @@ export default function PaintSurface({ windowId, launch }: AppSurfaceProps) {
       if (ctx) {
         const rgb = parseHex(rgbHexOf(currentColor()))
         if (rgb) {
+          // The raster is DEVICE pixels; the mapped point is PLATE pixels.
+          // Scale the seed by the backing store's true ratio (dpr-aware).
+          const scale = canvas.width / PLATE_WIDTH
           const image = ctx.getImageData(0, 0, canvas.width, canvas.height)
-          floodFill(image, point.x, point.y, rgb)
+          floodFill(image, Math.round(point.x * scale), Math.round(point.y * scale), rgb)
           ctx.putImageData(image, 0, 0)
         }
       }
