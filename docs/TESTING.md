@@ -28,7 +28,7 @@ tests.
   and config files (so a typo in a selector assertion fails before the browser
   ever launches).
 - **lint** — ESLint recommended + react-hooks/react-refresh rules.
-- **test** (Vitest, 948 cases today) — pure logic and store/component seams:
+- **test** (Vitest, 954 cases today) — pure logic and store/component seams:
   FS ops, schema/migrations, persistence + recovery, WM z-order/geometry,
   app registry, perf instrumentation, WM host components. Node by default;
   files needing a DOM opt in with a `// @vitest-environment jsdom` docblock and
@@ -36,7 +36,7 @@ tests.
 - **perf** — `tsc --noEmit && vite build`, then asserts the committed budgets
   (total JS gz ≤ 250 KB, main chunk gz ≤ 120 KB, fonts raw ≤ 150 KB, CSS gz
   ≤ 40 KB) against `dist/`; exits non-zero on breach.
-- **test:e2e** (Playwright, chromium, 92 specs today) — the full functional
+- **test:e2e** (Playwright, chromium, 101 specs today) — the full functional
   suite against the real app in a real browser: boot, desktop, drag/resize
   fps, taskbar, keyboard journey, every app, resilience, edges, notice, the
   DD-2 accessibility gates — plus the TH-2 perf/soak gates, which ride the
