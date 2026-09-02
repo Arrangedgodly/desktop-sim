@@ -8,18 +8,19 @@ import { openApp, useAppRegistryStore } from '../app-registry'
  * hardcoded roster: registering an app lights an entry, unregistering removes
  * it, and the empty registry states its emptiness honestly.
  *
- * Behavior floor (DD-1 owns the deep keyboard pass):
+ * Behavior floor (DD-1's deep keyboard pass, landed):
  * - launch = `openApp(id)` (the sanctioned open path; launcher context rides
  *   the window record) and the drawer closes;
- * - Escape / Tab / pointerdown outside close the drawer, Escape returning
- *   focus to the pull;
- * - ArrowDown/ArrowUp/Home/End rove focus across the items; Enter/Space are
- *   native button activation.
+ * - Escape / pointerdown outside close the drawer, Escape returning focus to
+ *   the pull;
+ * - ArrowDown/ArrowUp/Home/End rove focus across the items, and Tab/Shift+Tab
+ *   walk the rows too (a menu keeps focus within itself — DD-1's map);
+ *   Enter/Space are native button activation.
  *
  * The pull is the rail's brass hardware touchpoint (design-brief law: brass
  * at drawer pulls); the menu itself is raised chrome — phosphor never appears.
  */
-export function ModuleLauncher() {
+export function ModuleLauncher({ tabbable = true }: { readonly tabbable?: boolean }) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const pullRef = useRef<HTMLButtonElement>(null)
@@ -83,10 +84,10 @@ export function ModuleLauncher() {
       event.preventDefault()
       focusItem(itemRefs.current.length - 1)
     } else if (event.key === 'Tab') {
-      // A menu swallows tab-order traversal; stowing returns the user to the
-      // rail's natural order (DD-1 may revisit).
+      // DD-1 map: a menu keeps focus WITHIN itself — Tab walks its rows like
+      // the arrows (Shift walks back); Escape is the drawer's close key.
       event.preventDefault()
-      closeDrawer(true)
+      focusItem(focusedItemIndex() + (event.shiftKey ? -1 : 1))
     }
   }
 
@@ -101,6 +102,7 @@ export function ModuleLauncher() {
         aria-expanded={open}
         aria-label="Module drawer — launch a module"
         title="Module drawer"
+        tabIndex={tabbable ? 0 : -1}
         onClick={() => setOpen((wasOpen) => !wasOpen)}
       >
         <span className="tb-pull-label">Modules</span>

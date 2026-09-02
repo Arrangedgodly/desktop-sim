@@ -8,9 +8,9 @@
  *   `role="menuitem"` / `"menuitemradio"` (`aria-checked`), grooves are
  *   `role="separator"`. Separators and disabled rows are never focusable.
  * - Keyboard: ArrowDown/ArrowUp rove with wrap, Home/End jump, Enter/Space
- *   activate natively, Escape closes (a guarded step steps back first), Tab
- *   stows the menu (a menu swallows tab-traversal — same floor choice as
- *   the taskbar drawer).
+ *   activate natively, Escape closes (a guarded step steps back first), and
+ *   Tab/Shift+Tab walk the rows too (DD-1's map: a menu keeps focus within
+ *   itself; Escape is the close key — same law as the taskbar drawer).
  * - Focus opens ON the first enabled row, never leaves while open (arrows
  *   wrap, Tab closes), and returns to the invoker via the provider's close
  *   path (Escape/Tab, and selection when the command kept focus inside the
@@ -86,7 +86,9 @@ interface Row {
 }
 
 /** What the panel renders, in order: grooves and focusable rows. */
-type Entry = { readonly kind: 'sep'; readonly id: string } | { readonly kind: 'row'; readonly row: Row; readonly slot: number }
+type Entry =
+  | { readonly kind: 'sep'; readonly id: string }
+  | { readonly kind: 'row'; readonly row: Row; readonly slot: number }
 
 export function MenuShell({ session, onClose }: MenuShellProps) {
   const { items, anchor, ariaLabel } = session
@@ -100,8 +102,7 @@ export function MenuShell({ session, onClose }: MenuShellProps) {
     confirmingId === null
       ? null
       : ((items.find((item) => item.id === confirmingId && item.kind === 'action') as
-          | MenuAction
-          | undefined) ?? null)
+          MenuAction | undefined) ?? null)
 
   const entries: readonly Entry[] = confirming
     ? [
@@ -267,8 +268,10 @@ export function MenuShell({ session, onClose }: MenuShellProps) {
       event.preventDefault()
       focusRow(-1)
     } else if (event.key === 'Tab') {
+      // DD-1 map: a menu keeps focus WITHIN itself — Tab walks the rows like
+      // the arrows (Shift walks back); Escape is the menu's close key.
       event.preventDefault()
-      onClose(true)
+      focusRow(focusedRowIndex() + (event.shiftKey ? -1 : 1))
     }
   }
   return createPortal(

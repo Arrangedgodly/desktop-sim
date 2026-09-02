@@ -1,5 +1,13 @@
-import { useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react'
 import { useWMStore, type WindowId, type WindowRecord } from '../stores'
+import { isTextEntryTarget } from '../keyboard'
 import { clampGeometryToViewport, maximizedGeometry, type ViewportSize } from './geometry'
 import { useWindowGestures } from './interactions/use-window-gestures'
 import { WindowResizeHandles } from './interactions/ResizeHandles'
@@ -20,8 +28,11 @@ export interface WindowFrameProps {
  * One instrument-module window (IM-4a shell + IM-4b gestures): title bar +
  * status LED, minimize/maximize/close in console vocabulary, content slot,
  * click-anywhere focus/raise. ARIA dialog pattern with `aria-labelledby` on
- * the title; basic programmatic focusability only — Daredevil's full keyboard
- * map is DD-1. Drag (title bar) and corner-bracket resize (se/e/s) ride the
+ * the title; focus moves into the window when it becomes the focused one,
+ * and an app content seat (the notepad's sheet, the viewer's stage) pulls it
+ * deeper on mount. DD-1's keyboard map: Esc closes once unclaimed (see
+ * handleKeyDown); F6 / Alt+Esc ride platform/keyboard.
+ * Drag (title bar) and corner-bracket resize (se/e/s) ride the
  * committed RQ-3 pointer pattern via `useWindowGestures` — transient styles
  * during the gesture, ONE geometry commit at pointerup. Maximimized modules
  * are fixed furniture: no drag, no resize handles.
@@ -71,6 +82,22 @@ export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
   const toggleMaximize = () => useWMStore.getState().toggleMaximize(id)
   const close = () => useWMStore.getState().closeWindow(id)
 
+  // DD-1 Esc-close: an UNCLAIMED Escape inside this window closes it. Claimed
+  // means any of — a modifier chord (Alt+Esc is the OS window walk), an inner
+  // handler that already preventDefaulted (the viewer's pan bounce), a text
+  // entry target (fields own their Escape; the notepad additionally stops
+  // propagation for its dirty guard, keeping app precedence over the OS).
+  // There is no close-request/veto seam on the title-bar ✕ yet — that seam
+  // is HU-2's; apps that need a guard own their Escape before it gets here.
+  const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key !== 'Escape') return
+    if (event.altKey || event.ctrlKey || event.metaKey) return
+    if (event.defaultPrevented) return
+    if (isTextEntryTarget(event.target)) return
+    event.preventDefault()
+    close()
+  }
+
   const titleId = `wm-title-${id}`
 
   return (
@@ -87,6 +114,7 @@ export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
       data-minimized={record.minimized}
       data-maximized={record.maximized}
       onPointerDown={activate}
+      onKeyDown={handleKeyDown}
       style={style}
     >
       <header className="wm-titlebar" {...gestures.titleBar}>

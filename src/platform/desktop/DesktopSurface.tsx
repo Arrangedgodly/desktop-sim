@@ -26,8 +26,13 @@
  * Marquee multi-select was CUT at IM-5 dispatch (recorded deviation):
  * single-select only, per the plan's "marquee optional (cut if needed)".
  *
- * Roving tabindex floor (DD-1 does the full keyboard map): exactly one icon
- * is tabbable — the selected one, else the first — the rest are -1.
+ * Keyboard map (DD-1; docs/KEYBOARD.md): the icon FIELD is the ground's tab
+ * stop (ahead of the icons — ground, then specimens); exactly one icon is
+ * tabbable — the selected one, else the first — the rest are -1. Arrows walk
+ * the grid 2D (nav-grid.ts math) selecting + focusing as they go; Enter
+ * opens, Space selects without opening (native button), Menu key / Shift+F10
+ * opens the specimen menu on an icon and the hold menu on the empty ground;
+ * F6 / Alt+Esc ride the OS map (keyboard/os-keys.ts).
  *
  * `requestPersistentStorage` (deferred from UI-2): fired once after the first
  * meaningful interaction on the desktop (a click anywhere on the stage or a
@@ -36,16 +41,22 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
-import type { MouseEvent } from 'react'
+import type { KeyboardEvent, MouseEvent } from 'react'
 import { FSError, listChildren, renameNode, type FSNode } from '../../lib/fs'
 import { requestPersistentStorage } from '../../lib/storage/adapter'
 import { useFSStore } from '../stores/fs-store'
 import { useSettingsStore } from '../stores/settings-store'
 import { appContentFor } from '../app-registry'
+import { arrowNavigate, attachOSKeyboard, isTextEntryTarget, type NavDirection } from '../keyboard'
 import { WindowHost } from '../wm'
 import { useViewportSize } from '../wm/use-viewport-size'
 import { TaskbarRail } from '../taskbar'
-import { buildGroundMenuItems, buildSpecimenMenuItems, MenuProvider, useConsoleMenu } from '../menus'
+import {
+  buildGroundMenuItems,
+  buildSpecimenMenuItems,
+  MenuProvider,
+  useConsoleMenu,
+} from '../menus'
 import type { MenuAnchor } from '../menus'
 import { DESKTOP_READY, markBootOnce } from '../boot/boot-milestones'
 import { resolveDesktopSlots } from './grid'
@@ -89,6 +100,8 @@ function DesktopStage({ firstVisit = false }: DesktopSurfaceProps) {
   /** Inline rename (UI-5): the root child whose label is being edited in place. */
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
+  /** The icon field — the ground's focus seat (DD-1 keyboard map). */
+  const fieldRef = useRef<HTMLDivElement>(null)
   // One resize subscription for the whole icon field (drag clamp + snap caps).
   const viewport = useViewportSize()
 
@@ -109,6 +122,11 @@ function DesktopStage({ firstVisit = false }: DesktopSurfaceProps) {
   useEffect(() => {
     markBootOnce(DESKTOP_READY)
   }, [])
+
+  // DD-1: the OS keyboard map (F6 zone cycling, Alt+Esc window walking, the
+  // last-window focus re-seat) rides the desktop session's lifetime — the
+  // phone notice session never attaches it.
+  useEffect(() => attachOSKeyboard(), [])
 
   // First meaningful interaction (UI-2 deviation 2's owner): ask the browser
   // to keep the archive (once, fire-and-forget) and retire the docent.
@@ -156,9 +174,13 @@ function DesktopStage({ firstVisit = false }: DesktopSurfaceProps) {
     const target = event.target as Element
     if (target.closest(GROUND_MENU_EXCLUDED)) return
     event.preventDefault() // the console replaces the native menu
-    openMenu(buildGroundMenuItems(), { kind: 'point', x: event.clientX, y: event.clientY }, {
-      ariaLabel: 'Hold menu',
-    })
+    openMenu(
+      buildGroundMenuItems(),
+      { kind: 'point', x: event.clientX, y: event.clientY },
+      {
+        ariaLabel: 'Hold menu',
+      },
+    )
   }
 
   // Specimen/drawer menu: the icon engages, any live edit ends (a menu open
@@ -195,6 +217,65 @@ function DesktopStage({ firstVisit = false }: DesktopSurfaceProps) {
     useSettingsStore.getState().dismissDocent()
   }
 
+  // -- keyboard map (DD-1) ------------------------------------------------------
+  // The icon FIELD is the ground's focus seat: a real tab stop ahead of the
+  // icons (Windows-desktop shape — the ground, then the icons). Arrows walk
+  // the grid 2D (nav-grid math over the resolved slots); the Menu key opens
+  // the hold's ground menu AT THE GROUND (the specimen menu owns the same key
+  // when focus is on an icon — the icon handles it first and the target check
+  // below keeps this handler from double-firing).
+  const handleFieldKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (isTextEntryTarget(event.target)) return // a live label edit owns its keys
+    const target = event.target as Element
+
+    const dir: NavDirection | null =
+      event.key === 'ArrowUp'
+        ? 'up'
+        : event.key === 'ArrowDown'
+          ? 'down'
+          : event.key === 'ArrowLeft'
+            ? 'left'
+            : event.key === 'ArrowRight'
+              ? 'right'
+              : null
+    if (dir !== null) {
+      if (target.closest('[data-specimen-id]') === null && target !== event.currentTarget) return
+      // Anchor on the focused icon, else the selected one, else catalog first.
+      const anchor =
+        (document.activeElement?.closest('[data-specimen-id]')?.getAttribute('data-specimen-id') as
+          string | null) ??
+        (selectedId !== null && slots[selectedId] !== undefined ? selectedId : null) ??
+        rootChildren[0]?.id ??
+        null
+      const entries = rootChildren.map((node) => ({ id: node.id, ...slots[node.id]! }))
+      const next = arrowNavigate(entries, anchor, dir)
+      if (next === null) return // the field's edge — focus stays
+      event.preventDefault()
+      setSelectedId(next)
+      fieldRef.current?.querySelector<HTMLElement>(`[data-specimen-id="${next}"]`)?.focus()
+      return
+    }
+
+    // Keyboard ground menu (the recorded gap: the ground had no keyboard-open
+    // path). Menu key / Shift+F10 on the EMPTY ground — focus on the field,
+    // not on a specimen (the icon's own handler owns that case).
+    if (
+      (event.key === 'ContextMenu' ||
+        event.key === 'Menu' ||
+        (event.key === 'F10' && event.shiftKey)) &&
+      target.closest('[data-specimen-id]') === null
+    ) {
+      event.preventDefault()
+      openMenu(
+        buildGroundMenuItems(),
+        { kind: 'element', element: event.currentTarget },
+        {
+          ariaLabel: 'Hold menu',
+        },
+      )
+    }
+  }
+
   return (
     <div
       className="desktop-stage"
@@ -204,7 +285,14 @@ function DesktopStage({ firstVisit = false }: DesktopSurfaceProps) {
       onContextMenu={handleStageContextMenu}
     >
       <WallpaperLayer />
-      <div className="icon-field" data-icon-field>
+      <div
+        className="icon-field"
+        data-icon-field
+        ref={fieldRef}
+        tabIndex={0}
+        aria-label="Specimen field"
+        onKeyDown={handleFieldKeyDown}
+      >
         {rootChildren.map((node) => (
           <SpecimenIcon
             key={node.id}

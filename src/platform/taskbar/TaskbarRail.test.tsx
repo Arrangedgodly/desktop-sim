@@ -343,13 +343,18 @@ describe('TaskbarRail · module launcher', () => {
     expect(document.activeElement).toBe(items()[0])
   })
 
-  it('Tab stows the drawer (the menu swallows tab-order traversal)', () => {
+  it('Tab walks the rows WITHIN the drawer (a menu keeps its focus; Esc closes)', () => {
     render(<TaskbarRail />)
     fireEvent.click(pull())
 
+    const items = () => Array.from(menu().querySelectorAll('[data-launch-app]'))
     fireEvent.keyDown(menu(), { key: 'Tab' })
+    expect(document.activeElement).toBe(items()[1])
+    expect(document.querySelector('[data-launcher-menu]')).not.toBeNull() // still open
 
-    expect(document.querySelector('[data-launcher-menu]')).toBeNull()
+    fireEvent.keyDown(menu(), { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(items()[0])
+    expect(document.querySelector('[data-launcher-menu]')).not.toBeNull()
   })
 
   it('an empty registry states its emptiness honestly', () => {
@@ -359,5 +364,124 @@ describe('TaskbarRail · module launcher', () => {
 
     expect(screen.getByText('No modules registered with the archive.')).toBeDefined()
     expect(menu().querySelectorAll('[data-launch-app]')).toHaveLength(0)
+  })
+})
+
+describe('TaskbarRail · rail keyboard map (DD-1: one toolbar stop, arrow roving)', () => {
+  it('the rail announces as a toolbar', () => {
+    render(<TaskbarRail />)
+    expect(document.querySelector('[data-taskbar]')?.getAttribute('role')).toBe('toolbar')
+  })
+
+  it('the pull is the rail\'s tab stop until an arrow lands on an LED (roving tabindex)', () => {
+    render(<TaskbarRail />)
+    act(() => {
+      openWindow('probe')
+      openWindow('single')
+    })
+
+    const pullEl = pull()
+    const probeLed = ledByApp('probe')
+    expect(pullEl.getAttribute('tabindex')).toBe('0')
+    expect(probeLed.getAttribute('tabindex')).toBe('-1')
+
+    probeLed.focus()
+    fireEvent.keyDown(probeLed, { key: 'ArrowLeft' }) // focus → the pull, stop moves
+    expect(document.activeElement).toBe(pullEl)
+    expect(pullEl.getAttribute('tabindex')).toBe('0')
+    expect(probeLed.getAttribute('tabindex')).toBe('-1')
+
+    fireEvent.keyDown(pullEl, { key: 'ArrowRight' }) // focus → probe LED
+    expect(document.activeElement).toBe(probeLed)
+    expect(probeLed.getAttribute('tabindex')).toBe('0') // the stop roved with it
+    expect(pullEl.getAttribute('tabindex')).toBe('-1')
+  })
+
+  it('arrows walk pull ↔ LEDs with wrap; Home/End jump the ends', () => {
+    render(<TaskbarRail />)
+    act(() => {
+      openWindow('probe')
+      openWindow('single')
+    })
+
+    const probeLed = ledByApp('probe')
+    const singleLed = ledByApp('single')
+    probeLed.focus()
+
+    fireEvent.keyDown(probeLed, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(singleLed)
+
+    fireEvent.keyDown(singleLed, { key: 'ArrowRight' }) // wraps to the pull
+    expect(document.activeElement).toBe(pull())
+
+    fireEvent.keyDown(pull(), { key: 'ArrowLeft' }) // wraps back to the last LED
+    expect(document.activeElement).toBe(singleLed)
+
+    fireEvent.keyDown(singleLed, { key: 'Home' })
+    expect(document.activeElement).toBe(pull())
+
+    fireEvent.keyDown(pull(), { key: 'End' })
+    expect(document.activeElement).toBe(singleLed)
+  })
+
+  it('LED activation is the native button contract — the click Enter/Space produce (e2e presses the keys for real)', () => {
+    // jsdom does not synthesize the click a real browser fires for Enter/Space
+    // on a focused button; the contract under test is that the LED IS that
+    // button. The keyboard journey (tests/e2e/keyboard.spec.ts) presses Enter
+    // on a stowed LED in real Chromium to close the loop.
+    render(<TaskbarRail />)
+    let id = ''
+    act(() => {
+      id = openWindow('probe')
+    })
+    act(() => {
+      useWMStore.getState().minimizeWindow(id)
+    })
+    const led = ledByApp('probe')
+    expect(led.tagName).toBe('BUTTON')
+
+    fireEvent.click(led) // what the browser's Enter synthesizes
+    expect(useWMStore.getState().windows[id]?.minimized).toBe(false)
+    expect(useWMStore.getState().focusedId).toBe(id)
+
+    fireEvent.click(led) // now the FOCUSED LED — the same Enter stows (toggle)
+    expect(useWMStore.getState().windows[id]?.minimized).toBe(true)
+  })
+
+  it('a closed window takes its roving stop back to the pull', () => {
+    render(<TaskbarRail />)
+    let first = ''
+    act(() => {
+      first = openWindow('probe')
+      openWindow('single')
+    })
+    const probeLed = ledByApp('probe')
+    pull().focus()
+    fireEvent.keyDown(pull(), { key: 'ArrowRight' }) // stop roves onto the first LED
+    expect(document.activeElement).toBe(probeLed)
+    expect(probeLed.getAttribute('tabindex')).toBe('0')
+    expect(pull().getAttribute('tabindex')).toBe('-1')
+
+    act(() => {
+      useWMStore.getState().closeWindow(first) // that LED — and its stop — go
+    })
+
+    expect(pull().getAttribute('tabindex')).toBe('0')
+    expect(document.querySelector('[data-window-led][data-app-id="probe"]')).toBeNull()
+  })
+
+  it('the open drawer owns its keys — rail arrows stand down inside it', () => {
+    render(<TaskbarRail />)
+    act(() => {
+      openWindow('probe')
+    })
+    fireEvent.click(pull())
+
+    const items = () => Array.from(menu().querySelectorAll('[data-launch-app]'))
+    expect(document.activeElement).toBe(items()[0])
+
+    fireEvent.keyDown(menu(), { key: 'ArrowLeft' }) // would walk the rail — must not
+    expect(document.activeElement).toBe(items()[0])
+    expect(document.querySelector('[data-launcher-menu]')).not.toBeNull()
   })
 })

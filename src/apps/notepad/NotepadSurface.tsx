@@ -81,8 +81,8 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
   /** The specimen this window CREATED (an untitled draft's first save). */
   const [createdId, setCreatedId] = useState<string | null>(null)
   /** The draft body. Seeded once, from the bound specimen at mount. */
-  const [draft, setDraft] = useState<string>(() =>
-    textSpecimen(fs, specimenId(launch))?.content ?? '',
+  const [draft, setDraft] = useState<string>(
+    () => textSpecimen(fs, specimenId(launch))?.content ?? '',
   )
 
   const boundId = launchFileId ?? createdId
@@ -137,7 +137,9 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
       if (boundId === null) {
         if (name.length === 0) throw new FSError('invalid-name', 'a catalog label may not be empty')
         const id = crypto.randomUUID()
-        commit(createNode(current, { id, parentId: current.rootId, name, kind: 'text', content: draft }))
+        commit(
+          createNode(current, { id, parentId: current.rootId, name, kind: 'text', content: draft }),
+        )
         setCreatedId(id) // bind the window to the specimen it just accessioned
       } else {
         commit(renameNode(current, boundId, name))
@@ -233,7 +235,13 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
       save()
       return
     }
-    if (event.key === 'Escape') {
+    if (event.key === 'Escape' && !event.altKey && !event.ctrlKey && !event.metaKey) {
+      // Modifier Escapes are the OS's (Alt+Esc walks windows — DD-1), not the
+      // guard's. A plain Escape the notepad FULLY owns: the guard (or a clean
+      // close) runs here and the WM's Esc-close never also fires — app guard
+      // precedence over the OS chord.
+      event.preventDefault()
+      event.stopPropagation()
       if (guardOpen) {
         setGuardOpen(false) // the strip's own Escape keeps editing (safe default)
         return

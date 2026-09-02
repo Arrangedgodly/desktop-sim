@@ -150,10 +150,18 @@ describe('MenuShell · keyboard path', () => {
     expect(onClose).toHaveBeenCalledWith(true)
   })
 
-  it('Tab stows the menu (a menu swallows tab-traversal) with restore', () => {
+  it('Tab walks the rows WITHIN the menu (a menu keeps its focus; Esc closes)', () => {
     const { onClose } = renderShell(sampleItems())
+    const focused = () => document.activeElement
+    expect(focused()).toBe(item('one')) // open lands on the first row
+
     fireEvent.keyDown(shellMenu(), { key: 'Tab' })
-    expect(onClose).toHaveBeenCalledWith(true)
+    expect(focused()).toBe(item('two'))
+    expect(onClose).not.toHaveBeenCalled() // still open — Tab is traversal now
+
+    fireEvent.keyDown(shellMenu(), { key: 'Tab', shiftKey: true })
+    expect(focused()).toBe(item('one'))
+    expect(onClose).not.toHaveBeenCalled()
   })
 
   it('outside pointerdown closes WITHOUT forcing focus back', () => {

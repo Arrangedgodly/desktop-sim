@@ -44,6 +44,15 @@
   inset: 0;
 }
 
+/* The ground's focus seat (DD-1): an engaged hold draws as an inset beam
+   framing the plate — keyboard focus on the ground reads as "the desktop is
+   the selected object". focus-visible only, so a mouse click on the bare
+   plate never draws it. No animation — a state, not a moment. */
+.icon-field:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
 /* A pinned specimen: glyph plate above a parchment catalog label. The button
    is chrome-transparent — its card is drawn, not chrome. touch-action: none
    (RQ-3 drag surface — no pan/zoom hijack of the card) and no text selection
