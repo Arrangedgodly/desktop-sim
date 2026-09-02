@@ -1,0 +1,63 @@
+# ============================================================================
+# HOLD/OS — Cloudflare Pages response headers (DEP-1)
+#
+# Vite copies public/ verbatim into dist/, so this file ships in every build;
+# Cloudflare Pages applies it to static responses on both hosting paths
+# (Git integration and direct upload). Syntax notes: comments are `#` lines,
+# blocks are a path followed by indented `Header: value` lines, and a request
+# that matches multiple blocks inherits ALL of them — duplicate header names
+# are COMMA-JOINED, not overridden. That joining rule shaped this file:
+# every header name below appears in exactly one block per matched path.
+#
+# DECISIONS RECORDED HERE (the "why" behind every line and every absence):
+#
+# 1. The CSP is NOT mirrored as a header. The enforced policy ships as the
+#    meta tag in index.html (CA-1, the single source of truth — the strict
+#    `script-src 'self'` etc. that privacy.spec.ts pins and canary-tests).
+#    Multiple CSP sources never merge: a resource must satisfy ALL of them,
+#    so a full header copy would add zero restriction while creating a
+#    second authority over the same directives that can silently drift.
+#    The header below carries exactly ONE CSP directive — `frame-ancestors` —
+#    because a meta-delivered frame-ancestors is IGNORED by browsers
+#    (CSP3 §6.3). The meta governs everything it can deliver; the header
+#    adds only what the meta cannot.
+#
+# 2. Permissions-Policy has no meta form at all (response header only, per
+#    MDN) — this is the exact CA-1 handoff line. The app calls none of these
+#    APIs; the header makes that a browser-enforced fact instead of a claim.
+#
+# 3. X-Frame-Options: DENY is the legacy belt to frame-ancestors 'none'
+#    (old browsers ignore CSP framing directives). Same CA-1 handoff.
+#
+# 4. X-Content-Type-Options: nosniff has no meta form; Referrer-Policy
+#    AGREES with the existing `<meta name="referrer" content="no-referrer">`
+#    (identical value from both channels — belt and braces, never conflict).
+#
+# 5. Strict-Transport-Security is deliberately ABSENT: CA-1 logged it as
+#    optional "once the custom domain is known", and HSTS is a hostname-wide
+#    commitment. *.pages.dev is HTTPS-only and already HSTS-preloaded, so
+#    the line only becomes interesting post-custom-domain — see
+#    docs/DEPLOY.md for when/how to add it.
+#
+# 6. Cache-Control lives only in the two blocks below. Everything under
+#    assets/ is content-hashed by Vite (main-<hash>.js, app chunks, fonts):
+#    a content change mints a new URL, so those responses are immutable by
+#    construction and cache for a year. index.html is the only entry that
+#    must revalidate — it is the file that names the current hashes. No
+#    other root-level files exist today (the favicon is a data: URL); if one
+#    is ever added, give it its own no-cache rule rather than relying on
+#    the platform default.
+# ============================================================================
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/index.html
+  Cache-Control: no-cache
