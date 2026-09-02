@@ -1,0 +1,469 @@
+/* ----------------------------------------------------------------------------
+   Notepad styles — AP-2 (The Survey Archive). App-owned, app-scoped
+   (.notepad-*), consuming src/styles/tokens.css + global.css primitives —
+   no custom properties defined here.
+
+   World law this sheet obeys (design-brief.md):
+   · THE DUALITY, writing side — a dark console chrome toolbar over the
+     PARCHMENT content surface, the brief's own centerpiece: "dark console
+     chrome + light parchment content surfaces inside text-heavy apps".
+     Lora (never mono) typesets the sheet; ruled ledger baselines are the
+     archive's own stationery (a ledger sheet IS a ruled surface — the floor's
+     "textured only from the subject's world");
+   · amber phosphor ONLY inside recessed wells — the accession readout and the
+     dirty lamp's miniature seat (digits ride the mono face);
+   · brass ONLY at hardware touchpoints — the sheet's margin rule and the
+     parchment-side focus ring;
+   · oxide ONLY for the destructive Discard (losing unsaved entries);
+   · one authored moment: the lamp FLARE + confirm strip rising under the
+     close guard (transform+opacity only; the global reduced-motion
+     kill-switch collapses both to their visible end-states).
+---------------------------------------------------------------------------- */
+
+.notepad {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* -- toolbar (console chrome) ------------------------------------------------ */
+
+.notepad-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  box-sizing: border-box; /* min-height is the WHOLE plate (explorer's law) */
+  min-height: 36px;
+  padding: 5px 8px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The engraved specimen label — a legend you can re-cut (click to relabel). */
+.notepad-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 2px 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--chrome-ink);
+  text-shadow:
+    0 1px 0 rgb(0 0 0 / 70%),
+    0 2px 0 rgb(255 230 176 / 12%);
+  background: transparent;
+  border: none;
+  cursor: text; /* the label is editable in place */
+}
+
+.notepad-name:hover {
+  color: var(--phosphor-bright); /* the beam catches the engraved label */
+}
+
+.notepad-name:focus-visible {
+  outline: 2px solid var(--focus-ring); /* amber beam on chrome */
+  outline-offset: 1px;
+}
+
+/* The label-edit state: a field on the chrome, same engraved voice. */
+.notepad-name-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3px 6px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  text-align: left; /* an edit field shows the START of a long label */
+  line-height: 1.35;
+  color: var(--chrome-ink);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 70%);
+  background: var(--chrome-sunken);
+  border: 1px solid var(--brass);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 55%);
+  caret-color: var(--phosphor);
+}
+
+.notepad-name-field::selection {
+  background: rgb(255 179 64 / 32%); /* the console's amber wash */
+}
+
+.notepad-name-field:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 0;
+}
+
+@keyframes notepad-name-reject {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -6px 0;
+  }
+  55% {
+    translate: 5px 0;
+  }
+  80% {
+    translate: -3px 0;
+  }
+}
+
+.notepad-name-field[data-rename-rejected='true'] {
+  animation: notepad-name-reject 0.32s var(--ease-console);
+}
+
+/* The accession readout: digits ride B612 in a recessed phosphor well. */
+.notepad-accession {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  font-size: var(--size-legend);
+  white-space: nowrap;
+}
+
+/* The dirty lamp: a miniature recessed well — lit = unsaved changes. The
+   glow NEVER leaves the seat (phosphor's law). */
+.notepad-lamp {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--well-ground);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+  /* the lamp's dot, drawn as a radial wash inside the seat */
+  background-image: radial-gradient(circle at 50% 45%, var(--phosphor-dim) 0 22%, transparent 60%);
+  opacity: 0.55;
+}
+
+.notepad-lamp[data-lit='true'] {
+  opacity: 1;
+  background-image: radial-gradient(circle at 50% 45%, var(--phosphor) 0 34%, var(--phosphor-dim) 60%, transparent 75%);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    inset 0 0 5px var(--phosphor-glow);
+}
+
+.notepad-lamp[data-flare='true'] {
+  background-image: radial-gradient(circle at 50% 45%, var(--phosphor-bright) 0 40%, var(--phosphor) 62%, transparent 78%);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    inset 0 0 7px var(--phosphor-glow);
+}
+
+/* The flare beat: one step brighter as the guard strip rises (reduced-motion
+   collapses to the steady lit state above). */
+@keyframes notepad-lamp-flare {
+  0%,
+  100% {
+    box-shadow:
+      inset 1px 1px 0 rgb(0 0 0 / 60%),
+      inset -1px -1px 0 var(--chrome-edge-hi),
+      inset 0 0 7px var(--phosphor-glow);
+  }
+  50% {
+    box-shadow:
+      inset 1px 1px 0 rgb(0 0 0 / 60%),
+      inset -1px -1px 0 var(--chrome-edge-hi),
+      inset 0 0 11px var(--phosphor-glow),
+      0 0 6px var(--phosphor-glow);
+  }
+}
+
+.notepad-lamp[data-flare='true'] {
+  animation: notepad-lamp-flare var(--dur-beat) var(--ease-console) 2;
+}
+
+/* The Save plate — a chrome control (explorer-tool anatomy, text-bearing). */
+.notepad-save {
+  flex: 0 0 auto;
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.notepad-save:hover:not(:disabled) {
+  background: var(--chrome-ground);
+}
+
+.notepad-save:active:not(:disabled) {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.notepad-save:disabled {
+  color: var(--chrome-ink-dim);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.notepad-save:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* -- content (THE parchment surface) ------------------------------------------
+   Inherits bg/ink/serif/caret/scrollbar from .parchment-surface. The sheet is
+   the archive's own stationery: Lora, generous leading, ruled baselines that
+   scroll with the text (background-attachment: local), a brass margin rule
+   at the left edge — an archive ledger sheet, not a terminal. */
+
+.notepad-content {
+  position: relative; /* anchors the guard strip */
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 14px 18px;
+}
+
+.notepad-sheetwrap {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 78ch; /* the reading measure — a sheet, not a scroll across the desk */
+  margin-inline: auto;
+}
+
+.notepad-sheet {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 28px 28px 44px 58px;
+  resize: none;
+  font-family: var(--font-content); /* Lora — the archive's reading voice */
+  font-size: 0.9375rem; /* 15px */
+  line-height: 28px; /* the ledger's exact leading — the rules ride it */
+  color: var(--parchment-ink);
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 27px, rgb(51 41 28 / 16%) 27px 28px),
+    linear-gradient(to right, transparent 42px, rgb(176 141 63 / 30%) 42px 43px, transparent 43px),
+    var(--parchment);
+  background-attachment: local, local, local;
+  border: 1px solid rgb(51 41 28 / 22%);
+  box-shadow: 0 1px 2px rgb(51 41 28 / 12%); /* the sheet lies on the surface */
+}
+
+.notepad-sheet::placeholder {
+  color: var(--parchment-ink-dim);
+  font-style: italic;
+}
+
+.notepad-sheet:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass frame on parchment */
+  outline-offset: -2px; /* the ring rides inside the sheet */
+}
+
+/* -- the close guard strip -----------------------------------------------------
+   The console interposes over the archive: a chrome strip rising from the
+   bottom edge while the lamp flares. Keep editing is the safe default;
+   Discard is the one destructive control in this module (oxide's only meaning). */
+
+@keyframes notepad-strip-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.notepad-strip {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  background: var(--chrome-raised);
+  border-top: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    0 -2px 8px rgb(0 0 0 / 35%);
+  color: var(--chrome-ink);
+  animation: notepad-strip-rise var(--dur-beat) var(--ease-console);
+}
+
+.notepad-strip-title {
+  flex: 0 0 auto;
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--oxide-bright); /* the warning reads on chrome (5.2:1) */
+  text-shadow: 0 1px 0 rgb(0 0 0 / 70%);
+}
+
+.notepad-strip-body {
+  flex: 1 1 16ch;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  color: var(--chrome-ink-dim);
+}
+
+.notepad-strip-actions {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.notepad-strip-keep,
+.notepad-strip-discard {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.notepad-strip-keep {
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+}
+
+.notepad-strip-keep:hover {
+  background: var(--chrome-ground);
+}
+
+.notepad-strip-keep:focus-visible,
+.notepad-strip-discard:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.notepad-strip-discard {
+  color: var(--parchment);
+  background: var(--oxide); /* destructive — oxide only ever means this */
+  border: 1px solid var(--oxide-deep);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 255 255 / 14%),
+    inset -1px -1px 0 rgb(0 0 0 / 40%);
+}
+
+.notepad-strip-discard:hover {
+  background: var(--oxide-bright);
+}
+
+/* -- the removed-specimen notice ----------------------------------------------
+   The node was decommissioned elsewhere; this window is a closed file. */
+
+.notepad-removed {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+  margin: auto;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.notepad-removed-glyph {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 8px;
+  color: var(--parchment-ink-dim);
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 18%);
+  box-shadow: inset 0 1px 3px rgb(51 41 28 / 14%);
+}
+
+.notepad-removed-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+}
+
+.notepad-removed-hint {
+  max-width: 34ch;
+  margin: 0 0 10px;
+  font-family: var(--font-content);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--parchment-ink-dim);
+}
+
+.notepad-removed-close {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.notepad-removed-close:hover {
+  background: var(--chrome-ground);
+}
+
+.notepad-removed-close:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass frame on parchment */
+  outline-offset: 1px;
+}
+
+/* -- assistive mirror of the lamp (the lamp itself is decorative) ------------- */
+
+.notepad-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

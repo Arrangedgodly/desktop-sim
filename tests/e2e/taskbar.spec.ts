@@ -114,11 +114,15 @@ test('the drawer keyboards (Enter launches) and closes on Escape and outside cli
   const pull = page.getByRole('button', { name: 'Module drawer — launch a module' })
 
   // Keyboard: opening focuses the first item; Enter launches it.
+  // (First item = first REGISTERED app — AP-2 moved the notepad ahead of the
+  // demo module in src/apps/index.ts so the real text owner wins the
+  // explorer's acceptedFileTypes routing tiebreak; the launcher follows the
+  // registry's order, as it has since IM-4c.)
   await pull.click()
   await expect(page.locator('[data-launcher-menu]')).toBeVisible()
-  await expect(page.locator('[data-launch-app="demo"]')).toBeFocused()
+  await expect(page.locator('[data-launch-app="notepad"]')).toBeFocused()
   await page.keyboard.press('Enter')
-  await expect(page.locator('.wm-window')).toHaveCount(1)
+  await expect(page.locator('.wm-window[data-app-id="notepad"]')).toHaveCount(1)
   await expect(page.locator('[data-launcher-menu]')).toHaveCount(0)
 
   // Escape closes and hands focus back to the pull.
