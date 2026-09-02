@@ -4,6 +4,8 @@
    the POST tradition: the vault is speaking, not a parchment content moment.
    Ink from tokens only; oxide never appears here (a capacity/recovery notice
    is information, not a destructive surface).
+   Refinement #3 (harden): corners square — notice chrome rounds nothing
+   (the Machined Edge radius law; enforced by src/styles/tokens.test.ts).
 ---------------------------------------------------------------------------- */
 
 .storage-notices {
@@ -24,7 +26,6 @@
   width: min(340px, calc(100vw - 28px));
   padding: 12px 14px;
   border: 1px solid var(--chrome-edge-lo);
-  border-radius: 4px;
   box-shadow:
     inset 1px 1px 0 var(--chrome-edge-hi),
     0 10px 26px rgb(0 0 0 / 45%);
@@ -62,7 +63,6 @@
   min-height: 28px;
   padding: 3px 10px;
   border: 1px solid var(--chrome-edge-lo);
-  border-radius: 3px;
   background: var(--chrome-raised);
   box-shadow:
     inset 1px 1px 0 var(--chrome-edge-hi),

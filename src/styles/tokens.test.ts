@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // UI-1: the token stylesheet must actually MOUNT. In the built app that mount
@@ -122,6 +123,59 @@ describe('UI-1 · token stylesheet mounts', () => {
     expect(tokensCss).toContain("--font-label: 'Chakra Petch'")
     expect(tokensCss).toContain("--font-content: 'Lora'")
     expect(tokensCss).toContain("--font-mono: 'B612 Mono'")
+  })
+})
+
+// Refinement #3 (harden): the Machined Edge radius law — "there is no
+// border-radius scale because nothing rounds." The ONLY radius the world
+// permits is 50% (hardware circles: lamps, LEDs, radio dots, screws, rivets,
+// each seated in its own drilled recess). A 2–4px "soft" corner on a module,
+// plate, card, menu, or control is drift, not softness — it crept onto the
+// resilience chrome precisely because eyes look there least. This is the
+// check lane's radius grep: every shipped stylesheet is scanned, and any
+// non-50% border-radius (including inline styles if one ever appears) fails
+// with the file and line.
+describe('Refinement #3 · Machined Edge radius law (nothing rounds but hardware)', () => {
+  // (variable first arg — a literal would be statically rewritten by Vite's
+  // new-url transform and lose the file: scheme under vitest)
+  const selfMarker = 'tokens.test.ts'
+  const stylesRoot = join(dirname(fileURLToPath(new URL(selfMarker, import.meta.url))), '..')
+
+  /** Every shipped .css file under src/, as [path, source] pairs. */
+  const cssFiles: readonly [string, string][] = (() => {
+    const out: [string, string][] = []
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name)
+        if (entry.isDirectory()) walk(full)
+        else if (entry.name.endsWith('.css')) out.push([full, readFileSync(full, 'utf8')])
+      }
+    }
+    walk(stylesRoot)
+    return out
+  })()
+
+  it('scans a real stylesheet population (the grep cannot pass vacuously)', () => {
+    expect(cssFiles.length).toBeGreaterThan(10)
+    // the sanctioned hardware circles exist somewhere in that population
+    const radii = cssFiles.flatMap(([, css]) =>
+      [...css.matchAll(/border-radius:\s*([^;]+);/g)].map((m) => m[1]?.trim()),
+    )
+    expect(radii).toContain('50%')
+  })
+
+  it('permits no border-radius but 50% (hardware circles) in any shipped CSS', () => {
+    const offenders: string[] = []
+    for (const [path, css] of cssFiles) {
+      const lines = css.split('\n')
+      lines.forEach((line, i) => {
+        const match = /border-radius:\s*([^;]+);/.exec(line)
+        if (match && match[1]?.trim() !== '50%') {
+          offenders.push(`${path.replace(stylesRoot, 'src')}:${i + 1} → ${match[1]?.trim()}`)
+        }
+      })
+    }
+    expect(offenders, `non-hardware radii are drift:\n${offenders.join('\n')}`).toEqual([])
   })
 })
 

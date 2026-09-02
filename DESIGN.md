@@ -232,13 +232,13 @@ Depth is machined, not painted: every surface states its position in the chassis
 
 ### Named Rules
 
-**The Machined Edge Rule.** A surface's depth is carried by its 1px lips first; at most one soft ground shadow per module. Never stack blurs, never float a shadow without a bevel, never shadow chrome ink onto chrome.
+**The Machined Edge Rule.** A surface's depth is carried by its 1px lips first; at most one soft ground shadow per module. Never stack blurs, never float a shadow without a bevel, never shadow chrome ink onto chrome. **The radius law (as-built):** edges are cut, never softened — sharp 90° corners on every module, plate, card, chip, menu, and control; there is no radius scale because nothing rounds. The single sanctioned radius is the hardware circle — `border-radius: 50%` on status lamps, switch lamps, radio dots, screws, and rivets, each seated in its own drilled recess (a round lamp is hardware, not a rounded plate). No exception exists for pixel-scale softness: a 2–4px radius on a fault card, notice, or control is drift, not softness — the check lane fails any non-`50%` `border-radius` in shipped CSS (`src/styles/tokens.test.ts`, refinement #3).
 
 **The Ink Shadow Rule.** On parchment, shadows are warm ink tones over the paper — a black drop shadow on parchment is a foreign object.
 
 ## Shapes
 
-The form language is the rack instrument: sharp 90° corners on every module, plate, card, menu, and control — there is no border-radius scale because nothing rounds. The only circles in the world are hardware: status lamps, switch state lamps, radio dots, screws, and rivets (`border-radius: 50%`), each seated in its own drilled recess.
+The form language is the rack instrument: sharp 90° corners on every module, plate, card, menu, and control — there is no border-radius scale because nothing rounds (the Machined Edge Rule's radius law, enforced as a check-lane grep; the resilience chrome — fault cards, storage notices, the console-fault plate — was squared to it in refinement #3). The only circles in the world are hardware: status lamps, switch state lamps, radio dots, screws, and rivets (`border-radius: 50%`), each seated in its own drilled recess.
 
 - **Corner brackets:** engagement and grasp are drawn as rack-handle corner ticks — brass corner marks (eight short gradient ticks) cut into a selected specimen's plate; a two-tick brass bracket in a window's southeast corner for resize (edges carry plain 6px pulls).
 - **Engraving:** text is cut into surfaces (see The Engraved Legend Law); panels and seams repeat the cut — separators are a 1px dark seam with a light lip below.
@@ -365,7 +365,7 @@ One beveled console module (max 460px) centered on the hold ground: engraved tit
 - **Don't** let amber glow leave a well or a seated lamp; flat amber ink (wallpaper plates) is not glow.
 - **Don't** use brass decoratively or as a large surface outside the nameplate and primary brass action.
 - **Don't** use oxide for anything but warnings and destructive actions — and never as a fault state (faults are dashed, not oxide).
-- **Don't** round a module, card, menu, or control — corners are sharp; circles are hardware only.
+- **Don't** round a module, card, menu, or control — corners are sharp; circles are hardware only, and `50%` is the only `border-radius` value the world permits.
 - **Don't** set labels below the 11px floor or above the 14px off-ramp ceiling, outside the 0.08–0.12em tracking band, or at any weight but 600; and never set sentences in the label face.
 - **Don't** add transitions to furniture (rail, menus) or animate width/height (layout work breaks the 60fps floor).
 - **Don't** use drop shadows, blur stacks, or ambient glows on flat chrome; no black shadows on parchment.

@@ -8,6 +8,8 @@
    isolation surface for a thrown app error or a failed chunk load. Console
    chrome + one phosphor well (the fault IS a console event, not a parchment
    content moment); oxide reserved for the headline + the fault-kind line.
+   Refinement #3 (harden): corners square — fault chrome rounds nothing
+   (the Machined Edge radius law; enforced by src/styles/tokens.test.ts).
 ---------------------------------------------------------------------------- */
 
 .app-loading,
@@ -75,7 +77,6 @@
 .module-fault-name code {
   padding: 0 4px;
   border: 1px solid var(--chrome-edge-lo);
-  border-radius: 2px;
   color: var(--chrome-ink-dim);
   font-family: var(--font-mono);
   font-size: var(--size-legend);
@@ -109,7 +110,6 @@
   min-height: 30px;
   padding: 4px 12px;
   border: 1px solid var(--chrome-edge-lo);
-  border-radius: 3px;
   background: var(--chrome-raised);
   box-shadow:
     inset 1px 1px 0 var(--chrome-edge-hi),

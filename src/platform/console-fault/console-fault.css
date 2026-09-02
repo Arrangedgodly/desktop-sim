@@ -4,6 +4,8 @@
    a phosphor well carrying the POST-style fault report, oxide reserved for the
    destructive reset path. No images, no motion — it must render when nothing
    else can. Ink from tokens only.
+   Refinement #3 (harden): corners square — the plate rounds nothing
+   (the Machined Edge radius law; enforced by src/styles/tokens.test.ts).
 ---------------------------------------------------------------------------- */
 
 .console-fault {
@@ -26,7 +28,6 @@
   width: min(460px, 100%);
   padding: 18px;
   border: 1px solid var(--chrome-edge-lo);
-  border-radius: 4px;
   background: var(--chrome-raised);
   box-shadow:
     inset 1px 1px 0 var(--chrome-edge-hi),
@@ -98,7 +99,6 @@
   min-height: 34px;
   padding: 5px 14px;
   border: 1px solid var(--chrome-edge-lo);
-  border-radius: 3px;
   background: var(--chrome-raised);
   box-shadow:
     inset 1px 1px 0 var(--chrome-edge-hi),
