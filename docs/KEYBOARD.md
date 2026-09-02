@@ -54,7 +54,9 @@ inside their window; only an *unclaimed* Esc closes it:
 1. A text field (input / textarea / contentEditable) always keeps its keys.
 2. An app surface that handles Escape wins — e.g. the notepad's dirty guard
    (Esc with unsaved changes opens the "Catalog unsaved changes?" strip, Esc
-   in that strip keeps editing), the viewer's Esc bounce-back during a pan.
+   in that strip keeps editing; while the strip is open, **Tab stays inside
+   it** — the same law a menu keeps, DD-2), the viewer's Esc bounce-back
+   during a pan.
 3. Only then does the OS close the window — and the close itself rides the
    **close-request seam**, so a guard declared in the manifest is honored even
    on this path.

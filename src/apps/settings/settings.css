@@ -398,7 +398,7 @@
   font-weight: 600;
   letter-spacing: var(--track-legend);
   text-transform: uppercase;
-  color: var(--parchment-ink);
+  color: var(--parchment); /* oxide surfaces wear LIGHT parchment ink (DD-2: 4.9:1 on oxide, 7.3:1 on the deep end) */
   text-shadow: 0 1px 0 rgb(255 220 200 / 25%);
 }
 
@@ -406,7 +406,7 @@
   font-size: var(--size-legend);
   letter-spacing: var(--track-legend);
   text-transform: uppercase;
-  color: var(--parchment-ink);
+  color: var(--parchment);
 }
 
 /* The machined finger grip — the flap's handle, machined ridges in the oxide. */

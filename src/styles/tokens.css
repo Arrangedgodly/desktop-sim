@@ -12,8 +12,11 @@
      chrome-ink on chrome-raised 11.3:1 · chrome-ink-dim on raised 5.1:1
      engraved-ink on chrome-raised 7.6:1 · phosphor on well-ground 10.8:1
      phosphor-dim on well-ground 5.6:1 · parchment-ink on parchment 11.0:1
-     parchment-ink-dim on parchment 5.0:1 · oxide-bright on chrome-ground 5.2:1
-     oxide surface under parchment-ink 4.9:1 · brass-lo ring on parchment 5.5:1
+     parchment-ink-dim on parchment 5.5:1 (on parchment-shade 4.7:1 — DD-2
+     nudge from #6b5c45, which measured 4.36:1 on shade) · oxide-bright on
+     chrome-ground 5.2:1 · oxide surfaces wear LIGHT parchment ink 4.9:1 (on
+     oxide-deep 7.3:1 — never --parchment-ink, 2.25:1) · brass-lo ring on
+     parchment 5.5:1
 ---------------------------------------------------------------------------- */
 
 :root {
@@ -38,7 +41,7 @@
   --parchment: #ece2c9;
   --parchment-shade: #e0d3b4; /* recessed parchment — wells, zebra rows */
   --parchment-ink: #33291c;
-  --parchment-ink-dim: #6b5c45; /* secondary content text */
+  --parchment-ink-dim: #65573f; /* secondary content text (DD-2: darkened from #6b5c45 so shade rows keep AA) */
 
   /* -- brass (hardware touchpoints ONLY: pulls, label frames, scrollbar
         thumbs — never ornamental) ------------------------------------------- */

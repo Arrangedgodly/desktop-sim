@@ -373,15 +373,21 @@
 
 .notepad-strip-discard {
   color: var(--parchment);
-  background: var(--oxide); /* destructive — oxide only ever means this */
-  border: 1px solid var(--oxide-deep);
+  /* DD-2: oxide-deep base, not oxide — axe blends the bevel's light inset
+     into the effective background (oxide measured 4.23:1 there; the deep end
+     clears 5:1 blended, 7.3:1 nominal). Destructive ink stays light
+     parchment either way. */
+  background: var(--oxide-deep);
+  border: 1px solid var(--oxide);
   box-shadow:
     inset 1px 1px 0 rgb(255 255 255 / 14%),
     inset -1px -1px 0 rgb(0 0 0 / 40%);
 }
 
 .notepad-strip-discard:hover {
-  background: var(--oxide-bright);
+  /* Engagement lights the border (non-text, 5.2:1 on chrome), not the
+     surface — a brightened oxide surface drops light ink below AA. */
+  border-color: var(--oxide-bright);
 }
 
 /* -- the removed-specimen notice ----------------------------------------------

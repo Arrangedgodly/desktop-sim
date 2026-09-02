@@ -278,9 +278,14 @@ function DesktopStage({ firstVisit = false }: DesktopSurfaceProps) {
   }
 
   return (
+    // role="main" (DD-2): the desktop stage is the page's one main region —
+    // icons, docent hints, windows and the rail all sit inside it, so
+    // screen-reader landmark navigation lands somewhere meaningful.
     <div
       className="desktop-stage"
       data-desktop-stage
+      role="main"
+      aria-label="Hold console"
       ref={stageRef}
       onClick={handleStageClick}
       onContextMenu={handleStageContextMenu}

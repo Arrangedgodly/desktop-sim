@@ -163,10 +163,12 @@
 }
 
 .ctx-item[data-commit='true'] {
-  color: var(--parchment-ink); /* oxide surface under parchment ink (4.9:1) */
+  color: var(--parchment); /* oxide surfaces wear LIGHT parchment ink (DD-2: 4.9:1; dark --parchment-ink measured 2.25:1) */
   text-shadow: 0 1px 0 rgb(0 0 0 / 45%);
-  background: var(--oxide);
-  border-color: var(--oxide-deep);
+  /* DD-2: oxide-deep base — axe blends the bevel's light inset into the
+     effective background, where plain oxide lands below 4.5:1. */
+  background: var(--oxide-deep);
+  border-color: var(--oxide);
   box-shadow:
     inset 1px 1px 0 rgb(255 230 176 / 18%),
     inset -1px -1px 0 var(--oxide-deep);
@@ -176,6 +178,7 @@
 
 .ctx-item[data-commit='true']:hover,
 .ctx-item[data-commit='true']:focus-visible {
-  background: var(--oxide-deep);
-  color: var(--parchment-ink);
+  /* Engagement lights the border (non-text), never the surface. */
+  border-color: var(--oxide-bright);
+  color: var(--parchment);
 }

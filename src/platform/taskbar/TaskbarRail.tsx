@@ -42,7 +42,7 @@ export function TaskbarRail() {
   const focusedId = useWMStore((s) => s.focusedId)
   const apps = useAppRegistryStore((s) => s.apps)
   const leds = buildWindowLeds(windows, zOrder, focusedId, apps)
-  const railRef = useRef<HTMLElement>(null)
+  const railRef = useRef<HTMLDivElement>(null)
   /** The rail's roving tab stop: an LED id, or null = the pull. */
   const [rovingId, setRovingId] = useState<string | null>(null)
 
@@ -75,8 +75,11 @@ export function TaskbarRail() {
     items[next]!.focus()
   }
 
+  // The rail element is a <div>, deliberately: a <footer> here would imply a
+  // contentinfo landmark AND collide with role="toolbar" (axe
+  // aria-allowed-role) — the rail is a toolbar, full stop (DD-2).
   return (
-    <footer
+    <div
       className="tb-rail"
       data-taskbar
       role="toolbar"
@@ -97,7 +100,7 @@ export function TaskbarRail() {
         </span>
       </div>
       <TimecodeWell />
-    </footer>
+    </div>
   )
 }
 

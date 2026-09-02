@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { listApps } from '../app-registry'
 import { useFSStore } from '../stores/fs-store'
+import { useSettingsStore } from '../stores/settings-store'
 import type { BootResult } from '../../lib/storage/persistence'
 import { useStorageStatusStore } from '../../lib/storage/status'
 import { seedStoredState } from '../../lib/storage/stored-state'
@@ -24,8 +25,8 @@ import './boot.css'
  * POST screen is what the visitor watches meanwhile (≤2s, skippable, honest —
  * every line reports a real subsystem reading).
  *
- * Four modes, decided ONCE from two synchronous facts (the boot flag, read in
- * main.tsx before render, and the media query):
+ * Four modes, decided from the boot flag (read in main.tsx before render) and
+ * the console's reduced-motion verdict:
  *
  *   first visit + motion        'full'    typed POST, ≤2s, click/any-key skip
  *   first visit + reduced       'static'  final POST state ~300ms, no motion
@@ -34,6 +35,18 @@ import './boot.css'
  *
  * `post-complete` is marked for full/static only — on a return visit no POST
  * ran, so the milestone is absent and e2e asserts exactly that.
+ *
+ * DD-2 — the reduced-motion verdict is the console's, not the OS's alone: the
+ * OS `prefers-reduced-motion` ask lands only while the console's REDUCED-
+ * MOTION FOLLOW switch (AP-4, settings store, persisted, default ON) says it
+ * follows. A follow=OFF console DEMANDS the console's authored pacing — the
+ * typed POST, the RESUME flash — even under the OS ask. (The global CSS floor
+ * in global.css still collapses animations under the OS ask unconditionally;
+ * that floor governs browser-side motion. This seam governs WHICH variant
+ * runs.) The mode is first read before hydration — when the settings store
+ * still holds its follow=ON default — and re-read the moment the archive
+ * answers (MF-2 hydrates the settings store BEFORE the boot promise
+ * resolves), so a persisted follow=OFF is honored at the pacing decision.
  */
 
 export interface BootSequenceProps {
@@ -61,6 +74,16 @@ function prefersReducedMotion(): boolean {
   }
 }
 
+/**
+ * Does the console hold still right now? The OS ask lands only when the
+ * console follows it (DD-2 boot seam — mirrors the settings module's own
+ * `motionHoldsStill` consumption of the same switch).
+ */
+function consoleHoldsStill(hint?: boolean): boolean {
+  if (!useSettingsStore.getState().reducedMotionFollow) return false
+  return hint ?? prefersReducedMotion()
+}
+
 /** Reads the REAL subsystems the POST lines report (stores + registry + status). */
 function reportFromBoot(result: BootResult): PostSubsystemReport {
   const { fs } = useFSStore.getState()
@@ -84,9 +107,16 @@ function fallbackBootResult(firstVisit: boolean): BootResult {
 }
 
 export function BootSequence({ boot, firstVisit, reducedMotion }: BootSequenceProps) {
-  const mode = bootMode(firstVisit, reducedMotion ?? prefersReducedMotion())
+  // The mode is read once per mount — pre-hydration, when the settings store
+  // still holds its follow=ON default (see the DD-2 note above). The RESUME
+  // controller therefore starts typing during hydration exactly as UI-2
+  // designed it; a persisted follow=OFF discovered at hydration is honored by
+  // the correction effect below.
+  const [mode, setMode] = useState<BootMode>(() =>
+    bootMode(firstVisit, consoleHoldsStill(reducedMotion)),
+  )
   const [result, setResult] = useState<BootResult | null>(null)
-  const [postDone, setPostDone] = useState(mode === 'none')
+  const [postDone, setPostDone] = useState(false)
   const skipRequested = useRef(false)
 
   // Hydration gate: the desktop may only render once this resolves.
@@ -106,11 +136,36 @@ export function BootSequence({ boot, firstVisit, reducedMotion }: BootSequencePr
     }
   }, [boot, firstVisit])
 
+  // 'none' completes the moment the archive answers — there is no POST to
+  // run. (Runs before the follow correction below; when both fire in one
+  // flush the correction's setPostDone(false) wins the batch.)
+  useEffect(() => {
+    if (result !== null && mode === 'none') setPostDone(true)
+  }, [result, mode])
+
+  // DD-2 follow correction: the pre-hydration verdict rode the settings
+  // store's follow=ON default; once the archive answers, the operator's
+  // PERSISTED demand is known. Only a motion-DEMANDING correction can appear
+  // (a hydrated follow=OFF) — hydration can never add an OS ask the media
+  // query did not report at mount.
+  useEffect(() => {
+    if (result === null) return
+    const corrected = bootMode(firstVisit, consoleHoldsStill(reducedMotion))
+    if (corrected === mode) return
+    if (corrected === 'resume') {
+      setMode('resume') // a follow=OFF return visit demands the RESUME flash
+      setPostDone(false)
+    } else if (corrected === 'full') {
+      setMode('full') // a follow=OFF first visit demands the typed POST
+    }
+  }, [result, mode, firstVisit, reducedMotion])
+
   // The controller is constructed once (ref-guarded — StrictMode-safe). The
   // RESUME line needs no boot data, so it starts typing during hydration; the
   // full/static POST waits for the ARCHIVE INTEGRITY verdict and is therefore
   // built only once `result` exists (the probe caret fills the gap — IDB
-  // resolves in single-digit ms).
+  // resolves in single-digit ms). DD-2: the static-vs-full pacing choice is
+  // made HERE, post-hydration, so the persisted follow switch is honored.
   const controllerRef = useRef<PostController | null>(null)
   if (controllerRef.current === null) {
     if (mode === 'resume') {
@@ -123,7 +178,7 @@ export function BootSequence({ boot, firstVisit, reducedMotion }: BootSequencePr
     } else if (mode !== 'none' && result !== null) {
       controllerRef.current = new PostController({
         lines: buildPostLines(reportFromBoot(result)),
-        timing: mode === 'static' ? STATIC_POST_TIMING : FULL_POST_TIMING,
+        timing: consoleHoldsStill(reducedMotion) ? STATIC_POST_TIMING : FULL_POST_TIMING,
         onComplete: () => {
           setPostDone(true)
           if (mode === 'full' || mode === 'static') markBootOnce(POST_COMPLETE)
@@ -186,7 +241,10 @@ function PostScreen({ controller, onSkip }: PostScreenProps) {
 
   return (
     <div className="boot-screen" data-boot-screen onClick={onSkip}>
-      <div className="boot-module">
+      {/* role="main" (DD-2): the POST module is the page's whole content
+          while it owns the viewport — landmark navigation has somewhere to
+          land even mid-boot. */}
+      <div className="boot-module" role="main">
         <p className="engraved boot-caption">Power-on self test</p>
         <div
           className="well boot-well"

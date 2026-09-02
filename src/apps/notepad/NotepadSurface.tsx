@@ -139,6 +139,28 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
     useWMStore.getState().closeWindow(windowId)
   }
 
+  /**
+   * DD-2 — the close guard is a role="alertdialog": Tab stays INSIDE the
+   * strip while it owns the decision (the same law the UI-5 menu shell
+   * keeps). The trap owns focus movement explicitly — wrap between the
+   * strip's focusable buttons; modifier chords (Ctrl/Meta/Alt+Tab) are the
+   * browser's, never ours.
+   */
+  const handleStripTab = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+    if (event.key !== 'Tab' || event.ctrlKey || event.metaKey || event.altKey) return
+    const focusables = Array.from(
+      event.currentTarget.querySelectorAll<HTMLElement>('button:not([disabled])'),
+    )
+    if (focusables.length === 0) return
+    const active = document.activeElement
+    const index = focusables.indexOf(active as HTMLElement)
+    const next = event.shiftKey
+      ? (index <= 0 ? focusables.length - 1 : index - 1)
+      : (index === -1 || index === focusables.length - 1 ? 0 : index + 1)
+    event.preventDefault()
+    focusables[next]!.focus()
+  }
+
   /* ------------------------------ commits --------------------------------- */
 
   /** Commit the draft body into the bound specimen (the FS store seam). */
@@ -343,7 +365,7 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
 
   return (
     <div className="notepad" data-notepad-surface onKeyDown={handleKeyDown}>
-      <header className="notepad-toolbar">
+      <div className="notepad-toolbar">
         {editingName ? (
           <input
             ref={nameInputRef}
@@ -401,7 +423,7 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
         >
           Save
         </button>
-      </header>
+      </div>
 
       <div className="notepad-content parchment-surface" data-notepad-content>
         {boundId !== null && specimen === null ? (
@@ -427,6 +449,7 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
                 role="alertdialog"
                 aria-labelledby="notepad-strip-title"
                 aria-describedby="notepad-strip-body"
+                onKeyDown={handleStripTab}
               >
                 <p className="notepad-strip-title" id="notepad-strip-title">
                   Catalog unsaved changes?

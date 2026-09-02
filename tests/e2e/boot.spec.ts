@@ -122,14 +122,106 @@ test('reload (return visit, boot flag set) short-circuits the POST', async ({ pa
   expect(ready.t - start.t).toBeLessThanOrEqual(200) // near-instant desktop
 })
 
-test('prefers-reduced-motion: static POST state, then the desktop', async ({ page }) => {
+test('prefers-reduced-motion: static POST (all lines at once), then the desktop', async ({
+  page,
+}) => {
+  // DD-2 durable rewrite of the racy shape (IM-4b record): never poll the
+  // TRANSIENT POST DOM — the ~300ms static hold could come and go before the
+  // first assertion poll on a warm dev server. Instead a MutationObserver,
+  // installed before any app code runs, records whether any POST line was
+  // EVER mid-typing (data-state="typing" — the static variant lands every
+  // line fully-typed at once), and the __BOOT_TIMELINE milestones carry the
+  // completion + ordering evidence. (The observer watches `document`, not
+  // documentElement: an init script runs before <html> exists, and
+  // observe(null-equivalent) throws the observer away silently.)
+  await page.addInitScript(() => {
+    const w = window as unknown as { __sawTypingPostLine: boolean }
+    w.__sawTypingPostLine = false
+    const record = () => {
+      for (const row of Array.from(document.querySelectorAll('[data-post-line]'))) {
+        if ((row as HTMLElement).dataset.state === 'typing') w.__sawTypingPostLine = true
+      }
+    }
+    new MutationObserver(record).observe(document, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['data-state'],
+    })
+  })
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
 
-  // The final POST state appears at once (no typing animation to reduce away)…
-  await expect(page.locator('[data-post-line="archive-integrity"]')).toContainText('SEEDED')
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible({ timeout: 10_000 })
 
-  // …holds ~300ms, then the desktop takes over with the milestone intact.
-  await expect(page.locator('[data-desktop-stage]')).toBeVisible()
-  expect((await timeline(page)).map((m) => m.name)).toContain('post-complete')
+  // The static variant ran and completed — no typing cadence was ever observed.
+  expect(await page.evaluate(() => (window as { __sawTypingPostLine?: boolean }).__sawTypingPostLine)).toBe(false)
+  const milestones = await timeline(page)
+  const names = milestones.map((m) => m.name)
+  expect(names).toContain('post-complete')
+  const start = milestones.find((m) => m.name === 'boot-start')!
+  const post = milestones.find((m) => m.name === 'post-complete')!
+  const ready = milestones.find((m) => m.name === 'desktop-ready')!
+  expect(start.order).toBeLessThan(post.order)
+  expect(post.order).toBeLessThan(ready.order)
+  expect(ready.t - start.t).toBeLessThanOrEqual(2000) // the boot contract holds
+})
+
+test('reduced-motion follow OFF: the boot seam demands the console\u2019s motion', async ({
+  page,
+}) => {
+  // DD-2 — AP-4's REDUCED-MOTION FOLLOW switch reaches the boot seam: with
+  // the OS asking for reduced motion, a follow=ON console holds still (the
+  // 'none' return-visit boot runs NO POST line at all) while a follow=OFF
+  // console DEMANDS its motion (the RESUME flash runs). Whether any POST line
+  // ever mounted is recorded by a MutationObserver installed pre-app — the
+  // RESUME flash is itself ~120ms, so polling its DOM would be a race. (The
+  // observer watches `document` — see the note on the static-POST spec.)
+  await page.addInitScript(() => {
+    const w = window as unknown as { __sawPostLine: boolean }
+    w.__sawPostLine = false
+    const record = () => {
+      if (document.querySelector('[data-post-line]')) w.__sawPostLine = true
+    }
+    new MutationObserver(record).observe(document, {
+      childList: true,
+      subtree: true,
+    })
+  })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  await page.keyboard.press('Space') // through the static POST
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible({ timeout: 10_000 })
+
+  // Throw the console's REDUCED-MOTION FOLLOW switch OFF through the real UI.
+  await page.getByRole('button', { name: 'Module drawer — launch a module' }).click()
+  await page.getByRole('menuitem', { name: 'Console Settings' }).click()
+  await expect(page.locator('[data-settings-surface]')).toBeVisible({ timeout: 10_000 })
+  const follow = page.getByRole('switch', { name: 'Reduced-motion follow' })
+  await expect(follow).toHaveAttribute('aria-checked', 'true') // follows by default
+  await follow.click()
+  await expect(follow).toHaveAttribute('aria-checked', 'false')
+  await page.waitForTimeout(700) // the debounced envelope write settles
+
+  await page.reload() // return visit + OS reduced + follow=OFF
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible({ timeout: 10_000 })
+  expect(await page.evaluate(() => (window as { __sawPostLine?: boolean }).__sawPostLine)).toBe(
+    true,
+  ) // the console demanded its motion: the RESUME line ran
+
+  // Control: follow back ON → the OS ask holds still again (no POST at all).
+  await page.evaluate(() => {
+    ;(window as unknown as { __sawPostLine: boolean }).__sawPostLine = false
+  })
+  const restored = page.getByRole('switch', { name: 'Reduced-motion follow' })
+  await expect(restored).toBeVisible({ timeout: 10_000 }) // the console window restored
+  await restored.click()
+  await expect(restored).toHaveAttribute('aria-checked', 'true')
+  await page.waitForTimeout(700)
+
+  await page.reload() // return visit + OS reduced + follow=ON
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible({ timeout: 10_000 })
+  expect(await page.evaluate(() => (window as { __sawPostLine?: boolean }).__sawPostLine)).toBe(
+    false,
+  ) // 'none': the OS ask is honored — no POST line of any kind
 })

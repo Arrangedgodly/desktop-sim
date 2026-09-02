@@ -559,6 +559,32 @@ describe('AP-2 · close guard (dirty close interposes in-window)', () => {
     expect(sheet().value).toBe('kept')
   })
 
+  it('DD-2: the alertdialog strip TRAPS Tab — focus never leaves the decision', () => {
+    mountWindowed('charter')
+    fireEvent.change(sheet(), { target: { value: 'trapped' } })
+    fireEvent.keyDown(sheet(), { key: 'Escape' })
+    expect(strip().getAttribute('role')).toBe('alertdialog')
+
+    // Focus starts on Keep (the safe default); Tab -> Discard, Tab again
+    // WRAPS back to Keep — never out of the strip.
+    const keep = document.querySelector<HTMLButtonElement>('[data-notepad-keep]')!
+    const discard = document.querySelector<HTMLButtonElement>('[data-notepad-discard]')!
+    expect(document.activeElement).toBe(keep)
+
+    fireEvent.keyDown(strip(), { key: 'Tab' })
+    expect(document.activeElement).toBe(discard)
+    fireEvent.keyDown(strip(), { key: 'Tab' })
+    expect(document.activeElement).toBe(keep) // wrapped
+
+    // Shift+Tab from Keep wraps to Discard — both directions hold.
+    fireEvent.keyDown(strip(), { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(discard)
+
+    // The strip element itself never swallows the browser's chords.
+    fireEvent.keyDown(strip(), { key: 'Tab', ctrlKey: true })
+    expect(document.activeElement).toBe(discard) // untouched — the OS kept it
+  })
+
   it('Esc on a CLEAN specimen closes immediately — no strip, no guard', () => {
     const { windowId } = mountWindowed('charter')
     fireEvent.keyDown(sheet(), { key: 'Escape' })

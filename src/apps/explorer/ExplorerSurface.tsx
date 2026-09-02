@@ -250,7 +250,7 @@ export default function ExplorerSurface({ launch }: AppSurfaceProps) {
 
   return (
     <div className="explorer" data-explorer-surface onContextMenu={openGroundMenu}>
-      <header className="explorer-toolbar">
+      <div className="explorer-toolbar">
         <button
           type="button"
           className="explorer-tool"
@@ -318,7 +318,7 @@ export default function ExplorerSurface({ launch }: AppSurfaceProps) {
             <LedgerGlyph />
           </button>
         </div>
-      </header>
+      </div>
 
       <div
         className="explorer-content parchment-surface"

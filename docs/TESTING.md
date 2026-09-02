@@ -28,7 +28,7 @@ tests.
   and config files (so a typo in a selector assertion fails before the browser
   ever launches).
 - **lint** — ESLint recommended + react-hooks/react-refresh rules.
-- **test** (Vitest, 942 cases today) — pure logic and store/component seams:
+- **test** (Vitest, 948 cases today) — pure logic and store/component seams:
   FS ops, schema/migrations, persistence + recovery, WM z-order/geometry,
   app registry, perf instrumentation, WM host components. Node by default;
   files needing a DOM opt in with a `// @vitest-environment jsdom` docblock and
@@ -36,15 +36,53 @@ tests.
 - **perf** — `tsc --noEmit && vite build`, then asserts the committed budgets
   (total JS gz ≤ 250 KB, main chunk gz ≤ 120 KB, fonts raw ≤ 150 KB, CSS gz
   ≤ 40 KB) against `dist/`; exits non-zero on breach.
-- **test:e2e** (Playwright, chromium, 69 specs today) — the full functional
+- **test:e2e** (Playwright, chromium, 92 specs today) — the full functional
   suite against the real app in a real browser: boot, desktop, drag/resize
-  fps, taskbar, keyboard journey, every app, resilience, edges, notice — plus
-  the TH-2 perf/soak gates, which ride the PRODUCTION build via their own
-  `vite preview` server (see "Perf e2e" below).
+  fps, taskbar, keyboard journey, every app, resilience, edges, notice, the
+  DD-2 accessibility gates — plus the TH-2 perf/soak gates, which ride the
+  PRODUCTION build via their own `vite preview` server (see "Perf e2e"
+  below).
   `playwright.config.ts` starts the dev server on
   `http://localhost:5180` (`--strictPort`, reused if already running locally),
   keeps traces/screenshots only on failure (`test-results/`, gitignored), and
   the runner itself is excluded from `npm test`.
+
+## Accessibility gates (DD-2)
+
+`tests/e2e/a11y.spec.ts` carries the audit in two halves:
+
+- **Axe surfaces** — axe-core (a devDependency, never in the bundle; its
+  script source is read via `createRequire` and injected into the page —
+  `addScriptTag` works because the DEV CSP carries the documented
+  'unsafe-inline' relaxation; the shipped strict CSP never sees any of this)
+  over 15 surfaces: boot POST, desktop, explorer, notepad clean + guard,
+  viewer, settings seated + armed, atlas index + plate, about, the 390px
+  notice, an open ground menu, the destructive confirm row, and the injected
+  module-fault card. Gate: ZERO critical/serious findings; every
+  moderate/minor finding is printed (`[axe] …`) for the production log's
+  disposition table. The boot scan installs axe as an init script (CDP,
+  pre-app, CSP-free) and scans the POST tableau inside its ~1.3s window —
+  freezing the clock does NOT work there (axe's own scheduler rides page
+  timers).
+- **Checklist gates** — focus-visible beams on every interactive family
+  (ground, icons, taskbar pull + LEDs, plate swatches, guard cover),
+  focus traps (notepad guard strip — a REAL DD-2 fix, the alertdialog now
+  traps Tab — and the ground menu), reduced-motion coverage of every
+  authored moment via computed animation/transition durations (caret blink,
+  guard rail slide, about stamp, atlas page turn, icon-trail + window
+  shimmer pseudo-elements), 200% zoom operability (1024×576 desktop — the
+  phone gate owns every logical width below 1024 by design — and 195×422
+  notice), and a screen-reader smoke expressed as DOM/ARIA assertions
+  (roles, names, idref resolution) — the honest headless proxy, documented
+  as such in the production log.
+
+`tests/e2e/boot.spec.ts` holds the two boot-contract a11y gates: the
+static-POST spec (durable via a MutationObserver + `__BOOT_TIMELINE`, never
+by polling the transient POST DOM) and the reduced-motion-follow seam spec
+(follow=OFF demands the RESUME flash; follow=ON holds still). The observers
+watch `document` — NOT `document.documentElement`, which does not exist when
+an init script runs (an observe(null) throw kills the observer silently;
+found the hard way, see the DD-2 log).
 
 ## Growing the matrix
 

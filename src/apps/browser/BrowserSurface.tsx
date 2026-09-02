@@ -228,7 +228,7 @@ export function FieldAtlas({
   return (
     <div className="browser-atlas" onKeyDown={onKeyDown}>
       {/* -- toolbar (console chrome) ------------------------------------- */}
-      <header className="browser-toolbar">
+      <div className="browser-toolbar">
         <button
           type="button"
           className="browser-tool browser-back"
@@ -273,7 +273,7 @@ export function FieldAtlas({
             <NextGlyph />
           </button>
         </div>
-      </header>
+      </div>
 
       {/* -- the parchment sheet (the archive's reading side) --------------- */}
       <div className="browser-scroll parchment-surface">
@@ -397,7 +397,7 @@ function PlatePage({
           inner), while the ARTICLE stays mounted — focus on the reading seat
           survives paging, so arrows stay live turn after turn. */}
       <div key={plate.id} className="browser-page-turn">
-      <header className="browser-page-head">
+      <div className="browser-page-head">
         <p className="browser-page-number engraved--parchment">
           Plate {romanNumeral(index + 1)}
         </p>
@@ -407,7 +407,7 @@ function PlatePage({
         <span className="browser-accession well" data-browser-accession>
           {accession}
         </span>
-      </header>
+      </div>
 
       <div className="browser-page-body">
         <figure className="browser-figure">

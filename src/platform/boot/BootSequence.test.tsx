@@ -416,6 +416,104 @@ describe('BootSequence · storage failure never blocks boot', () => {
   })
 })
 
+describe('BootSequence · reduced-motion follow (DD-2 boot seam)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  /**
+   * The operator's persisted follow=OFF archive — the honest fixture for the
+   * boot seam (an in-test store write would be overwritten by seed hydration
+   * before the first render commits under React 19's act flush order; the
+   * adapter carries the demand the way the real console does).
+   */
+  function followOffAdapter(): StorageAdapter {
+    const stored: StoredState = {
+      ...seedStoredState(),
+      settings: { ...seedStoredState().settings, reducedMotionFollow: false },
+    }
+    return { ...memoryAdapter(), load: async () => stored }
+  }
+
+  it('follow=OFF + OS reduced + first visit DEMANDS the typed POST (not static)', async () => {
+    await renderBoot({ reducedMotion: true, adapter: followOffAdapter() })
+
+    // The typed cadence, not the static all-at-once state: line 1 is mid-type.
+    expect(line('archive-integrity').getAttribute('data-state')).toBe('typing')
+    expect(desktopStage()).toBeNull()
+
+    advance(FULL_DURATION)
+    expect(desktopStage()).not.toBeNull()
+    expect(milestone('post-complete')).toBeDefined()
+  })
+
+  it('follow=OFF + OS reduced + return visit plays the RESUME flash (not none)', async () => {
+    await renderBoot({ firstVisit: false, reducedMotion: true, adapter: followOffAdapter() })
+
+    expect(line('resume').textContent).toContain('RESUME')
+    advance(200)
+    expect(desktopStage()).not.toBeNull()
+    expect(readBootTimeline().map((m) => m.name)).not.toContain('post-complete')
+  })
+
+  it('a PERSISTED follow=OFF discovered at hydration flips none → resume (the correction)', async () => {
+    // Pre-hydration the store still holds its follow=ON default → mode 'none'.
+    const { adapter, resolveLoad } = deferredAdapter()
+    const boot = bootPersistence({ adapter, autosave: false })
+    await act(async () => {
+      render(<BootSequence boot={boot} firstVisit={false} reducedMotion={true} />)
+    })
+    expect(document.querySelector('[data-boot-ground]')).not.toBeNull() // none: no POST
+
+    // The archive answers with an operator who turned follow OFF.
+    const stored: StoredState = {
+      ...seedStoredState(),
+      settings: { ...seedStoredState().settings, reducedMotionFollow: false },
+    }
+    await act(async () => {
+      resolveLoad(stored)
+      await boot
+    })
+
+    // The console demands its motion: the RESUME flash runs after all.
+    expect(line('resume').textContent).toContain('RESUME')
+    advance(200)
+    expect(desktopStage()).not.toBeNull()
+  })
+
+  it('a PERSISTED follow=OFF discovered at hydration builds the FULL pacing (static → typed)', async () => {
+    const { adapter, resolveLoad } = deferredAdapter()
+    const boot = bootPersistence({ adapter, autosave: false })
+    await act(async () => {
+      render(<BootSequence boot={boot} firstVisit={true} reducedMotion={true} />)
+    })
+
+    const stored: StoredState = {
+      ...seedStoredState(),
+      settings: { ...seedStoredState().settings, reducedMotionFollow: false },
+    }
+    await act(async () => {
+      resolveLoad(stored)
+      await boot
+    })
+
+    // The controller is constructed at the hydration commit, where the
+    // hydrated follow=OFF is already known: lines TYPE instead of landing
+    // fully-typed, despite the OS ask.
+    expect(line('archive-integrity').getAttribute('data-state')).toBe('typing')
+    advance(FULL_DURATION)
+    expect(desktopStage()).not.toBeNull()
+    expect(milestone('post-complete')).toBeDefined()
+  })
+
+  it('follow=ON (default) keeps the OS ask: static first visit, none on return', async () => {
+    await renderBoot({ reducedMotion: true })
+    for (const id of ['archive-integrity', 'module-registry', 'plugin-bus', 'console', 'os-banner']) {
+      expect(line(id).getAttribute('data-state')).toBe('done') // static, unchanged
+    }
+  })
+})
+
 describe('BootSequence · budget guard', () => {
   it('the full first-visit typing schedule stays within the 2s contract', () => {
     const lines = buildPostLines({

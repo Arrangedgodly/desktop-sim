@@ -94,7 +94,7 @@ export function NameplateManifest({
     <div className="about" data-about-surface>
       <div className="about-scroll parchment-surface">
         {/* -- the brass commissioning plate ------------------------------ */}
-        <header className="about-plate">
+        <div className="about-plate">
           <span className="about-rivet about-rivet--tl" aria-hidden="true" />
           <span className="about-rivet about-rivet--tr" aria-hidden="true" />
           <span className="about-rivet about-rivet--bl" aria-hidden="true" />
@@ -121,7 +121,7 @@ export function NameplateManifest({
               {commissioning.stamp}
             </span>
           </p>
-        </header>
+        </div>
 
         {/* -- the placeholder notice (stand-ins, never markers) ----------- */}
         {view.placeholder && (

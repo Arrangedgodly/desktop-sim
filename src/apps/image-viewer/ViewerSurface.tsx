@@ -292,7 +292,7 @@ export default function ViewerSurface({ windowId, launch }: AppSurfaceProps) {
       data-zoom={view.pct}
       onKeyDown={handleKeyDown}
     >
-      <header className="viewer-toolbar">
+      <div className="viewer-toolbar">
         <span className="viewer-name engraved" data-viewer-name title={displayName}>
           {displayName}
         </span>
@@ -341,7 +341,7 @@ export default function ViewerSurface({ windowId, launch }: AppSurfaceProps) {
             {view.mode === 'fit' ? '1:1' : 'Fit'}
           </button>
         </div>
-      </header>
+      </div>
 
       <div
         ref={stageRef}
