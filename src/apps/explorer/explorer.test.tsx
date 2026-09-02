@@ -323,10 +323,17 @@ describe('AP-1 · open routing from inside a drawer', () => {
     expect(warn).toHaveBeenCalledTimes(1)
   })
 
-  it('a child no registered app accepts opens nothing (honest interim)', () => {
-    mountSurface() // reference-plate is an image; no image owner registered
+  it('an image child opens its OWNING app — the interim ended at AP-3 (image-viewer)', () => {
+    // This was the "no registered app accepts images" honest-interim probe
+    // until the viewer registered: same unfreeze class as the notepad's text
+    // route. Now the plate opens its owner through the same consultation.
+    mountSurface()
     fireEvent.doubleClick(option('reference-plate'))
-    expect(windowCount()).toBe(0)
+
+    expect(windowCount()).toBe(1)
+    const record = Object.values(useWMStore.getState().windows)[0]!
+    expect(record.appId).toBe('image-viewer')
+    expect(record.launch).toEqual({ source: 'file', file: node('reference-plate') })
   })
 })
 
