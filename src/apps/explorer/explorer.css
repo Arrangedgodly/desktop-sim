@@ -1,0 +1,461 @@
+/* ----------------------------------------------------------------------------
+   Explorer styles — AP-1 (The Survey Archive). App-owned, app-scoped
+   (.explorer-*), consuming src/styles/tokens.css + global.css primitives —
+   no custom properties defined here.
+
+   World law this sheet obeys (design-brief.md):
+   · the DUALITY in one module — dark console chrome toolbar over a parchment
+     catalog content surface (the brief's own answer to amber-world fatigue);
+   · amber phosphor ONLY inside the toolbar's one recessed readout well
+     (the accession code — digits always ride the mono face);
+   · brass ONLY at hardware touchpoints — here the engaged card/row frame
+     (a rack-handle selection mark) and the parchment focus ring;
+   · oxide nowhere in the listing — destruction lives in the shared menu;
+   · one authored motion: the drawer pull on navigation (transform+opacity
+     only; the global reduced-motion kill-switch collapses it).
+---------------------------------------------------------------------------- */
+
+.explorer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* -- toolbar (console chrome) ------------------------------------------------ */
+
+.explorer-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  box-sizing: border-box; /* min-height is the WHOLE plate (default is content-box) */
+  min-height: 36px;
+  padding: 5px 8px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%); /* the plate sits in the module */
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Chrome control plates — same anatomy as the wm title-bar controls. */
+.explorer-tool,
+.explorer-view-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.explorer-tool:hover:not(:disabled),
+.explorer-view-btn:hover {
+  background: var(--chrome-ground);
+}
+
+.explorer-tool:active:not(:disabled),
+.explorer-view-btn:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.explorer-tool:disabled {
+  color: var(--chrome-ink-dim);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.explorer-tool:focus-visible,
+.explorer-view-btn:focus-visible,
+.explorer-crumb:focus-visible {
+  outline: 2px solid var(--focus-ring); /* amber beam on chrome */
+  outline-offset: 1px;
+}
+
+/* The active density button reads as a held (pressed) plate. */
+.explorer-view-btn[aria-pressed='true'] {
+  color: var(--phosphor); /* lamp ink — the engaged state's lit legend */
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.explorer-view {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+/* Breadcrumb: engraved legends, current crumb ink raised. The '/' separators
+   are the catalog's own path punctuation (pathOf joins with '/'). */
+.explorer-crumbs {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.explorer-crumb-slot {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.explorer-crumb {
+  max-width: 160px;
+  padding: 2px 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 70%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.explorer-crumb:hover {
+  color: var(--chrome-ink);
+}
+
+.explorer-crumb[aria-current] {
+  color: var(--chrome-ink); /* where the operator stands */
+}
+
+.explorer-crumb-sep {
+  flex: 0 0 auto;
+  padding: 0 1px;
+  color: var(--chrome-edge-hi);
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+}
+
+/* The accession readout: digits ride B612 in a recessed phosphor well. */
+.explorer-accession {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 3px 9px;
+  font-size: var(--size-legend);
+  white-space: nowrap;
+}
+
+/* -- content (parchment catalog surface) --------------------------------------
+   Inherits bg/ink/serif/scrollbar/focus-ring from .parchment-surface; the
+   drawer scrolls HERE (the window frame's own scroll stays dormant). */
+
+.explorer-content {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* The one authored motion: navigating a drawer PULLS the new listing out of
+   the module (transform + opacity, console ease — compositor only). */
+@keyframes explorer-pull {
+  from {
+    opacity: 0.35;
+    transform: translateX(14px);
+  }
+}
+
+.explorer-pull {
+  animation: explorer-pull var(--dur-beat) var(--ease-console);
+}
+
+/* -- grid view: specimen cards ------------------------------------------------
+   Catalog cards on parchment: a printed kind glyph over the engraved label
+   (name + accession), framed by a hairline of the ink itself. */
+
+.explorer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 10px;
+  padding: 14px;
+  align-content: start;
+}
+
+.explorer-card {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 10px 6px 8px;
+  background: transparent;
+  border: 1px solid rgb(51 41 28 / 22%);
+  box-shadow: 0 1px 2px rgb(51 41 28 / 12%);
+  cursor: default;
+  color: var(--parchment-ink);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.explorer-card:hover {
+  background: rgb(51 41 28 / 4%);
+}
+
+/* Engagement = the brass rack-handle frame (a hardware touchpoint), card
+   pressed one step into the drawer. */
+.explorer-card[data-selected='true'] {
+  background: var(--parchment-shade);
+  border-color: var(--brass);
+  box-shadow:
+    inset 0 0 0 1px var(--brass-lo),
+    0 1px 2px rgb(51 41 28 / 18%);
+}
+
+.explorer-card:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass frame on parchment */
+  outline-offset: 1px;
+}
+
+.explorer-card-glyph {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 18%);
+  box-shadow: inset 0 1px 3px rgb(51 41 28 / 14%);
+}
+
+.explorer-card[data-selected='true'] .explorer-card-glyph {
+  background: var(--parchment);
+}
+
+.explorer-card-label {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  width: 100%;
+  text-align: center;
+}
+
+.explorer-card-name {
+  max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* catalog labels wrap to two ruled lines */
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+}
+
+.explorer-card-accession {
+  font-family: var(--font-mono); /* catalog numbers ride the tabular face */
+  font-size: var(--size-legend);
+  line-height: 1;
+  color: var(--parchment-ink-dim);
+}
+
+/* -- list view: ledger rows --------------------------------------------------- */
+
+.explorer-ledger-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) 84px 118px;
+  gap: 12px;
+  padding: 7px 14px 5px;
+  background: var(--parchment);
+  border-bottom: 1px solid rgb(51 41 28 / 28%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink-dim);
+}
+
+.explorer-list {
+  display: grid;
+  align-content: start;
+}
+
+.explorer-row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) 84px 118px;
+  gap: 12px;
+  align-items: baseline;
+  padding: 5px 14px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: default;
+  color: var(--parchment-ink);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.explorer-row:nth-child(even) {
+  background: var(--parchment-shade); /* the token's own zebra-row shade */
+}
+
+.explorer-row:hover {
+  background: rgb(51 41 28 / 5%);
+}
+
+.explorer-row[data-selected='true'] {
+  background: var(--parchment-shade);
+  box-shadow: inset 0 0 0 1px var(--brass); /* the same brass engagement frame */
+}
+
+.explorer-row:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px; /* ring rides inside the row */
+}
+
+.explorer-row-accession,
+.explorer-row-stamp {
+  font-family: var(--font-mono); /* readout columns ride the tabular face */
+  font-size: var(--size-legend);
+  color: var(--parchment-ink-dim);
+}
+
+.explorer-row-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+}
+
+.explorer-row-kind {
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--parchment-ink-dim);
+}
+
+/* -- inline rename ------------------------------------------------------------
+   The label-edit state on the card/row: the engraved name becomes a field on
+   the parchment (the desktop's SpecimenIcon pattern, light-world skinned).
+   A rejected relabel shakes in-world on the `translate` property (never
+   transform — nothing else competes for it here, but the discipline holds). */
+
+/* Declared after the card/row borders so the editing frame wins the cascade. */
+.explorer-editing {
+  border-color: var(--brass);
+}
+
+.explorer-rename-input {
+  width: 100%;
+  min-width: 0;
+  padding: 2px 4px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: left; /* an edit field shows the START of a long label */
+  line-height: 1.35;
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+  background: var(--parchment);
+  border: 1px solid var(--brass);
+  box-shadow: inset 0 1px 3px rgb(51 41 28 / 22%);
+  caret-color: var(--brass-lo);
+}
+
+/* The global amber selection wash vanishes over parchment; the field swaps
+   to a brass wash so the selected label range stays VISIBLE while retyping. */
+.explorer-rename-input::selection {
+  background: rgb(176 141 63 / 45%);
+}
+
+.explorer-rename-input:focus-visible {
+  outline: 2px solid var(--brass-lo);
+  outline-offset: 0;
+}
+
+@keyframes explorer-rename-reject {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -6px 0;
+  }
+  55% {
+    translate: 5px 0;
+  }
+  80% {
+    translate: -3px 0;
+  }
+}
+
+.explorer-card[data-rename-rejected='true'],
+.explorer-row[data-rename-rejected='true'] {
+  animation: explorer-rename-reject 0.32s var(--ease-console);
+}
+
+/* -- empty drawer --------------------------------------------------------------- */
+
+.explorer-empty {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 56px 24px 40px;
+  text-align: center;
+}
+
+.explorer-empty-glyph {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 8px;
+  color: var(--parchment-ink-dim);
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 18%);
+  box-shadow: inset 0 1px 3px rgb(51 41 28 / 14%);
+}
+
+.explorer-empty-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+}
+
+.explorer-empty-hint {
+  max-width: 34ch;
+  margin: 0;
+  font-family: var(--font-content);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--parchment-ink-dim);
+}

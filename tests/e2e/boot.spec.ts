@@ -50,7 +50,11 @@ test('first visit: POST checks real subsystems, then gives way to the desktop (�
   const archive = page.locator('[data-post-line="archive-integrity"]')
   await expect(archive).toContainText('ARCHIVE INTEGRITY')
   await expect(archive).toContainText('SEEDED') // first visit → fresh catalog
-  await expect(page.locator('[data-post-line="module-registry"]')).toContainText('1 MODULE')
+  // The registry line reads the LIVE registry (AP-1 made it 2 modules; the
+  // fleet grows it) — assert the readout shape, not a frozen count.
+  await expect(page.locator('[data-post-line="module-registry"]')).toContainText(
+    /\d+ MODULES? REGISTERED/,
+  )
   await expect(page.locator('[data-post-line="plugin-bus"]')).toContainText('READY')
   await expect(page.locator('[data-post-line="console"]')).toContainText('ONLINE')
   await expect(page.locator('[data-post-line="os-banner"]')).toContainText('HOLD/OS')
