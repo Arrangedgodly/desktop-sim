@@ -120,6 +120,7 @@ guarded step (Delete) steps back on Esc before closing.
 | Field atlas | `ArrowLeft` / `ArrowRight` page plates, `Backspace` back to the ledger |
 | Settings | arrows move the wallpaper radiogroup, `Space` throws switches |
 | Explorer | arrows walk the specimen listbox, Enter opens |
+| Catalog terminal | `Enter` commits the command line, `↑` / `↓` walk command history, `Tab` completes sibling names, `Esc` clears the current line (the terminal's first claim on Esc) |
 
 ## Laws
 

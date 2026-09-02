@@ -18,20 +18,35 @@ import { apps } from './index'
  *
  * Order is asserted too: it is the launcher's listing order AND the
  * first-declaration tiebreak for capability routing (see src/apps/index.ts).
+ *
+ * FEDERATED FLEET (session 1 · the honest unfreeze): `terminal` joined the
+ * shipped fleet — the first federated app built against the contract
+ * (docs/FEDERATED-SESSIONS.md). The gate's INTENT holds exactly: no demo,
+ * every RESERVED id still ships (no squatters, no gaps — the check now
+ * reads "reserved ⊆ fleet" because a federated id is legitimate), every
+ * mount still retryableLazy, and the order is still pinned — the notepad
+ * keeps the launcher's opening run, the console keeps the closing one.
  */
 
 describe('TH-2 · the shipped app fleet', () => {
-  it('registers exactly the six reserved platform apps, in the stable order', () => {
+  it('registers the reserved platform apps plus the catalog terminal, in the stable order', () => {
     expect(apps.map((app) => app.id)).toEqual([
       'notepad',
       'image-viewer',
       'explorer',
       'about',
       'browser',
+      'terminal',
       'settings',
     ])
-    // Every shipped id is a reserved id (no squatters, no gaps).
-    expect([...RESERVED_APP_IDS].sort()).toEqual([...new Set(apps.map((a) => a.id))].sort())
+    // Every reserved id still ships — no squatters, no gaps. The terminal is
+    // the one legitimate non-reserved id (a federated app, registered the
+    // standard way; the reserved set itself is untouched).
+    const fleetIds = apps.map((a) => a.id)
+    for (const reserved of RESERVED_APP_IDS) {
+      expect(fleetIds, reserved).toContain(reserved)
+    }
+    expect(fleetIds.filter((id) => !RESERVED_APP_IDS.includes(id))).toEqual(['terminal'])
   })
 
   it('does NOT ship the demo module — it is a test-only fixture now', () => {

@@ -129,7 +129,12 @@ describe('AP-5 · registration manifest', () => {
     // and BEFORE the console (its sanctioned slot), so the nameplate now
     // rides directly ahead of the ATLAS, no longer of the console.
     expect(ids.indexOf('about')).toBe(ids.indexOf('browser') - 1)
-    expect(ids.indexOf('browser')).toBe(ids.indexOf('settings') - 1)
+    // FEDERATED UNFREEZE (session 1): the catalog terminal joined the closing
+    // run between the atlas and the console (its sanctioned slot) — the ends
+    // (notepad first, settings last) stay stable, and the atlas no longer
+    // rides directly ahead of the console.
+    expect(ids.indexOf('terminal')).toBe(ids.indexOf('settings') - 1)
+    expect(ids.indexOf('browser')).toBe(ids.indexOf('terminal') - 1)
   })
 })
 

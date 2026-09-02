@@ -145,11 +145,14 @@ describe('AP-6 · registration manifest', () => {
     expect(container.querySelector('svg[aria-hidden="true"]')).not.toBeNull()
   })
 
-  it('rides between about and settings — the launcher ends stay stable', () => {
+  it('rides between about and the closing run — the launcher ends stay stable', () => {
     const ids = listApps().map((app) => app.id)
     expect(ids.indexOf('notepad')).toBe(0) // launcher's first item (taskbar floor)
     expect(ids.indexOf('settings')).toBe(ids.length - 1) // launcher's last item
-    expect(ids.indexOf('browser')).toBe(ids.indexOf('settings') - 1)
+    // FEDERATED UNFREEZE (session 1): the catalog terminal joined the closing
+    // run between the atlas and the console (its sanctioned slot) — the ends
+    // stay stable, and the atlas now rides directly ahead of the TERMINAL.
+    expect(ids.indexOf('browser')).toBe(ids.indexOf('terminal') - 1)
   })
 })
 

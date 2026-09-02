@@ -1,0 +1,148 @@
+/* ----------------------------------------------------------------------------
+   Terminal styles — federated session 1 (The Survey Archive). App-owned,
+   app-scoped (.terminal-*), consuming src/styles/tokens.css + the global
+   primitives — no custom properties defined here, NO RAW HEX anywhere (the
+   repo's grep-tested token law).
+
+   World law this sheet obeys (design-brief.md + DESIGN.md):
+   · THE ONE ALL-WELL APP — the window content IS a recessed phosphor well
+     (.well supplies the deepest ground, the mono face, the tabular digits,
+     the bloom); there is no parchment inside a shell;
+   · monochrome amber discipline — out/dim/err/in are phosphor, phosphor-dim
+     and phosphor-bright ONLY; oxide never enters a well;
+   · scanlines from the cheap repeating-gradient primitive (.scanlines),
+     never canvases, never filters;
+   · B612 Mono throughout (the Measuring Law);
+   · the authored moment is exactly one: the caret blink (the POST's own
+     vocabulary) — reduced-motion collapses it to a solid visible block via
+     global.css's kill-switch;
+   · sharp corners (the Machined Edge Rule) — nothing rounds here.
+---------------------------------------------------------------------------- */
+
+.terminal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-size: 0.8125rem; /* the readout stop — 13px of B612 */
+  line-height: 1.6;
+  user-select: text; /* the log is reading material, not chrome */
+  cursor: text;
+}
+
+/* -- the log (the well's screen) ---------------------------------------------- */
+
+.terminal-log {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 10px 4px;
+}
+
+.terminal-line {
+  min-height: 1.6em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere; /* long codes/labels fold, they never widen the well */
+  font-family: var(--font-mono);
+}
+
+.terminal-line[data-kind='dim'] {
+  color: var(--phosphor-dim); /* aged amber — the tube's secondary beam */
+}
+
+.terminal-line[data-kind='err'],
+.terminal-line[data-kind='in'] {
+  color: var(--phosphor-bright); /* refusals and the echoed command run hot */
+}
+
+/* -- the input line ------------------------------------------------------------ */
+
+.terminal-inputrow {
+  position: relative; /* above the scanline overlay for hit-testing clarity */
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  flex: 0 0 auto;
+  padding: 5px 10px 8px;
+  border-top: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 0 1px 0 var(--chrome-edge-hi); /* the seam's light lip */
+}
+
+.terminal-prompt {
+  flex: 0 0 auto;
+  color: var(--phosphor-bright);
+  white-space: pre;
+}
+
+.terminal-entry {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The invisible mirror: its text sizes the entry exactly like the input's
+   text, so the caret block (::after) rides the true text edge. */
+.terminal-mirror {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  white-space: pre;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The authored moment — the beam's caret, the POST's own vocabulary: a solid
+   block that blinks; prefers-reduced-motion collapses it (via global.css's
+   animation kill-switch) to the solid block — never to blank. */
+.terminal-mirror::after {
+  content: '';
+  visibility: visible;
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 1px;
+  transform: translateY(0.14em);
+  background: var(--phosphor-bright);
+  box-shadow: 0 0 6px var(--phosphor-glow); /* the bloom — inside the well */
+  animation: terminal-caret-blink 1.1s steps(1) infinite;
+}
+
+@keyframes terminal-caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.terminal-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--phosphor);
+  caret-color: transparent; /* the authored caret above owns the beam */
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.terminal-input:focus-visible {
+  outline: 2px solid var(--focus-ring); /* the amber beam, inside the well */
+  outline-offset: -2px;
+}
+
+/* The screen-reader seat: the log is a live region (polite — command results
+   announce once, appended), the input names itself in-world. */
+.terminal-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

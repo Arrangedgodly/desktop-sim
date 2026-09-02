@@ -4,6 +4,7 @@ import { notepadApp } from './notepad'
 import { viewerApp } from './image-viewer'
 import { aboutApp } from './about'
 import { browserApp } from './browser'
+import { terminalApp } from './terminal'
 import { settingsApp } from './settings'
 
 /**
@@ -38,6 +39,12 @@ import { settingsApp } from './settings'
  * positions are free; the nameplate rides behind the explorer and the
  * console stays last so the launcher's opening run (notepad first) and
  * closing run (console last) stay untouched.
+ *
+ * FEDERATED FLEET (session 1): terminal/ is the first app built by a
+ * federated session against the contract — not a reserved id, registered the
+ * standard way. It declares no file types (it is a shell OVER the archive,
+ * not a specimen handler), so its position is free by the same law; it rides
+ * immediately before the console to keep the closing run intact.
  */
 export const apps: readonly AppManifest[] = [
   notepadApp,
@@ -45,5 +52,6 @@ export const apps: readonly AppManifest[] = [
   explorerApp,
   aboutApp,
   browserApp,
+  terminalApp,
   settingsApp,
 ]
