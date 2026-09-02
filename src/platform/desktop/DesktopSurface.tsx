@@ -46,7 +46,7 @@ import { FSError, listChildren, renameNode, type FSNode } from '../../lib/fs'
 import { requestPersistentStorage } from '../../lib/storage/adapter'
 import { useFSStore } from '../stores/fs-store'
 import { useSettingsStore } from '../stores/settings-store'
-import { appContentFor } from '../app-registry'
+import { appCloseGuardFor, appContentFor } from '../app-registry'
 import { arrowNavigate, attachOSKeyboard, isTextEntryTarget, type NavDirection } from '../keyboard'
 import { WindowHost } from '../wm'
 import { useViewportSize } from '../wm/use-viewport-size'
@@ -312,7 +312,7 @@ function DesktopStage({ firstVisit = false }: DesktopSurfaceProps) {
         ))}
       </div>
       {docentVisible && <DocentCallouts slots={slots} onDismiss={handleDismissDocent} />}
-      <WindowHost contentFor={appContentFor} />
+      <WindowHost contentFor={appContentFor} closeGuard={appCloseGuardFor} />
       <TaskbarRail />
       {/* HU-1: storage failure/recovery notices — fixed furniture above the
           rail; visible even when every window is closed. */}

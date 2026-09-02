@@ -37,6 +37,30 @@ export function clampGeometryToViewport(
 }
 
 /**
+ * HU-2 offscreen recovery: the geometry a STORED window record should be
+ * committed to when it no longer fits the live viewport — saved on a big
+ * monitor, reopened on a laptop — or `null` when it already sits fully
+ * on-screen (or the viewport is degenerate/0, i.e. not yet measured: there is
+ * nothing honest to clamp against). The renderer clamps visually on every
+ * frame; THIS is the store-side recovery, so the persisted record, the drag
+ * math (`startGeometry`) and the rendered frame can never disagree — without
+ * it, the first title-bar grab of a recovered window teleports it.
+ */
+export function viewportRecovery(
+  geometry: WindowGeometry,
+  viewport: ViewportSize,
+): WindowGeometry | null {
+  if (viewport.w <= 0 || viewport.h <= 0) return null
+  const clamped = clampGeometryToViewport(geometry, viewport)
+  return clamped.x === geometry.x &&
+    clamped.y === geometry.y &&
+    clamped.w === geometry.w &&
+    clamped.h === geometry.h
+    ? null
+    : clamped
+}
+
+/**
  * Maximized bounds are DERIVED from the `maximized` flag (IM-2 store contract):
  * the stored `geometry` is always the normal-state geometry and is never
  * overwritten by maximizing.

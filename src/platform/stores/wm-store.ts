@@ -50,9 +50,19 @@ export interface WindowRecord {
    * Launch context captured at open (IM-3 `openApp`): why/how this window was
    * opened. Consumed by the app surface via `appContentFor`; riding on the
    * record means it survives MF-2 persistence. Absent for platform-level
-   * windows opened directly through the store.
+   * windows opened directly through the store. Updated ONLY through the
+   * `rebindWindow` seam (HU-2) — open-time capture is otherwise immutable.
    */
   readonly launch?: AppLaunchContext
+  /**
+   * Opaque per-window app state (HU-2 launch-rebind seam). The platform never
+   * reads it; an app may persist a small structured-clone-safe payload on its
+   * own window record (the notepad stores its untitled draft body here so a
+   * reload restores the SAME draft instead of a blank sheet). Apps MUST
+   * defensively validate on read — it crosses the persistence trust boundary
+   * (validate.ts carries it verbatim).
+   */
+  readonly appState?: unknown
   readonly openedAt: number
 }
 
@@ -136,6 +146,28 @@ export interface WMState {
    * Clears the transient `dragging` slice for that window in the same commit.
    */
   commitWindowGeometry: (id: WindowId, geometry: WindowGeometry) => void
+  /**
+   * Retitle a window (HU-2 rename-follow): document-bound apps keep the title
+   * bar reading the LIVE specimen name — a rename in another window follows
+   * into this one. No-op on unknown id or an unchanged title.
+   */
+  setWindowTitle: (id: WindowId, title: string) => void
+  /**
+   * Patch the window's opaque `appState` payload (HU-2 draft persistence).
+   * Structured-clone-safe values only — it rides the record into MF-2.
+   * No-op on unknown id or a reference-equal payload.
+   */
+  setWindowAppState: (id: WindowId, appState: unknown) => void
+  /**
+   * The launch-rebind seam (HU-2): rebind a window onto a new instance +
+   * launch context in ONE atomic patch. The notepad uses it when an untitled
+   * draft is accessioned — the window BECOMES the file window (`instanceId =
+   * file:<nodeId>`), so same-file dedupe and reload restoration treat it as if
+   * it had been opened from the specimen all along. `false` = no-op (unknown
+   * id, or another window already holds the target instance — first holder
+   * wins, warned).
+   */
+  rebindWindow: (id: WindowId, rebind: { instanceId: InstanceId; launch: AppLaunchContext }) => boolean
 }
 
 const DEFAULT_GEOMETRY: WindowGeometry = { x: 96, y: 64, w: 720, h: 480 }
@@ -330,6 +362,38 @@ export const useWMStore = create<WMState>()(
         windows: withWindow(windows, id, { geometry }),
         dragging: dragging?.id === id ? null : dragging,
       })
+    },
+
+    setWindowTitle: (id, title) => {
+      const { windows } = get()
+      const win = windows[id]
+      if (!win || win.title === title) return
+      set({ windows: withWindow(windows, id, { title }) })
+    },
+
+    setWindowAppState: (id, appState) => {
+      const { windows } = get()
+      const win = windows[id]
+      if (!win || win.appState === appState) return
+      set({ windows: withWindow(windows, id, { appState }) })
+    },
+
+    rebindWindow: (id, rebind) => {
+      const { windows } = get()
+      const win = windows[id]
+      if (!win) return false
+      const clash = Object.values(windows).find(
+        (other) => other.id !== id && other.appId === win.appId && other.instanceId === rebind.instanceId,
+      )
+      if (clash) {
+        console.warn(
+          '[wm-store] rebind rejected: instance "%s" is already held by another window',
+          rebind.instanceId,
+        )
+        return false
+      }
+      set({ windows: withWindow(windows, id, { instanceId: rebind.instanceId, launch: rebind.launch }) })
+      return true
     },
   })),
 )

@@ -40,7 +40,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react'
 import { useFSStore, useWMStore } from '../../platform/stores'
-import type { AppSurfaceProps } from '../../platform/app-registry'
+import { getApp, IMAGE_VIEWER_APP_ID, type AppSurfaceProps } from '../../platform/app-registry'
 import {
   clampPan,
   displaySize,
@@ -88,6 +88,18 @@ export default function ViewerSurface({ windowId, launch }: AppSurfaceProps) {
 
   const boundId = plateId(launch)
   const plate = imageSpecimen(fs, boundId)
+
+  /* --------------------- window title follows the plate (HU-2 h) ----------- */
+
+  // The record's title (the title bar) reads the mounted plate's LIVE name.
+  // The OPENING title already rode the open commit (titleForLaunch), so this
+  // effect is a no-op at mount — it exists for renames that happen while the
+  // window is open. An empty/unbound stage falls back to the module's name.
+  const moduleTitle = getApp(IMAGE_VIEWER_APP_ID)?.name ?? 'Plate Viewer'
+  const titleText = plate ? plate.name : moduleTitle
+  useEffect(() => {
+    useWMStore.getState().setWindowTitle(windowId, titleText)
+  }, [windowId, titleText])
 
   /* ------------------------------ view state ------------------------------- */
 

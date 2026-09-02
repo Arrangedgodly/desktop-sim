@@ -39,4 +39,7 @@ export const viewerApp: AppManifest = {
   // singleton omitted → false: one window per plate (file-instance dedupe)
   acceptedFileTypes: ['image'],
   defaultGeometry: { w: 640, h: 520 },
+  // HU-2 title-follow: a file-opened window is titled by its plate from the
+  // very first paint (the surface keeps following live renames after).
+  titleForLaunch: (launch) => (launch.source === 'file' ? launch.file.name : undefined),
 }

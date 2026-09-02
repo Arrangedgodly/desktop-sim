@@ -3,6 +3,7 @@
 // selection, grid placement, roving tabindex, wallpaper seam, docent hints
 // (first visit, dismissal, persistence), the open seam (double-click +
 // Enter), and the first-interaction wiring (requestPersistentStorage once).
+import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { createNode, emptyFSState } from '../../lib/fs'
@@ -329,5 +330,32 @@ describe('DesktopSurface · boot milestone', () => {
     render(<DesktopSurface />)
 
     expect(readBootTimeline().filter((m) => m.name === 'desktop-ready')).toHaveLength(1)
+  })
+})
+
+
+/* ============================== HU-2 edges ================================ */
+
+describe('HU-2 (d) · a very long specimen name on the desktop icon', () => {
+  it('the icon carries the full name in title + aria-label; the label clamps (CSS law)', () => {
+    const LONG =
+      'SPECIMEN-WITH-AN-UNBOUNDED-CATALOG-LABEL-THAT-RUNS-PAST-THE-ICON-PLATE-' +
+      'AND-MUST-CLAMP-TO-THE-RULED-LINES-2087.txt'
+    act(() => {
+      const { fs, commit } = useFSStore.getState()
+      commit(createNode(fs, { id: 'long-name', parentId: 'root', name: LONG, kind: 'text' }))
+    })
+    render(<DesktopSurface />)
+
+    const icon = document.querySelector('[data-specimen-id="long-name"]') as HTMLElement
+    expect(icon.getAttribute('title')).toBe(LONG) // hover carries the whole label
+    expect(icon.getAttribute('aria-label')).toContain(LONG) // AT is never truncated
+
+    // CSS law: the parchment label clamps to its ruled lines (3-line -webkit
+    // clamp), it never grows the icon cell unbounded.
+    const css = readFileSync('src/platform/desktop/desktop.css', 'utf8')
+    const nameBlock = css.split('.specimen-name {')[1]!.split('}')[0]!
+    expect(nameBlock).toContain('-webkit-line-clamp')
+    expect(nameBlock).toContain('overflow: hidden')
   })
 })

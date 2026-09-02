@@ -286,6 +286,7 @@ export default function ExplorerSurface({ launch }: AppSurfaceProps) {
                 className="explorer-crumb"
                 data-explorer-crumb={crumb.id}
                 aria-current={index === crumbs.length - 1 ? 'location' : undefined}
+                title={crumb.name} /* long drawer names clamp; hover carries the whole label */
                 onClick={() => navigate(crumb.id)}
               >
                 {crumb.name}

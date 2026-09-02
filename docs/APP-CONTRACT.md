@@ -51,6 +51,8 @@ canonical shape — all fields readonly):
 | `singleton` | `boolean` | no (default `false`) | `true` → at most ONE window ever; re-open raises + focuses the existing one. Omit for multi-instance. |
 | `acceptedFileTypes` | `readonly FSNodeKind[]` | no | FS node kinds (`'folder' | 'text' | 'image' | 'app-link'`) your app can open. Declares file-opening capability (explorer child routing / launcher file opens consult it). |
 | `defaultGeometry` | `AppGeometryHints` | no | `{ w, h }` required, `{ x, y }` optional. Omitted origin → platform cascade placement. Hints apply to the first open only; the user's geometry always wins afterwards. |
+| `titleForLaunch` | `(launch) => string \| undefined` | no (default = manifest `name`) | **Opening title (HU-2).** A document app titles its window by the file it opens on (`launch.file.name`). The title rides the open commit — correct before a lazy surface mounts; live renames afterwards are the app's business (`setWindowTitle`). |
+| `onCloseRequest` | `(request: { windowId, launch }) => boolean` | no (default = close) | **Close veto (HU-2).** Consulted before every platform-initiated close (title-bar ✕, the OS's unclaimed Esc): return `true` to veto — your app then owns the rest of the flow and closes the window itself (`closeWindow`); return `false`/omit to close now. Dirty state lives in mounted surfaces, not the manifest — the notepad's pattern is a tiny per-window guard registry (`registerCloseGuard`, `src/apps/notepad/notepad-model.ts`) the surface registers into on mount and the manifest consults; "no guard" answers `false`, which is also the safe default. |
 
 **Reserved app ids** (IM-5): `explorer`, `notepad`, `image-viewer`, `settings`,
 `about`, `browser` are reserved for the platform's own fleet — named constants
@@ -85,6 +87,27 @@ interface AppSurfaceProps {
 Everything else your app needs comes from stores you import directly
 (`useWMStore`, `useFSStore`, `useSettingsStore`, or your own zustand store).
 Close/focus your own window with `useWMStore.getState().closeWindow(windowId)`.
+
+**Window self-control seams (HU-2)** — three wm-store actions an app may call
+on its own window record:
+
+- `setWindowTitle(windowId, title)` — keep the title bar reading a LIVE name
+  (the notepad and the plate viewer retitle onto the bound specimen's name, so
+  a rename in another window follows into the title bar). No-op on unknown id
+  or unchanged title.
+- `setWindowAppState(windowId, payload)` — persist a small
+  structured-clone-safe payload on your window's `appState` field; it rides
+  the record into MF-2 persistence. The platform treats it as **opaque**; you
+  MUST validate it defensively on read (it crossed the persistence trust
+  boundary — `validate.ts` carries it verbatim). The notepad stores its
+  untitled draft body here so a reload restores the same draft.
+- `rebindWindow(windowId, { instanceId, launch })` — rebind a window onto a
+  new instance + launch context in one atomic patch. The notepad uses it when
+  an untitled draft is accessioned: the window becomes the *file* window
+  (`instanceId = file:<nodeId>`), so same-file dedupe, reload restoration and
+  delete-handling treat it as if it had been opened from the specimen all
+  along. Returns `false` (no-op, warned) if another window already holds the
+  target instance.
 
 ## AppLaunchContext
 

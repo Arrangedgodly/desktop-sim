@@ -171,10 +171,14 @@ export function openApp(appId: AppId, launch: AppLaunchContext = LAUNCHER_LAUNCH
   const wm = useWMStore.getState()
   const hints = manifest.defaultGeometry
   const cascade = cascadedGeometry(Object.keys(wm.windows).length)
+  // HU-2: a document app may title its window by the file it opens on
+  // (titleForLaunch) — riding the open commit, so the title bar is correct
+  // before a lazy surface mounts and no later retitling is needed.
+  const title = manifest.titleForLaunch?.(launch) ?? manifest.name
   return wm.openWindow({
     appId,
     ...(instanceId !== undefined ? { instanceId } : {}),
-    title: manifest.name,
+    title,
     launch,
     // Size hints ride the platform cascade for the origin; no hints → pure cascade.
     ...(hints

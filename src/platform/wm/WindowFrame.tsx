@@ -22,6 +22,13 @@ export interface WindowFrameProps {
    * label naming the appId.
    */
   readonly renderContent?: (win: WindowRecord) => ReactNode
+  /**
+   * Close-request policy — the HU-2 app-registry seam (`appCloseGuardFor`).
+   * Consulted before ANY platform-initiated close (title-bar ✕, unclaimed
+   * Esc): returning `true` vetoes and the owning app takes the rest of the
+   * flow. Omit → always close (the default contract).
+   */
+  readonly closeGuard?: (win: WindowRecord) => boolean
 }
 
 /**
@@ -37,7 +44,12 @@ export interface WindowFrameProps {
  * during the gesture, ONE geometry commit at pointerup. Maximimized modules
  * are fixed furniture: no drag, no resize handles.
  */
-export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
+export function WindowFrame({
+  id,
+  viewport,
+  renderContent,
+  closeGuard,
+}: WindowFrameProps) {
   // Own-record selector (store layer rule 1): the record reference changes only
   // when THIS window is patched (title/flags/one geometry commit per gesture) —
   // never when other windows update. The `windows` map itself is never selected.
@@ -80,22 +92,28 @@ export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
   const activate = () => useWMStore.getState().focusWindow(id)
   const minimize = () => useWMStore.getState().minimizeWindow(id)
   const toggleMaximize = () => useWMStore.getState().toggleMaximize(id)
-  const close = () => useWMStore.getState().closeWindow(id)
+  // HU-2 close-request seam: every PLATFORM-initiated close (✕, unclaimed Esc)
+  // asks the app first via the injected policy — `true` vetoes and the app owns
+  // the rest (the notepad flares its lamp + interposes the guard strip and
+  // closes itself when the operator answers). No policy / no veto → close now.
+  const requestClose = () => {
+    if (closeGuard && record && closeGuard(record)) return
+    useWMStore.getState().closeWindow(id)
+  }
 
   // DD-1 Esc-close: an UNCLAIMED Escape inside this window closes it. Claimed
   // means any of — a modifier chord (Alt+Esc is the OS window walk), an inner
-  // handler that already preventDefaulted (the viewer's pan bounce), a text
-  // entry target (fields own their Escape; the notepad additionally stops
-  // propagation for its dirty guard, keeping app precedence over the OS).
-  // There is no close-request/veto seam on the title-bar ✕ yet — that seam
-  // is HU-2's; apps that need a guard own their Escape before it gets here.
+  // handler that already preventDefaulted (the viewer's pan bounce, the
+  // notepad's dirty guard which fully owns plain Esc before it gets here), a
+  // text entry target (fields own their Escape). The close itself rides the
+  // HU-2 seam above, so an app with a close guard is honored on this path too.
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.key !== 'Escape') return
     if (event.altKey || event.ctrlKey || event.metaKey) return
     if (event.defaultPrevented) return
     if (isTextEntryTarget(event.target)) return
     event.preventDefault()
-    close()
+    requestClose()
   }
 
   const titleId = `wm-title-${id}`
@@ -147,7 +165,7 @@ export function WindowFrame({ id, viewport, renderContent }: WindowFrameProps) {
             className="wm-control wm-control-close"
             aria-label="Close"
             title="Close — release module"
-            onClick={close}
+            onClick={requestClose}
           >
             <span aria-hidden="true">✕</span>
           </button>

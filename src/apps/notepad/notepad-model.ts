@@ -80,3 +80,64 @@ export function withTextContent<S extends CatalogSheet>(
   if (!node || node.kind !== 'text') return null
   return { ...sheet, nodes: { ...sheet.nodes, [id]: { ...node, content } } }
 }
+
+/* -------------------------------------------------------------------------
+ * HU-2 (b) · draft persistence on the window record.
+ *
+ * An untitled draft has NO catalog node to autosave into, so its body lived
+ * only in React state — a reload blanked it, and a saved-then-reloaded draft
+ * window came back "untitled" next to the specimen it had accessioned (the
+ * orphan-duplicate hazard behind the recorded launch-rebind follow-up). The
+ * minimal correct design: the draft body rides the WM window record as the
+ * app's opaque `appState` payload (`{ draft }`, debounced like the content
+ * autosave), and the FIRST SAVE rebinds the window onto the accessioned node
+ * (`rebindWindow`: instanceId `file:<id>` + a file launch context) so the
+ * window is a file window in every respect — dedupe, reload, removed-notice —
+ * from that moment on. After a reload the restored window either still edits
+ * the SAME persisted draft (never saved) or binds its specimen (saved).
+ * ---------------------------------------------------------------------- */
+
+/** The notepad's persisted window payload (structured-clone-safe by shape). */
+export interface NotepadDraftState {
+  readonly draft: string
+}
+
+/**
+ * Defensively read the draft off an UNTRUSTED `appState` (it crossed the
+ * persistence boundary; validate.ts carries it verbatim). `null` = absent,
+ * malformed, or not the notepad's payload — callers fall back to the bound
+ * specimen's content.
+ */
+export function readDraftState(appState: unknown): string | null {
+  if (typeof appState !== 'object' || appState === null) return null
+  const draft = (appState as Record<string, unknown>)['draft']
+  return typeof draft === 'string' ? draft : null
+}
+
+/* -------------------------------------------------------------------------
+ * HU-2 (a) · the close-request veto's per-window half.
+ *
+ * The manifest is static but dirtiness lives in mounted surfaces, so the
+ * surface registers a per-window guard here (on mount, re-registered when the
+ * dirty verdict flips) and the manifest's `onCloseRequest` consults it. No
+ * guard registered (surface not mounted yet, or the chunk never loaded) → no
+ * veto → the platform closes — the safe default.
+ * ---------------------------------------------------------------------- */
+
+/** Answer "may the platform close this window now?" — true = veto. */
+export type NotepadCloseGuard = () => boolean
+
+const closeGuards = new Map<string, NotepadCloseGuard>()
+
+/** Register a window's guard; returns its unregister (unmount cleanup). */
+export function registerCloseGuard(windowId: string, guard: NotepadCloseGuard): () => void {
+  closeGuards.set(windowId, guard)
+  return () => {
+    if (closeGuards.get(windowId) === guard) closeGuards.delete(windowId)
+  }
+}
+
+/** The manifest's `onCloseRequest` body: true = veto (dirty — the strip interposes). */
+export function vetoCloseFor(windowId: string): boolean {
+  return closeGuards.get(windowId)?.() ?? false
+}

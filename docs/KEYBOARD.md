@@ -55,12 +55,18 @@ inside their window; only an *unclaimed* Esc closes it:
 2. An app surface that handles Escape wins — e.g. the notepad's dirty guard
    (Esc with unsaved changes opens the "Catalog unsaved changes?" strip, Esc
    in that strip keeps editing), the viewer's Esc bounce-back during a pan.
-3. Only then does the OS close the window.
+3. Only then does the OS close the window — and the close itself rides the
+   **close-request seam**, so a guard declared in the manifest is honored even
+   on this path.
 
-There is not yet a close-request/veto seam on the title-bar **✕** (a
-pointer-clicked ✕ bypasses app guards entirely); that seam is recorded as
-HU-2's. Until it exists, the notepad's guard owns the Esc path, which is the
-keyboard story around close.
+**Close-request seam (HU-2).** Every *platform-initiated* close — the
+title-bar **✕** and the OS's unclaimed Esc — first asks the owning app via
+the manifest's optional `onCloseRequest`: `true` vetoes (the app owns the
+rest of the flow; the notepad flares its lamp and interposes its guard strip),
+`false`/absent closes immediately. A pointer-clicked ✕ therefore meets the
+same guard the keyboard does; app-declared closes (`closeWindow` from inside
+the app, e.g. the guard strip's Discard) bypass the question by design — the
+app already asked.
 
 ## Taskbar — the drawer rail
 

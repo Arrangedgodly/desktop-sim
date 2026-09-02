@@ -299,3 +299,122 @@ describe('wm-store · hydrate (MF-2 persistence seam)', () => {
     expect(after.zCounter).toBe(0)
   })
 })
+
+/* ---------------------- HU-2 · window self-control seams -------------------- */
+
+describe('wm-store · HU-2 setWindowTitle (rename-follow seam)', () => {
+  it('retitles the record; unknown id and unchanged titles are no-ops', () => {
+    const id = open('notepad')
+    useWMStore.getState().setWindowTitle(id, 'FIELD NOTES.TXT')
+    expect(useWMStore.getState().windows[id]!.title).toBe('FIELD NOTES.TXT')
+
+    const before = useWMStore.getState().windows
+    useWMStore.getState().setWindowTitle(id, 'FIELD NOTES.TXT') // unchanged → no-op
+    useWMStore.getState().setWindowTitle('nope', 'x') // unknown → no-op
+    expect(useWMStore.getState().windows).toBe(before) // same reference, zero commits
+  })
+})
+
+describe('wm-store · HU-2 setWindowAppState (draft persistence seam)', () => {
+  it('patches the opaque payload; unknown id and reference-equal payloads are no-ops', () => {
+    const id = open('notepad')
+    const payload = { draft: 'field notes' }
+    useWMStore.getState().setWindowAppState(id, payload)
+    expect(useWMStore.getState().windows[id]!.appState).toBe(payload)
+
+    const before = useWMStore.getState().windows
+    useWMStore.getState().setWindowAppState(id, payload) // same reference → no-op
+    useWMStore.getState().setWindowAppState('nope', payload)
+    expect(useWMStore.getState().windows).toBe(before)
+  })
+})
+
+describe('wm-store · HU-2 rebindWindow (launch-rebind seam)', () => {
+  it('rebinds instance + launch atomically (untitled draft → file window)', () => {
+    const id = open('notepad') // launcher open: auto instance, no launch ctx
+    const file = { id: 'spc-9', name: 'NOTE.TXT' } as never
+    const ok = useWMStore.getState().rebindWindow(id, {
+      instanceId: 'file:spc-9',
+      launch: { source: 'file', file },
+    })
+
+    expect(ok).toBe(true)
+    const record = useWMStore.getState().windows[id]!
+    expect(record.instanceId).toBe('file:spc-9')
+    expect(record.launch).toEqual({ source: 'file', file })
+
+    // Rebinding made it the file window: a same-file open now DEDUPES onto it.
+    const again = useWMStore.getState().openWindow({
+      appId: 'notepad',
+      instanceId: 'file:spc-9',
+      launch: { source: 'file', file },
+    })
+    expect(again).toBe(id)
+    expect(Object.keys(useWMStore.getState().windows)).toHaveLength(1)
+  })
+
+  it('preserves the rest of the record (geometry, flags, z) through a rebind', () => {
+    const id = open('notepad', undefined, { x: 12, y: 34, w: 560, h: 420 })
+    useWMStore.getState().rebindWindow(id, {
+      instanceId: 'file:spc-1',
+      launch: { source: 'file', file: { id: 'spc-1' } as never },
+    })
+    const record = useWMStore.getState().windows[id]!
+    expect(record.geometry).toEqual({ x: 12, y: 34, w: 560, h: 420 })
+    expect(record.appId).toBe('notepad')
+    expect(record.openedAt).toBeGreaterThan(0)
+  })
+
+  it('refuses (false, no mutation) when another window already holds the target instance', () => {
+    const holder = open('notepad', 'file:spc-2')
+    const draft = open('notepad')
+    const ok = useWMStore.getState().rebindWindow(draft, {
+      instanceId: 'file:spc-2',
+      launch: { source: 'file', file: { id: 'spc-2' } as never },
+    })
+
+    expect(ok).toBe(false)
+    expect(useWMStore.getState().windows[draft]!.instanceId).toMatch(/^auto:/) // untouched
+    expect(useWMStore.getState().windows[holder]!.instanceId).toBe('file:spc-2')
+  })
+
+  it('unknown id is a no-op returning false', () => {
+    expect(useWMStore.getState().rebindWindow('nope', {
+      instanceId: 'file:x',
+      launch: { source: 'file', file: { id: 'x' } as never },
+    })).toBe(false)
+  })
+})
+
+describe('wm-store · HU-2 (i) rapid open stress (dedupe races)', () => {
+  it('25 same-instance opens in one tick converge on ONE window (Enter/dblclick race)', () => {
+    let first = ''
+    for (let i = 0; i < 25; i++) {
+      const id = useWMStore.getState().openWindow({
+        appId: 'notepad',
+        instanceId: 'file:spc-1',
+        launch: { source: 'file', file: { id: 'spc-1' } as never },
+      })
+      if (i === 0) first = id
+      expect(id).toBe(first) // every racing open lands on the same window
+    }
+    expect(Object.keys(useWMStore.getState().windows)).toHaveLength(1)
+    expect(useWMStore.getState().focusedId).toBe(first)
+  })
+
+  it('interleaved racing opens on two files converge on exactly two windows', () => {
+    for (let i = 0; i < 25; i++) {
+      useWMStore.getState().openWindow({
+        appId: 'notepad',
+        instanceId: `file:spc-${(i % 2) + 1}`,
+        launch: { source: 'file', file: { id: `spc-${(i % 2) + 1}` } as never },
+      })
+    }
+    expect(Object.keys(useWMStore.getState().windows)).toHaveLength(2)
+  })
+
+  it('launcher opens stay multi-instance by design (a fresh draft per open)', () => {
+    for (let i = 0; i < 5; i++) useWMStore.getState().openWindow({ appId: 'notepad' })
+    expect(Object.keys(useWMStore.getState().windows)).toHaveLength(5)
+  })
+})

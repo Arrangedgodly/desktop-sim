@@ -5,7 +5,7 @@
 // (private browsing), v0 migration, unknown versions, reset, flag divergence.
 import 'fake-indexeddb/auto'
 import { get as idbGet, set as idbSet, createStore } from 'idb-keyval'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createNode, fromEnvelope, toEnvelope, type FSTextNode } from '../fs'
 import { useFSStore } from '../../platform/stores/fs-store'
 import { useWMStore } from '../../platform/stores/wm-store'
@@ -418,5 +418,72 @@ describe('resetDesktop · AP-4 Reset seam', () => {
     // The in-memory reset still happened.
     expect(useFSStore.getState().fs.nodes['pre-reset']).toBeUndefined()
     expect(useFSStore.getState().fs.nodes['charter']).toBeDefined()
+  })
+})
+
+
+/* ============================== HU-2 (j) ================================== */
+
+describe('HU-2 (j) · storage disabled entirely (lockdown: localStorage throws AND IDB blocked)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.doUnmock('idb-keyval')
+  })
+
+  it('the OS still boots read-only in memory: seeded, usable, honestly noticed', async () => {
+    vi.stubGlobal(
+      'localStorage',
+      Object.freeze({
+        getItem: () => {
+          throw new DOMException('denied', 'SecurityError')
+        },
+        setItem: () => {
+          throw new DOMException('denied', 'SecurityError')
+        },
+        removeItem: () => {
+          throw new DOMException('denied', 'SecurityError')
+        },
+      }),
+    )
+    const result = await bootPersistence({ adapter: new UnavailableAdapter(), autosave: false })
+
+    expect(result.origin).toBe('seed')
+    expect(result.firstVisit).toBe(true) // the throwing flag reads as absent — full POST pacing
+    expect(useFSStore.getState().fs.nodes['charter']).toBeDefined() // seeded catalog
+    expect(useStorageStatusStore.getState().recovery?.kind).toBe('storage-unavailable')
+    expect(readBootFlag()).toBeNull() // no return-visit claim when nothing persists
+
+    // The desktop side still OPERATES: windows open, ops commit, memory-only.
+    useWMStore.getState().openWindow({ appId: 'notepad' })
+    useFSStore.getState().commit(
+      createNode(useFSStore.getState().fs, {
+        id: 'lockdown-note',
+        parentId: 'root',
+        name: 'lockdown.txt',
+        kind: 'text',
+        now: 1,
+      }),
+    )
+    expect(Object.keys(useWMStore.getState().windows)).toHaveLength(1)
+    expect(useFSStore.getState().fs.nodes['lockdown-note']).toBeDefined()
+    expect(useStorageStatusStore.getState().phase).toBe('ready') // never a crash
+  })
+
+  it('a host where even adapter construction throws degrades the default to unavailable', async () => {
+    // The module-init guard: if createStore itself throws (no IndexedDB at
+    // all), the default adapter must still exist and reject typed — never take
+    // the import graph down.
+    vi.resetModules()
+    vi.doMock('idb-keyval', () => ({
+      createStore: () => {
+        throw new Error('IndexedDB is not available')
+      },
+      get: () => Promise.resolve(undefined),
+      set: () => Promise.resolve(),
+      del: () => Promise.resolve(),
+      clear: () => Promise.resolve(),
+    }))
+    const { defaultIDBAdapter } = await import('./adapter')
+    await expect(defaultIDBAdapter.load()).rejects.toMatchObject({ kind: 'unavailable' })
   })
 })

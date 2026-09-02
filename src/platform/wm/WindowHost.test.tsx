@@ -224,3 +224,107 @@ describe('WindowHost · viewport clamp', () => {
     expect(far.style.top).toBe('280px') // 600 - 320
   })
 })
+
+/* ------------------- HU-2 · offscreen recovery + close veto ------------------ */
+
+describe('WindowHost · HU-2 (f) offscreen window recovery on hydrate', () => {
+  it('commits the clamped geometry into the STORE when a hydrated window sits outside the viewport', () => {
+    renderHost()
+    // A window saved on a 2560×1600 monitor, restored into an 800×600 viewport.
+    const saved = {
+      id: 'saved-offscreen',
+      appId: 'notepad',
+      instanceId: 'file:spc-1',
+      geometry: { x: 2000, y: 1200, w: 1600, h: 1200 },
+      z: 1,
+      minimized: false,
+      maximized: false,
+      title: 'FIELD NOTES.TXT',
+      openedAt: 1,
+    }
+    actWM(() => useWMStore.getState().hydrate({ windows: [saved] }))
+
+    // The STORE record itself is recovered — persisted geometry, drag math and
+    // the rendered frame now agree (no teleport on the first title-bar grab).
+    expect(useWMStore.getState().windows['saved-offscreen']!.geometry).toEqual({
+      x: 0,
+      y: 0,
+      w: 800,
+      h: 600,
+    })
+    // And the recovery is what a persisted reload would carry forward.
+    const dialog = dialogByName('FIELD NOTES.TXT')
+    expect(dialog.style.left).toBe('0px')
+    expect(dialog.style.width).toBe('800px')
+  })
+
+  it('leaves on-screen windows untouched (no recovery commits, geometry verbatim)', () => {
+    renderHost()
+    const id = open('Near', { x: 100, y: 80, w: 480, h: 320 })
+    expect(useWMStore.getState().windows[id]!.geometry).toEqual({
+      x: 100,
+      y: 80,
+      w: 480,
+      h: 320,
+    })
+  })
+
+  it('recovers a minimized window too (its restore must land on-screen)', () => {
+    renderHost()
+    const saved = {
+      id: 'stowed-offscreen',
+      appId: 'notepad',
+      instanceId: 'auto:stowed-offscreen',
+      geometry: { x: 4000, y: 2400, w: 720, h: 480 },
+      z: 1,
+      minimized: true,
+      maximized: false,
+      title: 'Stowed',
+      openedAt: 1,
+    }
+    actWM(() => useWMStore.getState().hydrate({ windows: [saved] }))
+    expect(useWMStore.getState().windows['stowed-offscreen']!.geometry).toEqual({
+      x: 80, // 800 − 720
+      y: 120, // 600 − 480
+      w: 720,
+      h: 480,
+    })
+  })
+})
+
+describe('WindowHost · HU-2 (a) close-request veto seam', () => {
+  it('the title-bar ✕ asks the close guard first: a veto keeps the window open', () => {
+    const vetoes = new Set<string>()
+    render(<WindowHost viewport={VIEWPORT} closeGuard={(win) => vetoes.has(win.id)} />)
+    const id = open('guarded')
+    vetoes.add(id)
+
+    fireEvent.click(within(dialogByName('guarded')).getByRole('button', { name: 'Close' }))
+    expect(useWMStore.getState().windows[id]).toBeDefined() // vetoed — still open
+
+    vetoes.delete(id)
+    fireEvent.click(within(dialogByName('guarded')).getByRole('button', { name: 'Close' }))
+    expect(useWMStore.getState().windows[id]).toBeUndefined() // no veto → closed
+  })
+
+  it('an unclaimed Esc rides the same seam (veto honored, then close)', () => {
+    let veto = true
+    cleanup()
+    render(<WindowHost viewport={VIEWPORT} closeGuard={() => veto} />)
+    const id = open('guarded')
+
+    fireEvent.keyDown(dialogByName('guarded'), { key: 'Escape' })
+    expect(useWMStore.getState().windows[id]).toBeDefined() // vetoed
+
+    veto = false
+    fireEvent.keyDown(dialogByName('guarded'), { key: 'Escape' })
+    expect(useWMStore.getState().windows[id]).toBeUndefined() // closed
+  })
+
+  it('no closeGuard prop = the default contract: ✕ closes immediately', () => {
+    renderHost()
+    const id = open('plain')
+    fireEvent.click(within(dialogByName('plain')).getByRole('button', { name: 'Close' }))
+    expect(useWMStore.getState().windows[id]).toBeUndefined()
+  })
+})

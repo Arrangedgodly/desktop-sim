@@ -26,6 +26,7 @@
 import { retryableLazy } from '../../platform/app-registry/lazy-mount'
 import { NOTEPAD_APP_ID, type AppManifest } from '../../platform/app-registry'
 import { NotepadIcon } from './NotepadIcon'
+import { vetoCloseFor } from './notepad-model'
 
 const NotepadSurface = retryableLazy(() => import('./NotepadSurface'))
 
@@ -37,4 +38,12 @@ export const notepadApp: AppManifest = {
   // singleton omitted → false: one window per specimen (file-instance dedupe)
   acceptedFileTypes: ['text'],
   defaultGeometry: { w: 600, h: 480 },
+  // HU-2 title-follow: a file-opened window is titled by its specimen from
+  // the very first paint (the surface keeps following live renames after).
+  titleForLaunch: (launch) => (launch.source === 'file' ? launch.file.name : undefined),
+  // HU-2 close-request veto: a dirty draft may not be closed out from under
+  // the operator — the surface's registered guard flares the lamp + interposes
+  // the strip and closes the window itself when answered. Clean (or surface
+  // not mounted) → false → the platform closes immediately.
+  onCloseRequest: ({ windowId }) => vetoCloseFor(windowId),
 }

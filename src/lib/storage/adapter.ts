@@ -17,7 +17,7 @@
  */
 
 import { clear, createStore, del, get, set, type UseStore } from 'idb-keyval'
-import { classifyStorageError } from './errors'
+import { classifyStorageError, StorageError } from './errors'
 import type { StorageAdapter, StoredState } from './types'
 
 export const STATE_DB_NAME = 'desktop-sim'
@@ -83,8 +83,33 @@ export class IDBStorageAdapter implements StorageAdapter {
   }
 }
 
-/** The adapter the app boots with unless a test/fault-injector passes one in. */
-export const defaultIDBAdapter: IDBStorageAdapter = new IDBStorageAdapter()
+/**
+ * The adapter the app boots with unless a test/fault-injector passes one in.
+ * Construction is guarded (HU-2 lockdown hardening): in the rare host where
+ * even `createStore` throws synchronously (storage disabled entirely), the
+ * default degrades to an adapter rejecting every operation as `unavailable` —
+ * persistence then boots read-only in memory instead of taking the module
+ * graph (and the page) down at import time. Type widens to the interface so
+ * the fallback satisfies every consumer of the default.
+ */
+function createDefaultAdapter(): StorageAdapter {
+  try {
+    return new IDBStorageAdapter()
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error)
+    const reject = (): Promise<never> =>
+      Promise.reject(new StorageError('unavailable', reason))
+    return {
+      load: reject,
+      save: reject,
+      saveBackup: reject,
+      loadBackup: reject,
+      clear: reject,
+    }
+  }
+}
+
+export const defaultIDBAdapter: StorageAdapter = createDefaultAdapter()
 
 /**
  * AP-4 readout seam: usage/quota via `navigator.storage.estimate()` (Chrome 61+,

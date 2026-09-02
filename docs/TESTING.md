@@ -98,3 +98,30 @@ the dynamic `import()`, and the fault-injection chunk is **not emitted into
   CONSOLE FAULT plate likewise has no honest real-browser shell-fault seam —
   it is unit-level with the real `resetDesktop` seam mocked
   (`ConsoleFaultBoundary.test.tsx`).
+
+## Edge hardening (HU-2)
+
+Every recorded edge case carries its own named test block — greppable by the
+`HU-2 (x)` prefix, colocated with the module that owns the edge:
+
+| Edge | Unit home | e2e home |
+| --- | --- | --- |
+| (a) close-request/veto seam | `wm-store.test` + `WindowHost.test` (✕/Esc veto) + `registry.test` (`appCloseGuardFor`) + `notepad.test` (dirty vetoes, clean/unmounted default to close) | `edges.spec` gate 1 — the ✕ interposes the notepad strip, clean ✕ closes |
+| (b) launch-rebind + draft persistence | `wm-store.test` (`rebindWindow`/`setWindowAppState`) + `notepad.test` (draft rides the record, reload restores the SAME draft, accession rebinds + dedupes, saved-draft reload binds) + `validate.test` carries `appState` | `edges.spec` gate 5 — untitled draft survives reload, naming rebinds, reopen dedupes |
+| (c) empty folders | `explorer.test` (static empty state, delete-last-child live swap, ground menu still offered) | covered by AP-1's existing explorer specs |
+| (d) long names | per-surface: `explorer.test` (card/row/crumb title + CSS clamp law), `notepad.test`, `viewer.test`, `DesktopSurface.test` (icon), `TaskbarRail.test` (LED label law + clamp) | `edges.spec` gate 4 — icon clamp + title attrs + title-bar ellipsis + LED clamp, real Chromium computed styles |
+| (e) delete-open-file | pre-existing + verified: `notepad.test` (SPECIMEN REMOVED incl. restored-after-death), `viewer.test` (PLATE REMOVED), `explorer.test` (deleted-drawer → hold fallback) | covered by AP-2/AP-3 specs |
+| (f) offscreen recovery | `geometry.test` (`viewportRecovery`) + `WindowHost.test` (hydrate commits the clamp, minimized included, on-screen untouched) | `edges.spec` gate 3 — envelope patched offscreen at the real IDB boundary, reload clamps, first drag stays in view |
+| (g) reload mid-op | `autosave.test` (pagehide flush pinned pre-HU-2 + interrupted-move whole-or-stale consistency across both instants) | notepad/viewer reload specs (the 1500ms/700ms settle windows) |
+| (h) rename-while-open | `notepad.test` + `viewer.test` (header + WM title follow) + `registry.test` (`titleForLaunch`) | `edges.spec` gate 2 — external desktop rename lands in header + title bar after rail restore |
+| (i) rapid double-open | `wm-store.test` + `registry.test` (25-race bursts: same file → 1, two files → 2, singleton → 1, launcher → N) | the dblclick/Enter races share the same store seam (unit-pinned) |
+| (j) storage disabled | `boot-flag.test` (throwing/absent localStorage) + `persistence.test` (lockdown boot: both stores failing → read-only in-memory session, honest notice; adapter-construction guard) | HU-1's resilience spec covers the real corrupted-IDB path; no honest real-browser localStorage-lockdown seam — unit-level against the real boot, reasoned as for quota |
+
+**One e2e-methodology note (recorded for the next worker):** a dev server left
+running across source edits serves the module graph with HMR-invalidated
+`?t=` URLs — a spec's clean-URL `import('/src/...')` then mints a SECOND store
+instance and store-driven specs fail in ways that look like product defects
+(this run's first e2e pass: 8 failures, all environmental). Kill port 5180 and
+re-run before believing a failure of that shape. `edges.spec` avoids the
+pattern entirely: its offscreen gate patches the persisted envelope at the raw
+IndexedDB boundary (the resilience-spec precedent).

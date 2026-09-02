@@ -25,6 +25,8 @@
 export {
   APP_ID_PATTERN,
   LAUNCHER_LAUNCH,
+  type AppCloseRequest,
+  type AppCloseRequestHandler,
   type AppGeometryHints,
   type AppIconComponent,
   type AppIconProps,
@@ -65,4 +67,4 @@ export {
   RESERVED_APP_IDS,
   SETTINGS_APP_ID,
 } from './app-ids'
-export { appContentFor } from './content'
+export { appContentFor, appCloseGuardFor } from './content'

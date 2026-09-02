@@ -70,6 +70,31 @@ export interface AppSurfaceProps {
 }
 
 /**
+ * A platform-initiated close (HU-2): the title-bar ✕ and the WM's unclaimed
+ * Esc both ask the app before they close. The `windowId` names the instance
+ * (multi-instance apps must answer per window, not per manifest).
+ */
+export interface AppCloseRequest {
+  readonly windowId: string
+  /** The window's launch context at ask time (rebound records answer with the rebound context). */
+  readonly launch: AppLaunchContext
+}
+
+/**
+ * An app's close veto. Return `true` to VETO this close — the app then owns the
+ * rest of the flow (typically an in-window guard strip that ends in the app
+ * calling `closeWindow(windowId)` itself). Return `false` (or omit the manifest
+ * field entirely) and the platform closes immediately. Default = close.
+ *
+ * The manifest is static, but dirty state lives in mounted surfaces: the
+ * notepad's pattern is a tiny per-window guard registry its surface registers
+ * into on mount (`registerCloseGuard`, notepad-model.ts) and the manifest's
+ * `onCloseRequest` consults — absent guard (surface not mounted yet) answers
+ * `false`, which is also the safe default.
+ */
+export type AppCloseRequestHandler = (request: AppCloseRequest) => boolean
+
+/**
  * The app's window content. Either an eagerly imported component or a
  * `lazy(() => import(...))` — the platform mounts it inside a Suspense boundary
  * (lazy is the recommended pattern; TH-2 budget depends on per-app chunks).
@@ -123,4 +148,20 @@ export interface AppManifest {
   readonly acceptedFileTypes?: readonly FSNodeKind[]
   /** Suggested first-window size (see {@link AppGeometryHints}). */
   readonly defaultGeometry?: AppGeometryHints
+  /**
+   * Derive the window's OPENING title from the launch context (HU-2): a
+   * document app titles by its file's name (`launch.file.name`). Return
+   * `undefined` (or omit the field) → the manifest's `name`. The opening
+   * title rides the open commit itself — no later retitling — so the title
+   * bar is correct before a lazy surface even mounts; live renames are the
+   * app's business afterwards (`setWindowTitle`).
+   */
+  readonly titleForLaunch?: (launch: AppLaunchContext) => string | undefined
+  /**
+   * Close-request veto (HU-2). The platform consults this BEFORE closing a
+   * window through its own chrome (title-bar ✕, unclaimed Esc): `true` vetoes
+   * and the app owns the rest of the close flow, `false`/absent closes now.
+   * See {@link AppCloseRequestHandler} for the per-window-state pattern.
+   */
+  readonly onCloseRequest?: AppCloseRequestHandler
 }

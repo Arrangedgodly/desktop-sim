@@ -5,6 +5,7 @@
 // REGISTRY (never a hardcoded roster) and launches through openApp, the drawer
 // closes on Esc/outside/Tab with keyboard roving inside, and the rail marks
 // the taskbar-ready milestone exactly once.
+import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { useWMStore } from '../stores/wm-store'
@@ -483,5 +484,44 @@ describe('TaskbarRail · rail keyboard map (DD-1: one toolbar stop, arrow roving
     fireEvent.keyDown(menu(), { key: 'ArrowLeft' }) // would walk the rail — must not
     expect(document.activeElement).toBe(items()[0])
     expect(document.querySelector('[data-launcher-menu]')).not.toBeNull()
+  })
+})
+
+
+/* ============================== HU-2 edges ================================ */
+
+describe('HU-2 (d) · long-name law on the LED channel', () => {
+  it('the LED label names the MODULE (IM-4c dispatch law) and clamps (CSS law)', () => {
+    render(<TaskbarRail />)
+    // An unbounded window title (HU-2 h makes titles live specimen names) may
+    // NOT crowd the rail: the LED keeps naming the module; the label span now
+    // carries an ellipsis clamp so no future long label can blow the groove.
+    const LONG =
+      'FIELD-NOTES-ON-THE-UNBOUNDED-CATALOG-LABEL-THAT-RUNS-PAST-LED-CAPACITY-2087.TXT'
+    act(() => {
+      useWMStore.getState().openWindow({ appId: 'probe', title: LONG })
+    })
+    const led = ledByApp('probe')
+
+    const label = led.querySelector('.tb-led-name') as HTMLElement
+    expect(label.textContent).toBe('Probe Module') // module name, not the title
+    expect(label.getAttribute('title')).toBeNull() // the BUTTON owns the tooltip
+    expect(led.getAttribute('title')).toContain('Probe Module') // hover explains the control
+
+    // CSS law: the label ellipsizes past its cap (the rail groove scrolls; one
+    // unbounded string may not crowd the fleet out).
+    const css = readFileSync('src/platform/taskbar/taskbar.css', 'utf8')
+    const block = css.split('.tb-led-name {')[1]!.split('}')[0]!
+    expect(block).toContain('text-overflow: ellipsis')
+    expect(block).toContain('max-width')
+    expect(block).toContain('overflow: hidden')
+  })
+
+  it('the module name renders fully for AT (aria-label never truncated)', () => {
+    render(<TaskbarRail />)
+    act(() => {
+      openWindow('probe')
+    })
+    expect(ledByApp('probe').getAttribute('aria-label')).toBe('Probe Module, focused')
   })
 })

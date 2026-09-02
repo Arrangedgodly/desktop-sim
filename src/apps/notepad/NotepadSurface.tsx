@@ -30,13 +30,22 @@
  *   close with changes pending makes it FLARE and interposes an in-window
  *   confirm strip ("Catalog unsaved changes? Keep editing / Discard") — no
  *   browser dialogs, ever. While the guard is open the autosave is suspended:
- *   the console asked; the archive waits. (The platform title-bar close is a
- *   WM-seam with no veto hook — documented follow-up; this surface owns the
- *   Esc-initiated close path per the AP-2 keyboard floor.)
+ *   the console asked; the archive waits. HU-2's close-request seam routes the
+ *   platform's OWN close paths (title-bar ✕, WM unclaimed Esc) through the
+ *   same verdict: the manifest's `onCloseRequest` consults the per-window
+ *   guard this surface registers (notepad-model.ts), so every close door asks
+ *   the archive first.
  * - Renaming rides the same inline label-edit the desktop/explorer use:
  *   Enter commits (FSError collisions shake in-world and keep editing),
  *   Escape cancels, blur commits. On an UNTITLED draft the same edit IS the
- *   save flow: Enter accessions the specimen (name + body, one commit).
+ *   save flow: Enter accessions the specimen (name + body, one commit) AND
+ *   REBINDS this window onto it (HU-2's launch-rebind seam — the window
+ *   becomes the file window: same-specimen dedupe, reload restoration and the
+ *   removed-notice all treat it as if it had been opened from the specimen).
+ * - Draft persistence (HU-2): the draft body also rides the WM window record
+ *   (the app's opaque `appState`, debounced like the content autosave), so an
+ *   unsaved UNTITLED draft survives a reload — the restored window edits the
+ *   SAME draft, never a blank sheet and never an orphaned duplicate.
  * - External deletion (delete from the desktop/explorer while open): the
  *   live-store lookup goes null and the window swaps to an in-world
  *   "SPECIMEN REMOVED FROM CATALOG" notice with a close-only action.
@@ -49,11 +58,18 @@ import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { createNode, FSError, renameNode } from '../../lib/fs'
 import { useFSStore, useWMStore } from '../../platform/stores'
-import type { AppSurfaceProps } from '../../platform/app-registry'
+import {
+  fileInstanceKey,
+  getApp,
+  NOTEPAD_APP_ID,
+  type AppSurfaceProps,
+} from '../../platform/app-registry'
 import {
   NOTEPAD_AUTOSAVE_DELAY_MS,
   UNFILED_ACCESSION,
   UNTITLED_LABEL,
+  readDraftState,
+  registerCloseGuard,
   specimenId,
   textSpecimen,
   withTextContent,
@@ -80,9 +96,19 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
   const launchFileId = specimenId(launch)
   /** The specimen this window CREATED (an untitled draft's first save). */
   const [createdId, setCreatedId] = useState<string | null>(null)
-  /** The draft body. Seeded once, from the bound specimen at mount. */
+  /**
+   * HU-2 (b): the draft body as last persisted on the window record (the
+   * app's opaque `appState`). Selector returns a primitive, so unrelated
+   * record patches (focus, geometry) never re-render the sheet.
+   */
+  const persistedDraft = useWMStore((s) => readDraftState(s.windows[windowId]?.appState))
+  /**
+   * The draft body. Seeded once at mount: the PERSISTED draft first (an
+   * unsaved untitled window restored across reload edits the same draft),
+   * else the bound specimen's committed content.
+   */
   const [draft, setDraft] = useState<string>(
-    () => textSpecimen(fs, specimenId(launch))?.content ?? '',
+    () => persistedDraft ?? textSpecimen(fs, specimenId(launch))?.content ?? '',
   )
 
   const boundId = launchFileId ?? createdId
@@ -127,8 +153,11 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
    * Commit the label edit. On a BOUND specimen: a relabel (content rides
    * along untouched — renameNode spreads the node). On an UNTITLED draft:
    * this IS the save — the specimen is accessioned into the hold with the
-   * offered name and the whole draft body, one commit. False = FSError
-   * (empty/collision) — the field shakes and keeps editing.
+   * offered name and the whole draft body, one commit, and the window is
+   * REBOUND onto it (HU-2 launch-rebind: instanceId `file:<id>` + a file
+   * launch context, so dedupe/reload/the removed-notice treat this window as
+   * the specimen's window from here on). False = FSError (empty/collision) —
+   * the field shakes and keeps editing.
    */
   const commitName = (): boolean => {
     const name = nameDraft.trim()
@@ -137,10 +166,22 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
       if (boundId === null) {
         if (name.length === 0) throw new FSError('invalid-name', 'a catalog label may not be empty')
         const id = crypto.randomUUID()
-        commit(
-          createNode(current, { id, parentId: current.rootId, name, kind: 'text', content: draft }),
-        )
+        const next = createNode(current, {
+          id,
+          parentId: current.rootId,
+          name,
+          kind: 'text',
+          content: draft,
+        })
+        commit(next)
         setCreatedId(id) // bind the window to the specimen it just accessioned
+        const created = next.nodes[id]
+        if (created) {
+          useWMStore.getState().rebindWindow(windowId, {
+            instanceId: fileInstanceKey(id),
+            launch: { source: 'file', file: created },
+          })
+        }
       } else {
         commit(renameNode(current, boundId, name))
       }
@@ -187,6 +228,54 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
   useEffect(() => {
     if (guardOpen && !dirty) setGuardOpen(false)
   }, [guardOpen, dirty])
+
+  /* ------------------------ draft persistence (HU-2 b) --------------------- */
+
+  // The draft body rides the window record (opaque `appState`) so an unsaved
+  // UNTITLED draft survives a reload — the restored window edits the SAME
+  // draft. The mirror runs ONLY where it is the sole truth: an untitled draft
+  // (no catalog node to commit into) and a guard-suspended draft (the content
+  // autospace below is deliberately paused while the operator decides). A
+  // bound, unguarded draft does NOT mirror — the FS commit IS its persistence,
+  // and a second WM commit 400ms later would only re-arm MF-2's debounce and
+  // DELAY the envelope write (the reload-mid-op regression this guard closed).
+  useEffect(() => {
+    if (boundId !== null && !guardOpen) return
+    const timer = window.setTimeout(() => {
+      const wm = useWMStore.getState()
+      if (readDraftState(wm.windows[windowId]?.appState) === draft) return
+      wm.setWindowAppState(windowId, { draft })
+    }, NOTEPAD_AUTOSAVE_DELAY_MS)
+    return () => window.clearTimeout(timer)
+  }, [windowId, draft, boundId, guardOpen])
+
+  /* --------------------- window title follows the node (HU-2 h) ------------- */
+
+  // The record's title (title bar) reads the bound specimen's LIVE name. The
+  // OPENING title already rode the open commit (titleForLaunch), so this
+  // effect is a no-op at mount — it exists for the renames that happen while
+  // the window is open, in any other window (explorer/desktop). Untitled and
+  // removed windows fall back to the module's own name.
+  const moduleTitle = getApp(NOTEPAD_APP_ID)?.name ?? 'Specimen Notepad'
+  const titleText = specimen ? specimen.name : moduleTitle
+  useEffect(() => {
+    useWMStore.getState().setWindowTitle(windowId, titleText)
+  }, [windowId, titleText])
+
+  /* --------------------------- close-request guard (HU-2 a) ----------------- */
+
+  // The manifest's onCloseRequest (✕ / WM Esc) consults the per-window guard
+  // registered here — the same verdict Esc uses. Re-registered when the dirty
+  // verdict flips so the closure is always live; cleaned up on unmount.
+  useEffect(
+    () =>
+      registerCloseGuard(windowId, () => {
+        if (!dirty) return false
+        setGuardOpen(true) // lamp flare + the strip interposes
+        return true // veto — this surface closes the window when answered
+      }),
+    [windowId, dirty],
+  )
 
   /* ------------------------------ close guard ------------------------------ */
 
@@ -287,7 +376,7 @@ export default function NotepadSurface({ windowId, launch }: AppSurfaceProps) {
             type="button"
             className="notepad-name"
             data-notepad-name
-            title={untitled ? 'Name this specimen' : 'Relabel specimen'}
+            title={untitled ? 'Name this specimen' : `${displayName} — relabel specimen`}
             onClick={startNameEdit}
           >
             {displayName}

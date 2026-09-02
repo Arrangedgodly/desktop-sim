@@ -623,3 +623,102 @@ describe('AP-1 · model helpers (pure)', () => {
     expect(drawerCrumbs(tree(), 'gone')).toEqual([{ id: 'root', name: 'Hold' }])
   })
 })
+
+/* ============================== HU-2 edges ================================ */
+
+describe('HU-2 (c) · empty folders beyond the static case', () => {
+  it('deleting the LAST child of a viewed drawer swaps the listing for the empty state live', () => {
+    mountSurface(fileLaunch('projects'))
+    expect(optionIds()).toEqual(['reference-plate', 'exhibit-01', 'exhibit-02'])
+
+    act(() => {
+      const { fs, commit } = useFSStore.getState()
+      commit(deleteNode(deleteNode(deleteNode(fs, 'reference-plate'), 'exhibit-01'), 'exhibit-02'))
+    })
+
+    const empty = document.querySelector('[data-explorer-empty]')
+    expect(empty).not.toBeNull()
+    expect(empty!.textContent).toContain('No specimens catalogued')
+  })
+
+  it('an empty drawer still offers its ground menu (New Drawer / New Specimen) on the parchment', () => {
+    act(() => {
+      const { fs, commit } = useFSStore.getState()
+      commit(
+        createNode(fs, { id: 'empty-drawer', parentId: 'root', name: 'Empty', kind: 'folder' }),
+      )
+    })
+    mountSurface(fileLaunch('empty-drawer'))
+    expect(document.querySelector('[data-explorer-empty]')).not.toBeNull()
+
+    openGroundMenu()
+    expect(menu()).not.toBeNull()
+    expect(menuItem('new-drawer')).toBeTruthy()
+    expect(menuItem('new-specimen')).toBeTruthy()
+  })
+})
+
+describe('HU-2 (d) · very long names in the explorer', () => {
+  const LONG =
+    'SPECIMEN-WITH-AN-UNBOUNDED-CATALOG-LABEL-THAT-RUNS-WELL-PAST-THE-CARD-' +
+    'AND-ROW-AND-CRUMB-AND-MUST-CLAMP-EVERYWHERE-2087.txt'
+
+  function seedLong(): void {
+    act(() => {
+      const { fs, commit } = useFSStore.getState()
+      commit(createNode(fs, { id: 'long-name', parentId: 'projects', name: LONG, kind: 'text' }))
+    })
+  }
+
+  it('the specimen card carries the full name in title and clamps its label (CSS law)', () => {
+    seedLong()
+    mountSurface()
+
+    const card = option('long-name')
+    expect(card.getAttribute('title')).toBe(LONG) // hover carries the whole label
+    const css = readFileSync('src/apps/explorer/explorer.css', 'utf8')
+    const cardBlock = css.split('.explorer-card-name {')[1]!.split('}')[0]!
+    expect(cardBlock).toContain('-webkit-line-clamp')
+    expect(cardBlock).toContain('overflow: hidden')
+  })
+
+  it('the ledger row carries the full name in title and ellipsizes (CSS law)', () => {
+    seedLong()
+    mountSurface()
+    fireEvent.click(document.querySelector('[data-explorer-view="list"]')!)
+
+    const row = option('long-name')
+    expect(row.getAttribute('title')).toBe(LONG)
+    const css = readFileSync('src/apps/explorer/explorer.css', 'utf8')
+    const rowBlock = css.split('.explorer-row-name {')[1]!.split('}')[0]!
+    expect(rowBlock).toContain('text-overflow: ellipsis')
+    expect(rowBlock).toContain('white-space: nowrap')
+  })
+
+  it('a deep breadcrumb with a long drawer name keeps a navigable, clamped trail', () => {
+    act(() => {
+      const { fs, commit } = useFSStore.getState()
+      commit(
+        createNode(fs, { id: 'long-drawer', parentId: 'projects', name: LONG, kind: 'folder' }),
+      )
+    })
+    mountSurface()
+    fireEvent.doubleClick(option('long-drawer'))
+
+    const crumb = document.querySelector('[data-explorer-crumb="long-drawer"]') as HTMLElement
+    expect(crumb.textContent).toBe(LONG)
+    expect(crumb.getAttribute('title')).toBe(LONG) // HU-2: hover carries the whole label
+    const css = readFileSync('src/apps/explorer/explorer.css', 'utf8')
+    const crumbBlock = css.split('.explorer-crumb {')[1]!.split('}')[0]!
+    expect(crumbBlock).toContain('text-overflow: ellipsis')
+    expect(crumbBlock).toContain('max-width')
+  })
+
+  it('the aria-label stays the full name, accession and kind (AT is never truncated)', () => {
+    seedLong()
+    mountSurface()
+    const card = option('long-name')
+    const accession = node('long-name')!.accession // the catalog's own code, whatever it is
+    expect(card.getAttribute('aria-label')).toBe(`${LONG}, ${accession}, specimen`)
+  })
+})

@@ -11,7 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { createPointerEvent } from '../../lib/perf/gesture'
-import { deleteNode, type FSImageNode } from '../../lib/fs'
+import { deleteNode, renameNode, type FSImageNode } from '../../lib/fs'
 import {
   listApps,
   openApp,
@@ -608,5 +608,47 @@ describe('AP-3 · model math (pure)', () => {
   it('formatLabelStamp: mission-clock YYYY-MM-DD HH:MM, UTC', () => {
     expect(formatLabelStamp(Date.UTC(2087, 2, 14, 9, 26))).toBe('2087-03-14 09:26')
     expect(formatLabelStamp(Date.UTC(2087, 10, 1, 23, 5))).toBe('2087-11-01 23:05')
+  })
+})
+
+
+/* ============================== HU-2 edges ================================ */
+
+describe('HU-2 (h) · the plate window follows a rename made elsewhere', () => {
+  it('mounting retitles onto the plate; an explorer-side relabel follows live', () => {
+    const { windowId } = mountWindowed('reference-plate')
+    const seededName = node('reference-plate').name
+    expect(useWMStore.getState().windows[windowId]!.title).toBe(seededName)
+
+    act(() => {
+      commit(renameNode(useFSStore.getState().fs, 'reference-plate', 'REPLATE.PNG'))
+    })
+
+    expect(document.querySelector('[data-viewer-name]')!.textContent).toBe('REPLATE.PNG')
+    expect(useWMStore.getState().windows[windowId]!.title).toBe('REPLATE.PNG')
+  })
+
+  it('an empty stage keeps the module name (no plate to follow)', () => {
+    const { windowId } = mountLauncher()
+    expect(useWMStore.getState().windows[windowId]!.title).toBe('Plate Viewer')
+  })
+})
+
+describe('HU-2 (d) · a very long plate name clamps with the full text on hover', () => {
+  it('the header name carries title = the whole name and ellipsizes (CSS law)', () => {
+    const { windowId } = mountWindowed('reference-plate')
+    const LONG = 'REFERENCE-PLATE-WITH-AN-UNBOUNDED-CATALOG-LABEL-RUNNING-PAST-TOOLBAR-2087.PNG'
+    act(() => {
+      commit(renameNode(useFSStore.getState().fs, 'reference-plate', LONG))
+    })
+    const name = document.querySelector('[data-viewer-name]') as HTMLElement
+    expect(name.textContent).toBe(LONG)
+    expect(name.getAttribute('title')).toBe(LONG)
+    expect(useWMStore.getState().windows[windowId]!.title).toBe(LONG)
+
+    const css = readFileSync('src/apps/image-viewer/viewer.css', 'utf8')
+    const nameBlock = css.split('.viewer-name')[1]!.split('}')[0]!
+    expect(nameBlock).toContain('text-overflow: ellipsis')
+    expect(nameBlock).toContain('white-space: nowrap')
   })
 })

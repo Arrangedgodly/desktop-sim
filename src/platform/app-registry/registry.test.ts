@@ -12,6 +12,7 @@ import {
   unregisterApp,
   useAppRegistryStore,
 } from './registry'
+import { appCloseGuardFor } from './content'
 import { useWMStore, type WindowId } from '../stores/wm-store'
 import type { FSNode } from '../../lib/fs'
 
@@ -262,5 +263,105 @@ describe('openApp · soft failure', () => {
     unregisterApp('gone')
     expect(openApp('gone')).toBeNull()
     expect(windowIds()).toHaveLength(0)
+  })
+})
+
+/* --------------------------- HU-2 · close-request seam ---------------------- */
+
+describe('HU-2 (a) · appCloseGuardFor (the ✕/Esc policy)', () => {
+  it('consults the manifest onCloseRequest with windowId + launch; true vetoes', () => {
+    const asked: Array<{ windowId: string; launchSource: string }> = []
+    registerApp(
+      manifest({
+        id: 'guarded',
+        onCloseRequest: (request) => {
+          asked.push({ windowId: request.windowId, launchSource: request.launch.source })
+          return true
+        },
+      }),
+    )
+    const id = openApp('guarded', { source: 'file', file: node('f1') })!
+
+    expect(appCloseGuardFor(useWMStore.getState().windows[id]!)).toBe(true)
+    expect(asked).toEqual([{ windowId: id, launchSource: 'file' }])
+  })
+
+  it('false from the handler, an absent handler, or an unregistered app → no veto', () => {
+    registerApp(manifest({ id: 'plain', onCloseRequest: () => false }))
+    registerApp(manifest({ id: 'bare' }))
+    const plain = openApp('plain')!
+    const bare = openApp('bare')!
+    const ghost = useWMStore.getState().openWindow({ appId: 'ghost' })
+
+    expect(appCloseGuardFor(useWMStore.getState().windows[plain]!)).toBe(false)
+    expect(appCloseGuardFor(useWMStore.getState().windows[bare]!)).toBe(false)
+    expect(appCloseGuardFor(useWMStore.getState().windows[ghost]!)).toBe(false)
+  })
+
+  it('a launcher-opened window without a launch record is asked as a launcher open', () => {
+    registerApp(
+      manifest({
+        id: 'asked',
+        onCloseRequest: (request) => request.launch.source === 'launcher',
+      }),
+    )
+    const id = useWMStore.getState().openWindow({ appId: 'asked' }) // no launch ctx
+    expect(appCloseGuardFor(useWMStore.getState().windows[id]!)).toBe(true)
+  })
+})
+
+/* ------------------------ HU-2 (i) · rapid open stress ---------------------- */
+
+describe('HU-2 (i) · rapid double-open races (Enter + dblclick in one tick)', () => {
+  it('25 racing same-file opens converge on ONE window (file-instance dedupe)', () => {
+    registerApp(manifest({ id: 'multi', acceptedFileTypes: ['text'] }))
+    let first = ''
+    for (let i = 0; i < 25; i++) {
+      const id = openApp('multi', { source: 'file', file: node('race-1') })
+      if (i === 0) first = id!
+      expect(id).toBe(first)
+    }
+    expect(windowIds()).toHaveLength(1)
+    expect(useWMStore.getState().focusedId).toBe(first)
+  })
+
+  it('two files raced in interleaved bursts converge on exactly two windows', () => {
+    registerApp(manifest({ id: 'multi', acceptedFileTypes: ['text'] }))
+    for (let i = 0; i < 24; i++) {
+      openApp('multi', { source: 'file', file: node(`race-${(i % 2) + 1}`) })
+    }
+    expect(windowIds()).toHaveLength(2)
+  })
+
+  it('a raced singleton stays single; raced launcher opens stay multi-instance', () => {
+    registerApp(manifest({ id: 'solo', singleton: true }))
+    for (let i = 0; i < 10; i++) openApp('solo')
+    expect(windowIds()).toHaveLength(1)
+
+    registerApp(manifest({ id: 'fresh' }))
+    for (let i = 0; i < 6; i++) openApp('fresh') // launcher opens = fresh drafts
+    expect(windowIds()).toHaveLength(7) // 1 + 6
+  })
+})
+
+/* ------------------- HU-2 (h) · opening title from the file ---------------- */
+
+describe('HU-2 (h) · titleForLaunch (document apps title by their file)', () => {
+  it('a manifest with titleForLaunch opens titled by the file; without it, by manifest name', () => {
+    registerApp(
+      manifest({
+        id: 'docapp',
+        titleForLaunch: (launch) => (launch.source === 'file' ? launch.file.name : undefined),
+      }),
+    )
+    registerApp(manifest({ id: 'plainapp' }))
+
+    const doc = openApp('docapp', { source: 'file', file: node('f1', 'FIELD-NOTES.TXT') })!
+    const untitled = openApp('docapp')!
+    const plain = openApp('plainapp', { source: 'file', file: node('f2', 'OTHER.TXT') })!
+
+    expect(useWMStore.getState().windows[doc]!.title).toBe('FIELD-NOTES.TXT')
+    expect(useWMStore.getState().windows[untitled]!.title).toBe('docapp') // fell back to the name
+    expect(useWMStore.getState().windows[plain]!.title).toBe('plainapp') // no seam, unchanged law
   })
 })

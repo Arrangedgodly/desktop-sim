@@ -92,6 +92,10 @@ export function sanitizeWindows(raw: unknown): WindowRecord[] {
       maximized: entry['maximized'] === true,
       title: typeof entry['title'] === 'string' ? entry['title'] : appId,
       launch: sanitizeLaunch(entry['launch']),
+      // Opaque per-window app payload (HU-2 draft persistence): carried
+      // VERBATIM — the platform never reads it; the owning app validates on
+      // read (it already survived one structured clone to get here).
+      ...('appState' in entry ? { appState: entry['appState'] } : {}),
       openedAt: isFiniteNumber(entry['openedAt']) ? entry['openedAt'] : 0,
     })
   })

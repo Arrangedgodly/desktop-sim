@@ -12,13 +12,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { createStore } from 'idb-keyval'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { deleteNode, type FSTextNode } from '../../lib/fs'
-import { buildStoredState } from '../../lib/storage/stored-state'
+import { deleteNode, renameNode, type FSTextNode } from '../../lib/fs'
+import { buildStoredState, hydrateStores } from '../../lib/storage/stored-state'
 import { bootPersistence } from '../../lib/storage/persistence'
 import { attachAutosave, stopAutosave } from '../../lib/storage/autosave'
 import { IDBStorageAdapter } from '../../lib/storage/adapter'
+import { readStoredState } from '../../lib/storage/validate'
 import { useStorageStatusStore } from '../../lib/storage/status'
 import {
+  appCloseGuardFor,
   listApps,
   openApp,
   registerApps,
@@ -38,6 +40,7 @@ import {
   NOTEPAD_AUTOSAVE_DELAY_MS,
   UNFILED_ACCESSION,
   UNTITLED_LABEL,
+  readDraftState,
   specimenId,
   textSpecimen,
   withTextContent,
@@ -681,5 +684,190 @@ describe('AP-2 · model helpers (pure)', () => {
     expect(sheetState().nodes['charter']!).not.toBe(next.nodes['charter']) // pure
     expect(withTextContent(sheetState(), 'gone', 'x')).toBeNull()
     expect(withTextContent(sheetState(), 'projects', 'x')).toBeNull()
+  })
+})
+
+/* ================================ HU-2 seams =============================== */
+
+describe('HU-2 (a) · platform close-request veto (the ✕ asks the archive)', () => {
+  beforeEach(() => {
+    useNotepadTimers()
+  })
+
+  it('the manifest declares onCloseRequest; a DIRTY window vetoes + interposes the strip', () => {
+    expect(notepadApp.onCloseRequest).toBeDefined()
+    const { windowId } = mountWindowed('charter')
+    fireEvent.change(sheet(), { target: { value: 'unsaved entry' } })
+
+    // The exact call the WM's ✕/Esc make through appCloseGuardFor.
+    act(() => {
+      expect(appCloseGuardFor(useWMStore.getState().windows[windowId]!)).toBe(true)
+    })
+    expect(document.querySelector('[data-notepad-strip]')).not.toBeNull() // the strip interposed
+    expect(lamp().getAttribute('data-flare')).toBe('true')
+    expect(useWMStore.getState().windows[windowId]).toBeDefined() // close blocked
+  })
+
+  it('a CLEAN window answers false — the platform closes immediately', () => {
+    const { windowId } = mountWindowed('charter')
+    expect(appCloseGuardFor(useWMStore.getState().windows[windowId]!)).toBe(false)
+  })
+
+  it('a window whose surface never mounted answers false (the safe default)', () => {
+    const windowId = openApp('notepad', fileLaunch('charter'))!
+    expect(appCloseGuardFor(useWMStore.getState().windows[windowId]!)).toBe(false)
+  })
+
+  it('Discard in the veto-opened strip closes the window (the app-owned close path)', () => {
+    const { windowId } = mountWindowed('charter')
+    fireEvent.change(sheet(), { target: { value: 'gone' } })
+    act(() => {
+      expect(appCloseGuardFor(useWMStore.getState().windows[windowId]!)).toBe(true)
+    })
+    fireEvent.click(document.querySelector('[data-notepad-discard]')!)
+    expect(useWMStore.getState().windows[windowId]).toBeUndefined()
+  })
+})
+
+describe('HU-2 (b) · untitled draft across reload (appState draft + launch rebind)', () => {
+  beforeEach(() => {
+    useNotepadTimers()
+  })
+
+  it('the draft body rides the window record (opaque appState) after the debounce', () => {
+    const { windowId } = mountLauncher()
+    fireEvent.change(sheet(), { target: { value: 'storm notes' } })
+    act(() => {
+      vi.advanceTimersByTime(NOTEPAD_AUTOSAVE_DELAY_MS)
+    })
+    expect(readDraftState(useWMStore.getState().windows[windowId]!.appState)).toBe('storm notes')
+  })
+
+  it('a reload restores the SAME untitled draft — no blank sheet, no duplicated node', () => {
+    const { windowId } = mountLauncher()
+    fireEvent.change(sheet(), { target: { value: 'unsubmitted field report' } })
+    act(() => {
+      vi.advanceTimersByTime(NOTEPAD_AUTOSAVE_DELAY_MS)
+    })
+    const nodeCount = Object.keys(useFSStore.getState().fs.nodes).length
+
+    // "Reload": the envelope MF-2 would have persisted rehydrates fresh stores.
+    const reloaded = readStoredState(buildStoredState(Date.now()))
+    hydrateStores(reloaded)
+    cleanup() // the pre-reload surface dies with the page
+
+    const restored = useWMStore.getState().windows[windowId]!
+    expect(readDraftState(restored.appState)).toBe('unsubmitted field report') // carried
+    render(
+      <NotepadSurface windowId={windowId} launch={restored.launch ?? { source: 'launcher' }} />,
+    )
+    expect(sheet().value).toBe('unsubmitted field report') // the SAME draft
+    expect(document.querySelector('[data-notepad-name]')!.textContent).toBe(UNTITLED_LABEL)
+    expect(Object.keys(useFSStore.getState().fs.nodes)).toHaveLength(nodeCount) // nothing accessioned behind the operator's back
+  })
+
+  it('a draft kept waiting by the OPEN GUARD still restores (the mirror never suspends)', () => {
+    const { windowId } = mountWindowed('charter')
+    const committed = textNode('charter').content
+    fireEvent.change(sheet(), { target: { value: 'deciding, not abandoned' } })
+    fireEvent.keyDown(sheet(), { key: 'Escape' }) // guard opens — content autosave SUSPENDS
+    act(() => {
+      vi.advanceTimersByTime(NOTEPAD_AUTOSAVE_DELAY_MS * 3)
+    })
+    expect(textNode('charter').content).toBe(committed) // the archive waits…
+    // …but the window-record mirror kept running: a reload mid-decision keeps the draft.
+    const reloaded = readStoredState(buildStoredState(Date.now()))
+    hydrateStores(reloaded)
+    cleanup()
+    render(
+      <NotepadSurface windowId={windowId} launch={fileLaunch('charter')} />,
+    )
+    expect(sheet().value).toBe('deciding, not abandoned')
+    expect(lamp().getAttribute('data-lit')).toBe('true') // honestly dirty vs the committed body
+  })
+
+  it('naming the draft REBINDS the window onto the accessioned specimen (dedupe holds)', () => {
+    const { windowId } = mountLauncher()
+    fireEvent.change(sheet(), { target: { value: 'the binding' } })
+    fireEvent.click(document.querySelector('[data-notepad-save]')!)
+    const input = document.querySelector('[data-rename-input]') as HTMLInputElement
+    fireEvent.change(input, { target: { value: 'rebound.txt' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    const created = Object.values(useFSStore.getState().fs.nodes).find(
+      (n) => n.name === 'rebound.txt',
+    )!
+    const record = useWMStore.getState().windows[windowId]!
+    expect(record.instanceId).toBe(`file:${created.id}`) // the launch-rebind seam
+    expect(record.launch?.source).toBe('file')
+
+    // Re-opening the specimen lands on THIS window — no duplicate.
+    expect(openApp('notepad', fileLaunch(created.id))).toBe(windowId)
+    expect(windowCount()).toBe(1)
+  })
+
+  it('after a reload, the SAVED draft window restores as the specimen\'s own window', () => {
+    const { windowId } = mountLauncher()
+    fireEvent.change(sheet(), { target: { value: 'survivor body' } })
+    fireEvent.click(document.querySelector('[data-notepad-save]')!)
+    const input = document.querySelector('[data-rename-input]') as HTMLInputElement
+    fireEvent.change(input, { target: { value: 'survivor.txt' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    const created = Object.values(useFSStore.getState().fs.nodes).find(
+      (n) => n.name === 'survivor.txt',
+    )!
+
+    const reloaded = readStoredState(buildStoredState(Date.now()))
+    hydrateStores(reloaded)
+    cleanup()
+
+    const restored = useWMStore.getState().windows[windowId]!
+    expect(restored.launch?.source).toBe('file') // the rebind persisted
+    expect(restored.instanceId).toBe(`file:${created.id}`)
+    render(<NotepadSurface windowId={windowId} launch={restored.launch!} />)
+    expect(sheet().value).toBe('survivor body') // bound to the real node
+    expect(document.querySelector('[data-notepad-name]')!.textContent).toBe('survivor.txt')
+    expect(document.querySelector('.notepad-accession')!.textContent).toMatch(/^SPC-\d{4}$/)
+    // And the dedupe survived the reload too.
+    expect(openApp('notepad', fileLaunch(created.id))).toBe(windowId)
+    expect(windowCount()).toBe(1)
+  })
+})
+
+describe('HU-2 (h) · the window follows a rename made elsewhere', () => {
+  it('an explorer-side relabel lands in the notepad header AND the WM title bar', () => {
+    const { windowId } = mountWindowed('charter')
+    const seededName = node('charter').name
+    // Mounting retitled the record onto the specimen (title-follow).
+    expect(useWMStore.getState().windows[windowId]!.title).toBe(seededName)
+
+    act(() => {
+      commit(renameNode(useFSStore.getState().fs, 'charter', 'RELABELLED.TXT'))
+    })
+
+    expect(document.querySelector('[data-notepad-name]')!.textContent).toBe('RELABELLED.TXT')
+    expect(useWMStore.getState().windows[windowId]!.title).toBe('RELABELLED.TXT')
+  })
+
+  it('an untitled window keeps the module name until it binds a specimen', () => {
+    const { windowId } = mountLauncher()
+    expect(useWMStore.getState().windows[windowId]!.title).toBe('Specimen Notepad')
+  })
+})
+
+describe('HU-2 (d) · long names in the notepad chrome', () => {
+  it('the engraved name carries the whole specimen name in its tooltip', () => {
+    mountWindowed('charter')
+    const title = document.querySelector('[data-notepad-name]')!.getAttribute('title')!
+    expect(title).toContain(node('charter').name)
+    expect(title).toContain('relabel')
+  })
+
+  it('the chrome name clamps with an ellipsis (CSS source-scan)', () => {
+    const css = readFileSync('src/apps/notepad/notepad.css', 'utf8')
+    const nameBlock = css.split('.notepad-name {')[1]!.split('}')[0]!
+    expect(nameBlock).toContain('text-overflow: ellipsis')
+    expect(nameBlock).toContain('white-space: nowrap')
+    expect(nameBlock).toContain('min-width: 0')
   })
 })

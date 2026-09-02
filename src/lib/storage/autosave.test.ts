@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createNode } from '../fs'
+import { createNode, listChildren, moveNode } from '../fs'
 import { useFSStore } from '../../platform/stores/fs-store'
 import { useWMStore } from '../../platform/stores/wm-store'
 import { useSettingsStore } from '../../platform/stores/settings-store'
 import { attachAutosave, stopAutosave } from './autosave'
+import { buildStoredState, hydrateStores } from './stored-state'
+import { readStoredState } from './validate'
 import { useStorageStatusStore } from './status'
 import type { StorageAdapter, StoredState } from './types'
 
@@ -247,5 +249,69 @@ describe('autosave · quota path (typed failure, session survives)', () => {
     await vi.advanceTimersByTimeAsync(500)
     expect(adapter.attempts).toHaveLength(1) // nothing to trim → single attempt
     expect(useStorageStatusStore.getState().lastFailure?.kind).toBe('quota')
+  })
+})
+
+
+/* ============================== HU-2 (g) ================================== */
+
+describe('HU-2 (g) · reload mid-op (a move interrupted by reload leaves the FS whole)', () => {
+  it('a move committed between envelope writes rehydrates to ONE consistent location', () => {
+    // Arrange: a specimen in Projects, plus a second drawer to move it into.
+    const before = useFSStore.getState().fs
+    const withTarget = createNode(before, {
+      id: 'target-drawer',
+      parentId: before.rootId,
+      name: 'Target Drawer',
+      kind: 'folder',
+    })
+    useFSStore.getState().commit(withTarget)
+
+    // A move lands as ONE atomic store commit (never half-applied), and MF-2
+    // writes whole envelopes — so a reload at ANY instant sees the node in
+    // exactly one drawer. Simulate the tightest race: capture the envelope
+    // immediately after the move commit, before any debounce can fire.
+    const envelopeBeforeMove = buildStoredState(tick())
+    useFSStore.getState().commit(moveNode(useFSStore.getState().fs, 'exhibit-01', 'target-drawer'))
+    const envelopeAfterMove = buildStoredState(tick())
+
+    for (const envelope of [envelopeBeforeMove, envelopeAfterMove]) {
+      // "Reload": validate + hydrate exactly as bootPersistence does.
+      hydrateStores(readStoredState(envelope))
+      const fs = useFSStore.getState().fs
+      const node = fs.nodes['exhibit-01']!
+      const parent = fs.nodes[node.parentId!]!
+      const inParent = listChildren(fs, parent.id).some((child) => child.id === node.id)
+      // Whole-or-stale, never torn: the node is registered under its recorded
+      // parent, and no other drawer also lists it.
+      expect(inParent).toBe(true)
+      const doubleListed = Object.values(fs.nodes).filter(
+        (maybeDrawer) =>
+          maybeDrawer.kind === 'folder' &&
+          listChildren(fs, maybeDrawer.id).some((child) => child.id === 'exhibit-01'),
+      )
+      expect(doubleListed).toHaveLength(1)
+    }
+
+    // And the two instants disagree only about WHICH drawer — both are legal states.
+    hydrateStores(readStoredState(envelopeBeforeMove))
+    expect(useFSStore.getState().fs.nodes['exhibit-01']!.parentId).toBe('projects')
+    hydrateStores(readStoredState(envelopeAfterMove))
+    expect(useFSStore.getState().fs.nodes['exhibit-01']!.parentId).toBe('target-drawer')
+  })
+
+  it('the pagehide flush writes the post-move envelope (reload mid-op keeps the move)', async () => {
+    const adapter = new MockAdapter()
+    attachAutosave({ adapter, delayMs: 500, now: tick })
+    useFSStore.getState().commit(moveNode(useFSStore.getState().fs, 'exhibit-01', 'field-notes'))
+
+    // Reload BEFORE the debounce window elapses — pagehide must flush it anyway
+    // (the seam pinned above already covers the flush; this asserts the moved catalog).
+    await vi.advanceTimersByTimeAsync(100)
+    window.dispatchEvent(new Event('pagehide'))
+    await vi.advanceTimersByTimeAsync(0)
+
+    const persisted = adapter.saved.at(-1)!
+    expect(persisted.fs.nodes['exhibit-01']!.parentId).toBe('field-notes')
   })
 })

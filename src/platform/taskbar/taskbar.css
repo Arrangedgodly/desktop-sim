@@ -270,6 +270,16 @@
   background: var(--phosphor-dim);
 }
 
+/* The indicator's caption (HU-2 long-name law): a module's live window title
+   can be an unbounded specimen name, so the label clamps — ellipsis past the
+   cap, the full text rides the button's tooltip (ledTitle). */
+.tb-led-name {
+  min-width: 0;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* -- OS legend + version chip ------------------------------------------------- */
 
 .tb-plate {
