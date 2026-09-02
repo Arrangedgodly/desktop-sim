@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { registerDemoModule } from './e2e-helpers'
 
 /**
  * IM-4c e2e — the drawer rail, against the real app graph in a real Chromium.
@@ -12,9 +13,13 @@ import { expect, test, type Page } from '@playwright/test'
  * 2. Clicking a minimized window's LED restores it; clicking the focused
  *    window's LED stows it (toggle).
  * 3. Every registered app is launchable from the module drawer (the registry
- *    IS the list — demo today), with the drawer closing on launch, Escape,
- *    and outside clicks, and keyboard operable (Enter launches).
+ *    IS the list), with the drawer closing on launch, Escape, and outside
+ *    clicks, and keyboard operable (Enter launches).
  * 4. The timecode ticks (two samples 1.2s apart differ).
+ *
+ * TH-2: the demo module left the shipped fleet, so these specs register the
+ * fixture through the registry's public seam first (e2e-helpers) — the same
+ * cheap multi-instance module the originals exercised, now test-only.
  *
  * Selectors ride stable seams (data-* attributes / accessible names).
  */
@@ -45,12 +50,16 @@ async function launchDemo(page: Page): Promise<void> {
 
 test('the drawer launches modules; LEDs track the open-window registry', async ({ page }) => {
   await toDesktop(page)
+  // The demo fixture rides BEHIND the shipped fleet (appended by the public
+  // seam), so the drawer's first item stays the notepad — pinned below.
+  await registerDemoModule(page)
 
-  // A fresh hold: no windows, no LEDs; the registry holds one module today.
+  // A fresh hold: no windows, no LEDs; the registry lists the fixture too.
   await expect(page.locator('.wm-window')).toHaveCount(0)
   await expect(page.locator('[data-window-led]')).toHaveCount(0)
   await openDrawer(page)
   await expect(page.locator('[data-launcher-menu] [data-launch-app="demo"]')).toBeVisible()
+  await expect(page.locator('[data-launcher-menu] [data-launch-app="notepad"]')).toBeVisible()
   await page.keyboard.press('Escape') // close again — opened read-only above
   await expect(page.locator('[data-launcher-menu]')).toHaveCount(0)
 
@@ -77,6 +86,7 @@ test('the drawer launches modules; LEDs track the open-window registry', async (
 
 test('LED clicks restore a minimized module and toggle-stow the focused one', async ({ page }) => {
   await toDesktop(page)
+  await registerDemoModule(page)
   await launchDemo(page)
 
   const win = page.locator('.wm-window')
@@ -114,10 +124,10 @@ test('the drawer keyboards (Enter launches) and closes on Escape and outside cli
   const pull = page.getByRole('button', { name: 'Module drawer — launch a module' })
 
   // Keyboard: opening focuses the first item; Enter launches it.
-  // (First item = first REGISTERED app — AP-2 moved the notepad ahead of the
-  // demo module in src/apps/index.ts so the real text owner wins the
-  // explorer's acceptedFileTypes routing tiebreak; the launcher follows the
-  // registry's order, as it has since IM-4c.)
+  // (First item = first REGISTERED app — the notepad has led the fleet since
+  // AP-2; the launcher follows the registry's order, as it has since IM-4c.
+  // TH-2: the demo fixture, when a spec registers it, appends BEHIND the
+  // fleet, so this floor stays the notepad either way.)
   await pull.click()
   await expect(page.locator('[data-launcher-menu]')).toBeVisible()
   await expect(page.locator('[data-launch-app="notepad"]')).toBeFocused()

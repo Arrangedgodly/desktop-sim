@@ -52,8 +52,9 @@ beforeEach(() => {
   resetAppRegistry()
   // A text-owning probe registered BEFORE the fleet so routing assertions
   // observe it rather than whichever fleet app happens to declare `text`
-  // (the demo module also declares text — routing takes the FIRST declaring
-  // registration, by the contract's one-liner).
+  // (the notepad declares text — routing takes the FIRST declaring
+  // registration, by the contract's one-liner; the TH-2 de-registered demo
+  // used to be that rival, the probe replaces it for good).
   registerApp({
     id: 'probe',
     name: 'Probe Module',
@@ -61,7 +62,7 @@ beforeEach(() => {
     mount: () => null,
     acceptedFileTypes: ['text'],
   } as const)
-  registerApps(apps) // the REAL startup registration (demo + explorer)
+  registerApps(apps) // the REAL startup registration (the six shipped apps)
 })
 
 afterEach(() => {

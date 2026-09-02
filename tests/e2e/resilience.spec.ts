@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { registerDemoModule } from './e2e-helpers'
 
 /**
  * HU-1 e2e — fault injection against the REAL app graph (dev server, real
@@ -87,6 +88,10 @@ test('an injected module render fault isolates to its window; the desktop stays 
   page,
 }) => {
   await toDesktopWithHooks(page)
+  // TH-2: the demo module is a test-only fixture now — register it through
+  // the registry's public seam (this fault-isolation subject is exactly what
+  // it was built for).
+  await registerDemoModule(page)
 
   // Arm the fault BEFORE the window opens (AppSlot consults the seam at mount).
   await page.evaluate(() => window.__holdFaults?.arm('demo', 'render'))
@@ -123,6 +128,7 @@ test('a real aborted chunk load lands on the same card, classified network; Relo
   page,
 }) => {
   await toDesktop(page)
+  await registerDemoModule(page) // TH-2: demo is the test-only fixture now
 
   // The HONEST network fault: the dev server aborts the module's own chunk.
   await page.route('**/demo/DemoSurface*', (route) => route.abort('connectionrefused'))

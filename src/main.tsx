@@ -34,10 +34,10 @@ const mountPoint: HTMLElement = rootElement
 // src/apps/<id>/ and aggregate in src/apps/index.ts — adding an app never
 // edits platform code. The length guard keeps HMR re-runs quiet (registerApps
 // would warn-and-reject duplicates, but there is nothing to re-register).
-// The demo module stays registered (IM-4c launcher / e2e use it); it no
-// longer auto-opens now that the real boot sequence owns the first viewport.
-// (Module registration is inert on the phone path too: no timers, listeners,
-// or audio exist until a surface actually mounts.)
+// TH-2: the shipped fleet is the six reserved apps; the IM-3 demo fixture is
+// de-registered (tests register it through the public seam — see
+// src/apps/index.ts). (Module registration is inert on the phone path too:
+// no timers, listeners, or audio exist until a surface actually mounts.)
 if (listApps().length === 0) {
   registerApps(apps)
 }

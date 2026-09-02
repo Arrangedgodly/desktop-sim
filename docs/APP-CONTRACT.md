@@ -21,7 +21,7 @@ gets fixed.
 | Public barrel (import everything from here) | `src/platform/app-registry/index.ts` |
 | Window store your app may call into | `src/platform/stores/wm-store.ts` |
 | FS domain model (nodes, pure ops, envelope — aliased by the contract) | `src/lib/fs/` |
-| Living reference example app | `src/apps/demo/` |
+| Reference example app | `src/apps/demo/` (a TEST-ONLY fixture since TH-2 — see "The demo fixture" below) |
 
 Import platform API from `'../../platform/app-registry'` (path adjusted to your
 depth). Never import from deeper platform internals except the stores you are
@@ -209,6 +209,19 @@ nothing:
 This is the real demo app, verbatim (`src/apps/demo/`). It exercises every
 manifest field, the lazy mount, the launch context, window self-control, and
 multi-instance opening. Copy this folder as your starting point.
+
+> **TH-2 · the demo fixture is TEST-ONLY.** The demo module is no longer in
+> the shipped fleet (`src/apps/index.ts` registers exactly the six reserved
+> platform apps — `src/apps/apps.test.ts` gates the list). It served its
+> purpose as IM-3's living proof and survives unchanged as (a) this doc's
+> copy-paste example and (b) a test fixture: unit specs import
+> `demoApp` from `src/apps/demo/` directly, and e2e specs register it at
+> runtime through the registry's public seam
+> (`registerDemoModule` in `tests/e2e/e2e-helpers.ts` — a page-context
+> dynamic import of the dev-server module). Nothing under `src/apps/demo/`
+> is reachable from the production entry graph, so the build emits no demo
+> chunk; registering the fixture in a live page is exactly the "test seam"
+> shape `registerApp`'s public API was designed for.
 
 **`src/apps/demo/index.ts` — the manifest:**
 

@@ -63,7 +63,7 @@ beforeEach(() => {
   useWMStore.setState(initialWM, true)
   setSessionView(FIT_VIEW)
   resetAppRegistry()
-  registerApps(apps) // the REAL startup registration (notepad + viewer + demo + explorer)
+  registerApps(apps) // the REAL startup registration (notepad + viewer + explorer)
 })
 
 afterEach(() => {

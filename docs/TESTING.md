@@ -28,7 +28,7 @@ tests.
   and config files (so a typo in a selector assertion fails before the browser
   ever launches).
 - **lint** — ESLint recommended + react-hooks/react-refresh rules.
-- **test** (Vitest, 271 cases today) — pure logic and store/component seams:
+- **test** (Vitest, 942 cases today) — pure logic and store/component seams:
   FS ops, schema/migrations, persistence + recovery, WM z-order/geometry,
   app registry, perf instrumentation, WM host components. Node by default;
   files needing a DOM opt in with a `// @vitest-environment jsdom` docblock and
@@ -36,10 +36,12 @@ tests.
 - **perf** — `tsc --noEmit && vite build`, then asserts the committed budgets
   (total JS gz ≤ 250 KB, main chunk gz ≤ 120 KB, fonts raw ≤ 150 KB, CSS gz
   ≤ 40 KB) against `dist/`; exits non-zero on breach.
-- **test:e2e** (Playwright, chromium) — the boot smoke skeleton against the
-  real app in a real browser: app loads → window host mounts → demo module
-  window opens (registry + title bar render) → TH-1's `window.__BOOT_TIMELINE`
-  seam exists after load. `playwright.config.ts` starts the dev server on
+- **test:e2e** (Playwright, chromium, 69 specs today) — the full functional
+  suite against the real app in a real browser: boot, desktop, drag/resize
+  fps, taskbar, keyboard journey, every app, resilience, edges, notice — plus
+  the TH-2 perf/soak gates, which ride the PRODUCTION build via their own
+  `vite preview` server (see "Perf e2e" below).
+  `playwright.config.ts` starts the dev server on
   `http://localhost:5180` (`--strictPort`, reused if already running locally),
   keeps traces/screenshots only on failure (`test-results/`, gitignored), and
   the runner itself is excluded from `npm test`.
@@ -54,6 +56,49 @@ tests.
   viewport case.
 - First run on a machine: `npx playwright install chromium` once
   (`npx playwright install --with-deps chromium` on fresh Linux CI images).
+
+## The demo fixture (TH-2)
+
+The IM-3 demo module (`src/apps/demo/`) is a **test-only fixture** — it left
+the shipped fleet in TH-2 (`src/apps/index.ts` registers exactly the six
+reserved apps; `src/apps/apps.test.ts` gates the list; the production build
+emits no demo chunk). Specs that want a cheap multi-instance module reach it
+through the registry's public seam, never through the startup array:
+
+- **Unit specs** import it directly: `import { demoApp } from '../apps/demo'`
+  then `registerApp(demoApp)` / `registerApps([demoApp])` — see
+  `settings.test.tsx` (reset closes its two foreign windows) and
+  `notepad.test.tsx` (the late text-declaring rival that must LOSE the
+  first-declaration routing tiebreak).
+- **e2e specs** call `registerDemoModule(page)` (`tests/e2e/e2e-helpers.ts`):
+  a page-context dynamic import of the dev-server modules
+  (`/src/apps/demo/index.ts` + the registry barrel) — the same real-store
+  import pattern the UI-4 wallpaper spec and the HU-2 probes use. Consumers:
+  `taskbar.spec` (multi-instance LEDs), `resilience.spec` (the fault
+  subject), `interactions.spec` (the drag/resize probe windows).
+
+## Perf e2e (TH-2)
+
+`tests/e2e/perf.spec.ts` and `tests/e2e/soak.spec.ts` run against the
+**production build**, not the dev server: `startPreviewServer()`
+(`e2e-helpers.ts`) serves `vite preview` on `127.0.0.1:5181` (bound IPv4
+deliberately — vite preview's default `[::1]`-only listen is unreachable from
+Node's IPv4-first fetch) and builds first when `dist/` is missing or stale
+relative to `src/`, so a fresh `npm run perf`/`npm run build` output is reused
+as-is.
+
+- **Boot median** (`test.slow()`): 5 fresh-context first visits under CDP
+  4x CPU throttle + fast 3G (150ms RTT, 1.6 Mbps down / 750 kbps up);
+  asserts the median `desktop-ready` milestone ≤3s. The unthrottled ≤2s gate
+  stays in `boot.spec.ts`.
+- **Render cost** (unthrottled): explorer open + scroll, notepad + 100 typed
+  chars, viewer to the 400% clamp — asserts ZERO `longtask` entries (≥50ms is
+  the spec's own floor) after arming the collector post-desktop-ready.
+- **Soak**: open all six shipped apps + close them all, ×5; GC then sample
+  CDP DOM counters (`nodes` — detached nodes survive GC and count),
+  `Performance.getMetrics` JSHeapUsedSize, and the live document tree;
+  generous bounds (nodes ≤ first+1,000 and ≤2x; live tree ±25%; heap
+  ≤ first+24 MB) that catch leaks, not allocator noise.
 
 ## Fault injection (HU-1)
 

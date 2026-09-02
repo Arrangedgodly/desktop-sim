@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { registerDemoModule } from './e2e-helpers'
 
 /**
  * IM-4b e2e — window drag/resize against the real app graph in a real
@@ -56,6 +57,10 @@ interface WMStoreView {
 
 /** Open one window through the real store module (see file comment). */
 async function openWindow(page: Page, title: string, geometry?: ProbeGeometry): Promise<void> {
+  // TH-2: the demo module is a test-only fixture (de-registered from the
+  // shipped fleet) — register it through the registry's public seam so the
+  // probe windows mount real app content, not the MODULE UNAVAILABLE notice.
+  await registerDemoModule(page)
   await page.evaluate(
     async ({ title: t, geometry: g }) => {
       const url = '/src/platform/stores/wm-store.ts'

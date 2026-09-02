@@ -8,7 +8,7 @@ import { expect, test, type Page } from '@playwright/test'
  * Gates (docs/ultron/plan.md UI-2 acceptance):
  * 1. First visit: POST types the real subsystem lines, then the desktop; the
  *    whole boot lands ≤2s (`window.__BOOT_TIMELINE` carries boot-start →
- *    post-complete → desktop-ready) and the demo module does NOT auto-open.
+ *    post-complete → desktop-ready) and no window auto-opens.
  * 2. Click skips the POST; any key skips the POST.
  * 3. Reload (return visit, boot flag set): no POST — post-complete is ABSENT
  *    from the timeline and desktop-ready lands ≤200ms after boot-start.
@@ -63,8 +63,8 @@ test('first visit: POST checks real subsystems, then gives way to the desktop (�
   await expect(page.locator('[data-desktop-stage]')).toBeVisible({ timeout: 10_000 })
   await expect(page.locator('[data-boot-screen]')).toHaveCount(0)
 
-  // The WM host is mounted but a first visit opens NO windows (the demo module
-  // no longer auto-opens on the real desktop).
+  // The WM host is mounted but a first visit opens NO windows (nothing has
+  // auto-opened since the UI-2 boot sequence owns the first viewport).
   await expect(page.locator('[data-wm-host]')).toBeAttached()
   await expect(page.locator('.wm-window')).toHaveCount(0)
 

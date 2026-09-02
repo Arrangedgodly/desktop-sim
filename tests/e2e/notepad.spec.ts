@@ -47,8 +47,9 @@ test('open a text specimen from the explorer; an edit survives reload in the res
   await expect(page.locator('.wm-window[data-app-id="explorer"]')).toBeVisible()
   await page.locator('[data-explorer-option="exhibit-01"]').dblclick()
 
-  // The explorer's acceptedFileTypes consultation lands on NOTEPAD (not the
-  // demo module that also declares text) — registration order is load-bearing.
+  // The explorer's acceptedFileTypes consultation lands on NOTEPAD — it is
+  // the only shipped `text` declarer (the demo fixture left the fleet in
+  // TH-2; a late rival's defeat is pinned unit-side in notepad.test.tsx).
   const notepad = page.locator('.wm-window[data-app-id="notepad"]')
   await expect(notepad).toBeVisible()
   await expect(page.locator('[data-notepad-name]')).toHaveText('exhibit-01.txt')

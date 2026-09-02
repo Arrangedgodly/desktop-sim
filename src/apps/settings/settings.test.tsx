@@ -32,6 +32,7 @@ import { useSettingsStore, DEFAULT_WALLPAPER } from '../../platform/stores/setti
 import { useWMStore } from '../../platform/stores/wm-store'
 import { listWallpaperPlates } from '../../platform/desktop'
 import { apps } from '../index'
+import { demoApp } from '../demo' // TH-2: test-only fixture, not shipped (see apps.test.ts)
 import { settingsApp } from './index'
 import { SettingsIcon } from './SettingsIcon'
 import SettingsSurface from './SettingsSurface'
@@ -58,7 +59,7 @@ beforeEach(() => {
   useStorageStatusStore.setState(initialStatus, true)
   clearArchiveResealed()
   resetAppRegistry()
-  registerApps(apps) // the REAL startup registration (notepad + viewer + demo + explorer + settings)
+  registerApps(apps) // the REAL startup registration (notepad + viewer + explorer + about + browser + settings)
 })
 
 afterEach(() => {
@@ -337,8 +338,15 @@ describe('AP-4 · guarded reset (cover → strip → throw)', () => {
       useSettingsStore.getState().setSoundsEnabled(true)
     })
     writeBootFlag(CURRENT_SCHEMA_VERSION)
+    // TH-2: the demo module is the multi-instance FOREIGN window fixture now
+    // (de-registered from the shipped fleet) — registered here through the
+    // registry's public seam so the two foreign windows stay real.
+    registerApps([demoApp])
     const demoOne = openApp('demo')!
     const demoTwo = openApp('demo')!
+    expect(demoOne).toBeTruthy()
+    expect(demoTwo).toBeTruthy()
+    expect(demoTwo).not.toBe(demoOne) // multi-instance: two windows, not a focus
     const { windowId: consoleWindow } = mountConsole()
 
     fireEvent.click(coverEl())

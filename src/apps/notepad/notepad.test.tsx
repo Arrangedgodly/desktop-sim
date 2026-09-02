@@ -23,6 +23,7 @@ import {
   appCloseGuardFor,
   listApps,
   openApp,
+  registerApp,
   registerApps,
   resetAppRegistry,
   type AppLaunchContext,
@@ -33,6 +34,7 @@ import { useFSStore } from '../../platform/stores/fs-store'
 import { useWMStore } from '../../platform/stores/wm-store'
 import { useSettingsStore } from '../../platform/stores/settings-store'
 import { apps } from '../index'
+import { demoApp } from '../demo' // TH-2: test-only fixture, not shipped (see apps.test.ts)
 import { notepadApp } from './index'
 import { NotepadIcon } from './NotepadIcon'
 import NotepadSurface from './NotepadSurface'
@@ -61,7 +63,7 @@ beforeEach(() => {
   useSettingsStore.setState(initialSettings, true)
   useStorageStatusStore.setState(initialStatus, true)
   resetAppRegistry()
-  registerApps(apps) // the REAL startup registration (notepad + demo + explorer)
+  registerApps(apps) // the REAL startup registration (notepad + viewer + explorer)
   localStorage.clear()
 })
 
@@ -151,9 +153,17 @@ describe('AP-2 · registration manifest', () => {
     expect(container.querySelector('svg[aria-hidden="true"]')).not.toBeNull()
   })
 
-  it('registers BEFORE the demo module — the real text owner wins the routing tiebreak', () => {
-    const ids = listApps().map((app) => app.id)
-    expect(ids.indexOf('notepad')).toBeLessThan(ids.indexOf('demo'))
+  it('wins the routing tiebreak against a LATER text-declaring rival (the demo fixture)', () => {
+    // TH-2 unfreeze: the demo module is no longer in the shipped fleet
+    // (src/apps/apps.test.ts gates that), so the old "registers BEFORE the
+    // demo module" order assertion has no shipped subject. The CONTRACT rule
+    // it guarded — first declaration of a kind wins the explorer's routing
+    // consultation — still needs a regression guard against the NEXT app that
+    // declares `text`, so the fixture registers here as a late rival and must
+    // LOSE to the notepad.
+    expect(registerApp(demoApp)).toBe(true)
+    expect(childOpenTarget(node('charter'), listApps())).toBe('notepad')
+    expect(childOpenTarget(node('exhibit-01'), listApps())).toBe('notepad')
   })
 })
 
@@ -170,9 +180,8 @@ describe('AP-2 · text routing lights up at registration', () => {
   })
 
   it('the EXPLORER consultation (acceptedFileTypes, first declaring wins) resolves notepad', () => {
-    // The real startup registry — no probe. The demo also declares text; the
-    // notepad's earlier registration must win, or in-drawer specimens would
-    // open the contract demo instead of their owner.
+    // The real startup registry — no probe, no rival: the notepad is the only
+    // shipped `text` declarer (a late rival's defeat is pinned one block up).
     expect(childOpenTarget(node('charter'), listApps())).toBe('notepad')
     expect(childOpenTarget(node('exhibit-01'), listApps())).toBe('notepad')
   })
