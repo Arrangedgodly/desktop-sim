@@ -1,6 +1,11 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { markBootMilestone, readBootTimeline, resetBootTimeline } from './boot-timeline'
+import {
+  markBootMilestone,
+  onBootMilestone,
+  readBootTimeline,
+  resetBootTimeline,
+} from './boot-timeline'
 
 /** TH-1 unit tests: the boot-timing seam fills window.__BOOT_TIMELINE exactly
  * as UI-2 (and the e2e timing assertion) will consume it. */
@@ -65,3 +70,43 @@ describe('TH-1 · boot timeline seam', () => {
     expect(readBootTimeline()).toEqual([]) // nothing recorded, nothing crashed
   })
 })
+
+describe('TH-1 · boot milestone listeners (UI-6 seam)', () => {
+  it('onBootMilestone hears marks the moment they land, in order', () => {
+    const heard: string[] = []
+    const off = onBootMilestone((milestone) => heard.push(milestone.name))
+
+    markBootMilestone('boot-start')
+    markBootMilestone('desktop-ready')
+
+    expect(heard).toEqual(['boot-start', 'desktop-ready'])
+    off()
+  })
+
+  it('a throwing listener is swallowed — the mark still lands, others still hear', () => {
+    const heard: string[] = []
+    onBootMilestone(() => {
+      throw new Error('observer bug')
+    })
+    const off = onBootMilestone((milestone) => heard.push(milestone.name))
+
+    expect(() => markBootMilestone('post-complete')).not.toThrow()
+    expect(readBootTimeline().map((m) => m.name)).toEqual(['post-complete'])
+    expect(heard).toEqual(['post-complete'])
+    off()
+  })
+
+  it('unsubscribes cleanly; resetBootTimeline keeps observers subscribed', () => {
+    const heard: string[] = []
+    const off = onBootMilestone((milestone) => heard.push(milestone.name))
+
+    resetBootTimeline() // resets the RECORD, never the observers
+    markBootMilestone('taskbar-ready')
+    expect(heard).toEqual(['taskbar-ready'])
+
+    off()
+    markBootMilestone('desktop-ready')
+    expect(heard).toEqual(['taskbar-ready']) // gone for good
+  })
+})
+

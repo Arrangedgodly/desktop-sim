@@ -201,8 +201,8 @@ export default function SettingsSurface({ windowId }: { readonly windowId: strin
               <span className="settings-row-text">
                 <span className="settings-row-name">UI sounds</span>
                 <span className="settings-row-hint">
-                  Console bleeps at module actions. Ships muted; the audio module (UI-6) wires
-                  the playback.
+                  Console bleeps at module actions. Ships muted; throw the switch to arm the
+                  speaker.
                 </span>
               </span>
               <HardwareSwitch

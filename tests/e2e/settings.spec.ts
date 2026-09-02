@@ -29,6 +29,14 @@ async function toDesktop(page: Page): Promise<void> {
   await expect(page.locator('[data-desktop-stage]')).toBeVisible({ timeout: 10_000 })
 }
 
+// UI-6 spec helper bookkeeping: the patched-constructor counter (see
+// patchAudioContextCount below) lives on the page's window.
+declare global {
+  interface Window {
+    __audioContexts?: number
+  }
+}
+
 /** Launch Console Settings from the module drawer (the honest affordance). */
 async function openSettings(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Module drawer — launch a module' }).click()
@@ -170,4 +178,127 @@ test('the guarded reset reseeds the desktop live and the reseed survives reload'
   await expect(page.locator('.icon-field [data-specimen-id]')).toHaveCount(5)
   await expect(page.getByRole('button', { name: /^New Drawer, DRW-\d{4}, drawer$/ })).toHaveCount(0)
   await expect(page.locator('[data-wallpaper]')).toHaveAttribute('data-wallpaper', 'star-chart')
+})
+
+/*
+ * UI-6 audio gates — the autoplay/mute laws against the REAL app graph.
+ *
+ * Context creation is counted by PATCHING the AudioContext constructor via an
+ * init script (independent of engine bookkeeping); cue firing is read from the
+ * engine's own `audioStats()` through a page-context dynamic import of the
+ * engine module (the desktop.spec settings-store precedent — the same module
+ * instance the app graph holds, no test-only setter in the bundle).
+ */
+
+/** Patch-count: every AudioContext the page EVER constructs. */
+async function patchAudioContextCount(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    const Original = window.AudioContext
+    window.__audioContexts = 0
+    window.AudioContext = class extends Original {
+      constructor() {
+        super()
+        window.__audioContexts = (window.__audioContexts ?? 0) + 1
+      }
+    }
+  })
+}
+
+/** The live patch count (0 when the engine never built a context). */
+async function audioContexts(page: Page): Promise<number> {
+  return page.evaluate(() => (window as unknown as { __audioContexts?: number }).__audioContexts ?? 0)
+}
+
+/** Shape asserted instead of importing the module into the spec's graph. */
+interface AudioStatsView {
+  contextsCreated: number
+  cuesPlayed: number
+  cuesDropped: number
+  lastCue: string | null
+}
+
+/** Engine observability through the SAME module instance the app holds. */
+async function audioStats(page: Page): Promise<AudioStatsView> {
+  return page.evaluate(async () => {
+    const url = '/src/lib/audio/engine.ts'
+    const module = (await import(url)) as { audioStats: () => AudioStatsView }
+    return module.audioStats()
+  })
+}
+
+test('sounds off by default: a full session of gestures makes ZERO AudioContexts', async ({
+  page,
+}) => {
+  await patchAudioContextCount(page)
+  const consoleNoise: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'warning' || message.type() === 'error') consoleNoise.push(message.text())
+  })
+
+  await toDesktop(page) // boot + a keypress (a real gesture) + desktop-ready
+  await openSettings(page) // window-open cue ATTEMPT (muted → no-op)
+
+  // A context menu with a real selection (menu-open / menu-select attempts).
+  await page.mouse.click(900, 420, { button: 'right' })
+  await page.locator('[data-menu-item="new-drawer"]').click()
+  await expect(page.getByRole('button', { name: /^New Drawer, DRW-\d{4}, drawer$/ })).toBeVisible()
+
+  // A second window, then both close (window-open / window-close attempts).
+  await page.getByRole('button', { name: 'Module drawer — launch a module' }).click()
+  await page.getByRole('menuitem', { name: 'Specimen Notepad' }).click()
+  const notepad = page.locator('.wm-window[data-app-id="notepad"]')
+  await expect(notepad).toBeVisible()
+  await notepad.getByRole('button', { name: 'Close' }).click()
+  await expect(notepad).toHaveCount(0)
+
+  // MUTE LAW: no AudioContext was ever constructed — not at load, not on any
+  // gesture — and the engine never played (or attempted) a single cue.
+  await expect.poll(() => audioContexts(page)).toBe(0)
+  const stats = await audioStats(page)
+  expect(stats.contextsCreated).toBe(0)
+  expect(stats.cuesPlayed).toBe(0)
+
+  // AUTOPLAY LAW: nothing in the console smells of blocked audio.
+  expect(consoleNoise.filter((text) => /audio|autoplay|user gesture/i.test(text))).toEqual([])
+})
+
+test('sounds armed through the switch: ONE shared AudioContext, cues fire on the seams', async ({
+  page,
+}) => {
+  await patchAudioContextCount(page)
+
+  await toDesktop(page)
+  await openSettings(page)
+
+  // Arm the console with the real hardware switch — a genuine click.
+  const sounds = page.getByRole('switch', { name: 'UI sounds' })
+  await expect(sounds).toHaveAttribute('aria-checked', 'false') // still ships muted
+  await sounds.click()
+  await expect(sounds).toHaveAttribute('aria-checked', 'true')
+
+  // The arming click is the FIRST enabled gesture: it builds the one context.
+  await expect.poll(() => audioContexts(page)).toBe(1)
+  let stats = await audioStats(page)
+  expect(stats.contextsCreated).toBe(1)
+  expect(stats.lastCue).toBe('toggle')
+
+  // A real window open (module drawer → notepad) rides the WM seam.
+  await page.getByRole('button', { name: 'Module drawer — launch a module' }).click()
+  await page.getByRole('menuitem', { name: 'Specimen Notepad' }).click()
+  const notepad = page.locator('.wm-window[data-app-id="notepad"]')
+  await expect(notepad).toBeVisible()
+  stats = await audioStats(page)
+  expect(stats.lastCue).toBe('window-open')
+
+  // Close it — the lower close blip, still through the SAME context.
+  await notepad.getByRole('button', { name: 'Close' }).click()
+  await expect(notepad).toHaveCount(0)
+  stats = await audioStats(page)
+  expect(stats.lastCue).toBe('window-close')
+  expect(stats.cuesPlayed).toBeGreaterThanOrEqual(3) // toggle + open + close
+
+  // Exactly one AudioContext for the whole armed session (patch-count + the
+  // engine's own bookkeeping agree).
+  expect(await audioContexts(page)).toBe(1)
+  expect(stats.contextsCreated).toBe(1)
 })

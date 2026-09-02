@@ -7,7 +7,10 @@
  * Deliberately dumb: a plain array of { name, t } with t = performance.now()
  * at call time, append-only, ordered by call. No aggregation, no formatting,
  * no swallowing of names — semantics (what "interactive" means, deduping,
- * return-visit shortening) belong to UI-2, not to the seam.
+ * return-visit shortening) belong to UI-2, not to the seam. The one
+ * non-recording surface is `onBootMilestone` (UI-6): observers hear marks as
+ * they land; their errors are swallowed so an observer can never take a boot
+ * down.
  *
  * The array lives on `window` when the host has one (in a real browser
  * window === globalThis, so this IS window.__BOOT_TIMELINE), else on
@@ -30,6 +33,35 @@ declare global {
 }
 
 type TimelineHost = { __BOOT_TIMELINE?: BootMilestone[] }
+
+/** Observer of milestones as they are marked (UI-6's boot chime is the first). */
+export type BootMilestoneListener = (milestone: BootMilestone) => void
+
+const milestoneListeners = new Set<BootMilestoneListener>()
+
+/** Swallow-and-continue: an observer must never take the boot down with it. */
+function notifyMilestoneListeners(milestone: BootMilestone): void {
+  for (const listener of milestoneListeners) {
+    try {
+      listener(milestone)
+    } catch {
+      // this seam's discipline: never fatal, never partial-throw
+    }
+  }
+}
+
+/**
+ * Subscribe to milestones the moment they are marked (UI-6 audio listens for
+ * 'desktop-ready'). Returns the unsubscribe. Listeners survive
+ * {@link resetBootTimeline} — that resets the recorded timeline; observers
+ * keep observing.
+ */
+export function onBootMilestone(listener: BootMilestoneListener): () => void {
+  milestoneListeners.add(listener)
+  return () => {
+    milestoneListeners.delete(listener)
+  }
+}
 
 /** window when present, else globalThis — one array per host either way. */
 function timelineHost(): TimelineHost {
@@ -54,6 +86,7 @@ export function markBootMilestone(name: string): BootMilestone | null {
     const timeline = timelineArray()
     const milestone: BootMilestone = { name, t: now, order: timeline.length }
     timeline.push(milestone)
+    notifyMilestoneListeners(milestone)
     return milestone
   } catch {
     return null

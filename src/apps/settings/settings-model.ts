@@ -26,7 +26,8 @@
  * SOUNDS + REDUCED-MOTION toggles have no model machinery of their own: they
  * write the settings store (persisted by MF-2's autosave the same millisecond
  * as wallpaper), and their consumers land in later tasks —
- *   · soundsEnabled: UI-6 wires the WebAudio playback to this switch.
+ *   · soundsEnabled: UI-6's WebAudio playback is wired to this switch
+ *     (src/lib/audio reads it live; ships muted).
  *   · reducedMotionFollow: governs whether the console's authored motion
  *     (POST pacing, the guard's rail slide, phosphor moments) follows the OS
  *     `prefers-reduced-motion` preference. Today the OS floor honors the

@@ -9,6 +9,10 @@ import { BootSequence } from './platform/boot'
 import { markBootMilestone } from './lib/perf/boot-timeline'
 import { bootPersistence } from './lib/storage/persistence'
 import { readBootFlag } from './lib/storage/boot-flag'
+// UI-6: cue subscriptions over the platform seams — a few hundred bytes,
+// eager (a separate lazy chunk would cost a request for less code than the
+// request overhead). When muted every event is one returned boolean check.
+import { attachAudioCues } from './lib/audio'
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {
@@ -34,6 +38,11 @@ if (listApps().length === 0) {
 markBootMilestone('boot-start')
 const firstVisit = readBootFlag() === null
 const boot = bootPersistence()
+
+// UI-6 console cues: attached once, before the desktop renders, so the boot
+// chime seam exists by the time 'desktop-ready' lands. Muted by default —
+// the engine builds no AudioContext until an armed, gestured cue arrives.
+attachAudioCues()
 
 createRoot(rootElement).render(
   <StrictMode>

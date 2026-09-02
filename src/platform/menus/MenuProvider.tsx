@@ -24,6 +24,7 @@ import type { ReactNode } from 'react'
 import type { MenuAnchor, MenuItem } from './menu-items'
 import { MenuContext } from './menu-context'
 import type { ConsoleMenu, OpenMenuOptions } from './menu-context'
+import { emitMenuEvent } from './menu-events'
 import { MenuShell } from './MenuShell'
 import type { MenuSession } from './MenuShell'
 
@@ -39,6 +40,7 @@ export function MenuProvider({ children }: { readonly children: ReactNode }) {
       const next: MenuSession = { items, anchor, ariaLabel: options.ariaLabel, invoker }
       sessionRef.current = next
       setSession(next) // a new open replaces any live menu
+      emitMenuEvent('open') // UI-6 bus — observers (audio) hear the unfold
     },
     [],
   )

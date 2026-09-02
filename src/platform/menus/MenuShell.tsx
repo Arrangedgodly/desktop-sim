@@ -28,6 +28,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { createPortal } from 'react-dom'
 import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from 'react'
 import type { MenuAction, MenuAnchor, MenuItem } from './menu-items'
+import { emitMenuEvent } from './menu-events'
 import { computeMenuPlacement, MENU_VIEWPORT_MARGIN } from './menu-position'
 import './menus.css'
 
@@ -227,6 +228,7 @@ export function MenuShell({ session, onClose }: MenuShellProps) {
    */
   const activate = useCallback(
     (row: Row): void => {
+      emitMenuEvent('select') // UI-6 bus — every row the operator throws
       if (row.confirmOf) {
         setConfirmingId(row.id) // guarded: show the confirm step
         return

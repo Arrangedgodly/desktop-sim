@@ -6,6 +6,12 @@
 export { MenuProvider } from './MenuProvider'
 export { useConsoleMenu } from './use-console-menu'
 export type { ConsoleMenu, OpenMenuOptions } from './menu-context'
+export {
+  emitMenuEvent,
+  onMenuEvent,
+  type ConsoleMenuEvent,
+  type MenuEventListener,
+} from './menu-events'
 export { MenuShell } from './MenuShell'
 export type { MenuSession } from './MenuShell'
 export type {
