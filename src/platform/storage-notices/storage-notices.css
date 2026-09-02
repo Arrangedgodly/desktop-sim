@@ -70,6 +70,7 @@
   color: var(--chrome-ink);
   font-family: var(--font-label);
   font-size: var(--size-legend);
+  font-weight: 600; /* text-bearing control plates carry engraved labels (refinement #2) */
   letter-spacing: var(--track-legend);
   text-transform: uppercase;
   cursor: pointer;

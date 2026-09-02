@@ -252,6 +252,23 @@ describe('TaskbarRail · open-window LEDs', () => {
 })
 
 describe('TaskbarRail · module launcher', () => {
+  // Refinement #2 (typeset): the launch rows are engraved legends like every
+  // sibling surface — 600/uppercase/in the 0.08–0.12em band — riding the law's
+  // 14px off-ramp (arm's-length selection list, longest name past 14 chars).
+  // Source-scan lockstep (jsdom applies no CSS), same discipline as the
+  // long-name law suites below.
+  it('the launch rows obey the Engraved Legend Law (CSS law: off-ramp + band + 600)', () => {
+    const css = readFileSync('src/platform/taskbar/taskbar.css', 'utf8')
+    const block = css.split('.tb-launch-item {')[1]!.split('}')[0]!
+    expect(block).toContain('font-size: var(--size-legend-xl)')
+    expect(block).toContain('font-weight: 600')
+    expect(block).toContain('text-transform: uppercase')
+    expect(block).toContain('letter-spacing: var(--track-legend)')
+    // the name span still clamps — the off-ramp never buys fit
+    const nameBlock = css.split('.tb-launch-name {')[1]!.split('}')[0]!
+    expect(nameBlock).toContain('text-overflow: ellipsis')
+  })
+
   it('the pull opens a drawer listing the REGISTRY (not a hardcoded roster)', () => {
     render(<TaskbarRail />)
 

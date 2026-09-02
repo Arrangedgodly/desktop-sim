@@ -122,7 +122,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-legend-narrow); /* crumbs pack the band's narrow end */
   text-transform: uppercase;
   color: var(--chrome-ink-dim);
   text-shadow: 0 1px 0 rgb(0 0 0 / 70%);
@@ -256,7 +256,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-legend-narrow); /* wrapping legends ride the narrow end */
   text-transform: uppercase;
   line-height: 1.35;
   color: var(--parchment-ink);
@@ -344,7 +344,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend-lg);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-legend-narrow); /* same label as the card view, same tracking */
   text-transform: uppercase;
   color: var(--parchment-ink);
 }
@@ -352,7 +352,8 @@
 .explorer-row-kind {
   font-family: var(--font-label);
   font-size: var(--size-legend);
-  letter-spacing: 0.04em;
+  font-weight: 600; /* legends engrave at 600 — secondary dims the ink, never the cut */
+  letter-spacing: var(--track-legend-narrow);
   text-transform: uppercase;
   color: var(--parchment-ink-dim);
 }
@@ -375,7 +376,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-legend-narrow); /* matches the label it edits */
   text-transform: uppercase;
   text-align: left; /* an edit field shows the START of a long label */
   line-height: 1.35;

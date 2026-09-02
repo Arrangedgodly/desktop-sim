@@ -162,7 +162,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-legend-narrow); /* wrapping legends ride the band's narrow end */
   text-transform: uppercase;
   line-height: 1.35;
   text-align: center;
@@ -312,7 +312,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-legend-narrow); /* matches the label it edits */
   text-transform: uppercase;
   /* OS floor: an edit field left-aligns its text — a centered single-line
      field that overflows shows the MIDDLE of a long label (verified in
@@ -383,6 +383,10 @@
   color: var(--parchment-ink);
 }
 
+/* The dismissal mark: a glyph-mark plate — the off-ramp's case (a). A single
+   drawn mark IS the plate's whole content; a 12px cut collapses its strokes.
+   Rides --size-legend-xl (14px, the law's ceiling) at legend weight, so the
+   old stray 0.875rem literal is now a tokenized, sanctioned instance. */
 .docent-close {
   flex: 0 0 auto;
   width: 18px;
@@ -392,7 +396,8 @@
   padding: 0;
   margin: -2px -2px 0 0;
   font-family: var(--font-label);
-  font-size: 0.875rem;
+  font-size: var(--size-legend-xl);
+  font-weight: 600;
   line-height: 1;
   color: var(--parchment-ink-dim);
   background: transparent;

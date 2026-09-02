@@ -119,23 +119,35 @@
   color: var(--chrome-ink-dim);
 }
 
+/* Refinement #2 (typeset): the launch rows are ENGRAVED LEGENDS like their
+   siblings (pull, LEDs, ctx rows) — 600/uppercase/in the tracking band — and
+   ride the law's 14px off-ramp: this is the operator's primary selection list
+   and its longest module name (NAMEPLATE MANIFEST, 18 chars) runs past the
+   14-character line where tracked caps at 12px lose word-shape. The off-ramp
+   applies per surface (one size for every row), never per label. */
 .tb-launch-item {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 6px 7px;
+  padding: 7px;
   text-align: left;
   font-family: var(--font-label);
-  font-size: var(--size-legend-lg);
-  letter-spacing: 0.04em;
-  color: var(--chrome-ink);
+  font-size: var(--size-legend-xl);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--engraved-ink); /* etched, like every sibling row */
+  text-shadow:
+    0 1px 0 rgb(0 0 0 / 70%),
+    0 2px 0 rgb(255 230 176 / 12%);
   background: transparent;
   border: 1px solid transparent;
   cursor: pointer;
 }
 
 .tb-launch-item:hover {
+  color: var(--chrome-ink); /* the ink rises on approach, like ctx rows */
   background: var(--chrome-ground);
   border-color: var(--chrome-edge-lo);
 }

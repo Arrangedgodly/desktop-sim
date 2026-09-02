@@ -91,10 +91,25 @@ describe('UI-1 · token stylesheet mounts', () => {
       '--font-mono',
       '--size-legend',
       '--size-legend-lg',
+      '--size-legend-xl',
       '--track-legend',
+      '--track-legend-narrow',
+      '--track-legend-wide',
     ]) {
       expect(tokensCss, token).toMatch(new RegExp(`${token}\\s*:`))
     }
+  })
+
+  // Refinement #2 (typeset): the Engraved Legend Law's whole size+tracking
+  // ramp is tokens — the floor, the off-ramp ceiling, and the band's three
+  // stops — so no legend instance can drift off it silently.
+  it('pins the engraved legend ramp (floor 11px, off-ramp 14px, band 0.08–0.12em)', () => {
+    expect(tokensCss).toContain('--size-legend: 0.6875rem')
+    expect(tokensCss).toContain('--size-legend-lg: 0.75rem')
+    expect(tokensCss).toContain('--size-legend-xl: 0.875rem')
+    expect(tokensCss).toContain('--track-legend-narrow: 0.08em')
+    expect(tokensCss).toContain('--track-legend: 0.1em')
+    expect(tokensCss).toContain('--track-legend-wide: 0.12em')
   })
 
   it('removes the provisional :root block from wm.css (single definition site)', () => {

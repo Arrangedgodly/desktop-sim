@@ -129,6 +129,7 @@
   justify-self: start;
   padding: 1px 6px;
   font-size: var(--size-legend);
+  font-weight: 600; /* a chip's kind is an engraved legend (refinement #2) */
   letter-spacing: var(--track-legend);
   text-transform: uppercase;
   color: var(--chrome-ink-dim);
@@ -404,6 +405,7 @@
 
 .settings-cover-action {
   font-size: var(--size-legend);
+  font-weight: 600; /* engraved legends cut at 600 (refinement #2) */
   letter-spacing: var(--track-legend);
   text-transform: uppercase;
   color: var(--parchment);
@@ -505,6 +507,7 @@
   margin: 0;
   font-family: var(--font-label);
   font-size: var(--size-legend);
+  font-weight: 600; /* engraved legends cut at 600 (refinement #2) */
   letter-spacing: var(--track-legend);
   text-transform: uppercase;
   color: var(--phosphor-dim);

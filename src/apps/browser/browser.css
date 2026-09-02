@@ -182,7 +182,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend-lg);
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--track-legend-wide); /* provisional shouts ride the band's ceiling */
   text-transform: uppercase;
   color: var(--parchment-ink);
 }

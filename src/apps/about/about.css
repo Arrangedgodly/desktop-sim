@@ -106,7 +106,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend);
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--track-legend-wide); /* the band's ceiling (was 0.14em — over the band) */
   text-transform: uppercase;
   text-shadow: 0 1px 0 rgb(255 246 214 / 35%);
 }
@@ -207,7 +207,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend-lg);
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--track-legend-wide); /* provisional shouts ride the band's ceiling */
   text-transform: uppercase;
   color: var(--parchment-ink);
 }
@@ -330,7 +330,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend-lg);
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--track-legend);
   text-transform: uppercase;
   text-shadow: 0 1px 0 rgb(255 246 214 / 30%);
 }
@@ -406,7 +406,7 @@
   margin: 0;
   font-family: var(--font-label);
   font-size: var(--size-legend);
-  font-weight: 400;
+  font-weight: 600; /* engraved legends cut at 600 — secondary dims the ink, never the cut */
   letter-spacing: var(--track-legend);
   text-transform: uppercase;
   color: var(--parchment-ink-dim);
@@ -465,7 +465,8 @@
   margin: 0;
   font-family: var(--font-label);
   font-size: var(--size-legend);
-  letter-spacing: 0.08em;
+  font-weight: 600; /* a colophon line is an engraved legend (refinement #2) */
+  letter-spacing: var(--track-legend-narrow);
   text-transform: uppercase;
   color: var(--chrome-ink);
 }

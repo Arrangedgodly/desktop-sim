@@ -141,7 +141,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend-lg);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-legend); /* the band — refinement #2 */
   text-transform: uppercase;
   line-height: 1.4;
   color: var(--chrome-ink);

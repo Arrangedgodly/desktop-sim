@@ -68,10 +68,17 @@
   --font-mono: 'B612 Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   /* Legend metrics. Committed QA flag: Chakra Petch mixed-case can read muddy
-     at 10px — floor is 11px until an in-situ pass proves 10px crisp. */
+     at 10px — floor is 11px until an in-situ pass proves 10px crisp.
+     Refinement #2 (typeset): the whole tracked-caps band is addressable —
+     narrow end for wrapping/secondary legends, wide end for provisional
+     shouts — and the law's ONE escape hatch, the 14px off-ramp, is a token
+     so it can never drift (nothing rides between 12 and 14, nothing above). */
   --size-legend: 0.6875rem; /* 11px floor */
   --size-legend-lg: 0.75rem; /* 12px primary legends */
-  --track-legend: 0.1em; /* tracked caps band 0.08–0.12em */
+  --size-legend-xl: 0.875rem; /* 14px off-ramp — glyph-mark plates; arm's-length selection lists past 14 chars */
+  --track-legend-narrow: 0.08em; /* band floor — wrapping + secondary legends */
+  --track-legend: 0.1em; /* the band's center — primary legends */
+  --track-legend-wide: 0.12em; /* band ceiling — awaiting/provisional shouts */
 
   /* -- motion (one authored moment; exponential ease-out from a visible
         default — craft floor) ------------------------------------------------ */

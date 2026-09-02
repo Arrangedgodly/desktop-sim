@@ -37,6 +37,12 @@ typography:
     fontWeight: 600
     lineHeight: 1.35
     letterSpacing: "0.1em"
+  label-xl:
+    fontFamily: "'Chakra Petch', ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 600
+    lineHeight: 1.35
+    letterSpacing: "0.1em"
   content:
     fontFamily: "'Lora', Georgia, 'Times New Roman', serif"
     fontSize: "0.9375rem"
@@ -115,7 +121,7 @@ Motion is instrument-grade: the console is a machine at rest. Furniture (the tas
 - Parchment content surfaces for text-heavy reading — the light side of the duality
 - Brass only at hardware touchpoints — pulls, label frames, screws, grips, corner brackets
 - Oxide red only for warnings and destructive actions
-- Engraved legends: tracked uppercase Chakra Petch, cut into the plate (11px floor)
+- Engraved legends: 600 uppercase Chakra Petch cut into the plate, tracked 0.08–0.12em (11px floor, 14px off-ramp ceiling)
 - All digits and readouts ride B612 Mono, tabular by construction
 - Machined depth: 1px bevel lips + one ground shadow; light falls from above
 - Sharp corners everywhere; the only circles are hardware (lamps, screws, rivets)
@@ -183,14 +189,18 @@ A warm, archival palette: near-black console neutrals with an amber-phosphor lit
 - **Display** (Lora 600, 1.75rem/1.15): the officer's name on the brass nameplate; exhibit page names (1.4rem/1.2). Serif — a plaque engraving is set in a serif.
 - **Body** (Lora 400, 0.9375rem/1.8): all reading on parchment — the ledger note, field notes, exhibit descriptions, docent cards. Measure caps at 60–78ch (notepad sheet 78ch; notes 60–72ch).
 - **Marginal note** (Lora italic 400, 0.8125rem/1.5–1.55): hints, placeholders, and awaiting-notices on parchment — always dim parchment ink.
-- **Label** (Chakra Petch 600, 0.75rem uppercase, tracked 0.1em, line-height 1.35 when wrapped): the engraved legend — title bars, menu rows, controls, chips, toolbar legends, catalog names. Secondary legends may drop to the 11px floor (0.6875rem); tracking band 0.08–0.12em; wrapped catalog names clamp to 2–3 ruled lines.
+- **Label** (Chakra Petch 600, 0.75rem uppercase, tracked 0.1em, line-height 1.35 when wrapped): the engraved legend — title bars, menu rows, controls, chips, toolbar legends, catalog names. Secondary legends may drop to the 11px floor (0.6875rem); tracking band 0.08–0.12em, all three stops addressable as tokens (`--track-legend-narrow` for wrapping/secondary legends, `--track-legend`, `--track-legend-wide` for awaiting/provisional shouts); wrapped catalog names clamp to 2–3 ruled lines. The 14px off-ramp (below) is the only size above 12px.
 - **Readout** (B612 Mono 400, 0.8125–0.6875rem, tabular): timecode, accession codes, scale, version, POST lines. Always inside a well; 700 weight for banners.
 
 ### Named Rules
 
 **The Measuring Law.** Every digit, code, and readout rides B612 Mono — Chakra Petch's digits are proportional and never appear in a readout. Tabular alignment is enforced by the well primitive (`font-variant-numeric: tabular-nums`).
 
-**The Engraved Legend Law.** Labels are engraved, never embossed: the cut's dark shadow tucked under the stroke, one light lip below it (`text-shadow: 0 1px 0 rgb(0 0 0 / 70%), 0 2px 0 rgb(255 230 176 / 12%)`). On parchment the cut reverses (`0 1px 0 rgb(255 255 255 / 45%)`). Uppercase, tracked; 11px floor — nothing smaller.
+**The Engraved Legend Law.** Labels are engraved, never embossed: the cut's dark shadow tucked under the stroke, one light lip below it (`text-shadow: 0 1px 0 rgb(0 0 0 / 70%), 0 2px 0 rgb(255 230 176 / 12%)`). On parchment the cut reverses (`0 1px 0 rgb(255 255 255 / 45%)`). Uppercase, 600, tracked inside the 0.08–0.12em band; 11px floor — nothing smaller.
+
+**The 14px off-ramp (the law's one escape hatch).** The legend ramp is 11–12px. A legend may ride at 14px (0.875rem, token `--size-legend-xl`) — nothing between 12 and 14, nothing above — when 12px genuinely fails it, which happens in exactly two adjudicated cases: **(a) a glyph-mark plate** — a single drawn mark is the plate's whole content and a 12px cut collapses its strokes (the docent's × dismissal); **(b) an arm's-length selection list** — a list the operator reads to act, whose longest label runs past 14 characters, where tracked uppercase loses word-shape at 12px (the module drawer's rows: NAMEPLATE MANIFEST). The off-ramp applies per surface, never per row — one size for every row, chosen by the surface's longest label — and it never buys fit: a long name clamps (ellipsis, ruled lines), it never grows.
+
+**Plate furniture is ink, not type (adjudicated).** Numerals, magnitude keys, and epoch blocks printed inside an authored wallpaper plate are plate ART: they scale with the plate's viewBox, are never focused, never read as chrome, and are exempt from this law's floor (star-chart edge numerals at 10px, the magnitude key at 10.5px). The exemption ends at the plate's frame — text the operator reads as console chrome (swatch labels, the MOUNTED flag) rides the law in full.
 
 **The Serif Reads Law.** Prose on parchment is Lora, never the label face and never mono. The label face never sets sentences; the mono face never sets prose.
 
@@ -250,7 +260,7 @@ The core container: a beveled instrument module with one soft ground shadow, sha
 
 Fixed furniture, zero transitions — hover and press swap state instantly.
 
-- **Module-drawer pull:** the rail's brass hardware — a brass plate with two dark finger slots, engraved dark-on-brass ink. Opens the registry-driven module menu (recessed chrome panel, min 236px, engraved rows, each module glyph seated in a small recess).
+- **Module-drawer pull:** the rail's brass hardware — a brass plate with two dark finger slots, engraved dark-on-brass ink. Opens the registry-driven module menu (recessed chrome panel, min 236px, engraved rows on the 14px off-ramp — the operator's primary selection list, its longest name past 14 characters — each module glyph seated in a small recess).
 - **LED channel:** a recessed groove; one engraved LED chip per open window (lamp = 16px drilled well: lit phosphor = focused, aged amber = stowed/minimized, dark = open but unfocused; dashed edge = module unavailable — a fault, not a danger, so never oxide).
 - **Timecode well:** the hold's one shared clock — a `.well` readout, B612 13px HH:MM:SS, tracked 0.08em, scanlined.
 - **OS plate:** engraved HOLD/OS legend + a B612 version chip seated in a sunken plate.
@@ -356,7 +366,7 @@ One beveled console module (max 460px) centered on the hold ground: engraved tit
 - **Don't** use brass decoratively or as a large surface outside the nameplate and primary brass action.
 - **Don't** use oxide for anything but warnings and destructive actions — and never as a fault state (faults are dashed, not oxide).
 - **Don't** round a module, card, menu, or control — corners are sharp; circles are hardware only.
-- **Don't** set labels below the 11px floor, or set sentences in the label face.
+- **Don't** set labels below the 11px floor or above the 14px off-ramp ceiling, outside the 0.08–0.12em tracking band, or at any weight but 600; and never set sentences in the label face.
 - **Don't** add transitions to furniture (rail, menus) or animate width/height (layout work breaks the 60fps floor).
 - **Don't** use drop shadows, blur stacks, or ambient glows on flat chrome; no black shadows on parchment.
 - **Don't** use emoji or unicode icon stand-ins — authored stroke glyphs only.

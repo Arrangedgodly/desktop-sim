@@ -46,7 +46,7 @@
   font-size: 1.3125rem; /* 21px */
   font-weight: 600;
   line-height: 1.25;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-legend-narrow);
   text-transform: uppercase;
   text-align: center;
   color: var(--chrome-ink);
@@ -138,7 +138,7 @@
   font-family: var(--font-label);
   font-size: var(--size-legend-lg);
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--track-legend-wide); /* provisional shouts ride the band's ceiling */
   text-transform: uppercase;
   color: var(--chrome-ink);
 }
@@ -205,7 +205,7 @@
   font-family: var(--font-label);
   font-size: 1rem; /* 16px — actionable content floor */
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-legend-narrow); /* the phone gate's arm's-length channel rows */
   text-transform: uppercase;
   text-shadow: 0 1px 0 rgb(255 246 214 / 30%);
   overflow-wrap: anywhere;
@@ -243,7 +243,8 @@
   margin: 0;
   font-family: var(--font-label);
   font-size: var(--size-legend);
-  letter-spacing: 0.08em;
+  font-weight: 600; /* a colophon line is an engraved legend (refinement #2) */
+  letter-spacing: var(--track-legend-narrow);
   text-transform: uppercase;
   text-align: center;
   color: var(--chrome-ink-dim);
