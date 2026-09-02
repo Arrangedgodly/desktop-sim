@@ -4,6 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="data:," />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      CA-1 privacy hardening (Captain America lane). Full directive-by-directive
+      justifications live in docs/ultron/production-log.md (CA-1 entry);
+      tests/e2e/privacy.spec.ts asserts this policy is SERVED and ENFORCED
+      against the production build (vite preview), including a canary that
+      proves inline scripts and off-origin connects are actually blocked.
+
+      Deliberately NOT here, with reasons:
+      - frame-ancestors — ignored inside a meta CSP (CSP3 §6.3); it needs the
+        response-header form, handed to DEP-1's Cloudflare Pages config
+        (together with X-Frame-Options: DENY as the legacy belt).
+      - Permissions-Policy (camera/mic/geolocation = ()) — browsers do not
+        support meta delivery for this header (response header only, MDN);
+        also handed to DEP-1 with the exact recommended line in the log.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
     <title>HOLD/OS — The Survey Archive</title>
   </head>
   <body>
