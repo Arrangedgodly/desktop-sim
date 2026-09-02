@@ -1,9 +1,10 @@
 /**
  * Wallpaper layer (UI-3) — the archive plate under the specimen field.
  * Resolves the settings store's `wallpaper` id through the plate registry
- * (wallpaper-registry.ts) and renders the plate. `pointer-events: none` is
- * deliberate: bare-plate clicks belong to the DESKTOP STAGE (selection
- * clearing), never the wallpaper.
+ * (wallpaper-registry.ts, carrying UI-4's authored plate set) and renders
+ * the plate — a static inline-SVG document that paints once per mount.
+ * `pointer-events: none` is deliberate: bare-plate clicks belong to the
+ * DESKTOP STAGE (selection clearing), never the wallpaper.
  */
 
 import { useSettingsStore } from '../stores/settings-store'

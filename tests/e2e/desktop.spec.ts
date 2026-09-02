@@ -5,20 +5,28 @@ import { expect, test } from '@playwright/test'
  * (boot orchestrator, real persistence, real stores; fresh context per test
  * = a genuine first visit).
  *
- * Gates (docs/ultron/plan.md UI-3 + UI-5 acceptance):
+ * Gates (docs/ultron/plan.md UI-3 + UI-4 + UI-5 acceptance):
  * 1. After boot, the desktop shows the seeded catalog as specimen icons
  *    (Projects / Field Notes / Archive drawers + the charter specimen + the
- *    About module reference) on the provisional plate.
+ *    About module reference) on the default star-chart archive plate.
  * 2. Click selects an icon; clicking the bare plate clears the selection.
  * 3. The first-visit docent hints are visible, dismissible, and stay gone
  *    after a reload.
  * 4. (UI-5) Right-click ground → New Drawer accessions into the FS and the
  *    icon renders; right-click icon → inline rename commits and persists;
  *    icon delete runs the two-step confirm and stays gone after reload.
+ * 5. (UI-4) Switching the wallpaper through the REAL settings-store action
+ *    changes the plate live (data-wallpaper id) and survives a reload —
+ *    persistence via the same debounced autosave every setting rides.
  *
  * Selectors ride stable seams (data-* attributes / accessible names), never
  * CSS pixels — the one bare-plate click uses a deliberately empty screen
  * region instead.
+ *
+ * The UI-4 spec drives the settings store the way interactions.spec.ts
+ * drives the wm-store: a page-context dynamic import of the dev-server module
+ * (the SAME module instance the app uses) calling the real setWallpaper
+ * action — deliberately NO test-only setter ships in the production bundle.
  */
 
 /** Skip the POST (any key) and wait out the desktop hand-off. */
@@ -49,10 +57,11 @@ test('after boot the desktop shows the seeded catalog as specimen icons', async 
     page.getByRole('button', { name: 'Science Officer Nameplate, MOD-0001, module' }),
   ).toBeVisible()
 
-  // Parchment labels carry the engraved catalog text; the provisional plate
-  // (CSS graticule) is under everything; no windows on a first visit.
+  // Parchment labels carry the engraved catalog text; the default archive
+  // plate (star-chart) is under everything; no windows on a first visit.
   await expect(page.locator('.specimen-accession', { hasText: 'DRW-0001' })).toBeVisible()
-  await expect(page.locator('[data-wallpaper="provisional-graticule"]')).toBeAttached()
+  await expect(page.locator('[data-wallpaper="star-chart"]')).toBeAttached()
+  await expect(page.locator('[data-wallpaper="star-chart"] svg')).toBeAttached()
   await expect(page.locator('.wm-window')).toHaveCount(0)
 })
 
@@ -182,4 +191,59 @@ test('right-click icon → Delete runs the two-step confirm; the specimen stays 
   await expect(
     page.getByRole('button', { name: 'Projects, DRW-0001, drawer' }),
   ).toBeVisible()
+})
+
+/* ------------------------------ UI-4 · archive plates ---------------------- */
+
+/**
+ * The settings-store module as seen from the page. The dynamic import uses a
+ * NON-literal specifier (a page-context URL the dev server serves, not a TS
+ * module this file resolves) — so the shape is asserted instead. Defined
+ * INLINE inside each evaluate callback: page.evaluate serializes function
+ * source, not closures. (Same seam class as interactions.spec.ts's wm-store
+ * probe; no test-only setter exists in the production bundle.)
+ */
+interface SettingsStoreView {
+  getState(): {
+    setWallpaper(id: string): void
+    wallpaper: string
+  }
+}
+
+test('switching the wallpaper through the settings store changes the plate live and persists', async ({
+  page,
+}) => {
+  await toDesktop(page)
+
+  // The default plate is the authored star chart.
+  const plate = page.locator('[data-wallpaper]')
+  await expect(plate).toHaveAttribute('data-wallpaper', 'star-chart')
+  await expect(page.locator('.wallpaper-layer svg')).toHaveCount(1)
+
+  // Switch to the parchment anatomical plate through the REAL store action.
+  await page.evaluate(async () => {
+    const url = '/src/platform/stores/settings-store.ts'
+    const { useSettingsStore } = (await import(url)) as { useSettingsStore: SettingsStoreView }
+    useSettingsStore.getState().setWallpaper('anatomy')
+  })
+  await expect(plate).toHaveAttribute('data-wallpaper', 'anatomy')
+  // One plate, live-swapped — nothing of the old chart survives in the layer.
+  await expect(page.locator('.wallpaper-layer svg')).toHaveCount(1)
+  await expect(page.locator('.wallpaper-layer svg[viewBox="0 0 1600 900"]')).toHaveCount(1)
+
+  // A second switch to the survey sheet (the amber measuring plate).
+  await page.evaluate(async () => {
+    const url = '/src/platform/stores/settings-store.ts'
+    const { useSettingsStore } = (await import(url)) as { useSettingsStore: SettingsStoreView }
+    useSettingsStore.getState().setWallpaper('survey')
+  })
+  await expect(plate).toHaveAttribute('data-wallpaper', 'survey')
+
+  // The archive remembers: the debounced autosave flushes, then a reload
+  // comes back on the SAME plate.
+  await page.waitForTimeout(700)
+  await page.reload()
+  await expect(page.locator('[data-desktop-stage]')).toBeVisible({ timeout: 10_000 })
+  await expect(plate).toHaveAttribute('data-wallpaper', 'survey')
+  await expect(page.locator('.wallpaper-layer svg')).toHaveCount(1)
 })

@@ -3,7 +3,7 @@
  *
  * Layers, back → front:
  *   1. wallpaper layer — the archive plate (settings `wallpaper` id through
- *      the plate registry; provisional plate until UI-4 registers the set)
+ *      the plate registry; UI-4's authored plate set, src/assets/wallplates/)
  *   2. icon field — the catalog root's children as pinned specimen cards,
  *      absolutely placed on the grid (`iconPositions`, grid-snapped), with
  *      single-click selection and the double-click open seam

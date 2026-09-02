@@ -15,7 +15,6 @@ import { readBootTimeline, resetBootTimeline } from '../../lib/perf/boot-timelin
 import { DemoIcon } from '../../apps/demo/DemoIcon'
 import { DesktopSurface } from './DesktopSurface'
 import { DESKTOP_GRID } from './grid'
-import { PROVISIONAL_PLATE_ID, registerWallpaperPlate } from './wallpaper-registry'
 
 vi.mock('../../lib/storage/adapter', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../lib/storage/adapter')>()
@@ -226,30 +225,26 @@ describe('DesktopSurface · open seam (double-click + Enter)', () => {
 })
 
 describe('DesktopSurface · wallpaper seam', () => {
-  it('resolves the settings wallpaper id through the plate registry', () => {
-    registerWallpaperPlate({
-      id: 'probe-plate',
-      label: 'Probe plate',
-      Component: () => <div className="probe-plate" />,
-    })
+  it('renders the default star-chart plate, switches by id, unknown ids fall back to default', () => {
     render(<DesktopSurface />)
 
     const resolved = () => document.querySelector('[data-wallpaper]')!.getAttribute('data-wallpaper')
 
-    // 'star-chart' is unregistered until UI-4 → the provisional plate shows.
-    expect(resolved()).toBe(PROVISIONAL_PLATE_ID)
+    // The settings default 'star-chart' is now UI-4's registered authored plate.
+    expect(resolved()).toBe('star-chart')
+    // …and it is authored vector art, not a blank layer.
+    expect(document.querySelector('[data-wallpaper="star-chart"] svg')).not.toBeNull()
 
-    act(() => useSettingsStore.getState().setWallpaper('probe-plate'))
-    expect(resolved()).toBe('probe-plate')
+    // Switching rides the existing seam: settings id → registry → layer.
+    for (const id of ['anatomy', 'phytograph', 'survey']) {
+      act(() => useSettingsStore.getState().setWallpaper(id))
+      expect(resolved()).toBe(id)
+      expect(document.querySelector(`[data-wallpaper="${id}"] svg`)).not.toBeNull()
+    }
 
+    // An unknown id resolves to the default plate — never a blank ground.
     act(() => useSettingsStore.getState().setWallpaper('unknown-plate'))
-    expect(resolved()).toBe(PROVISIONAL_PLATE_ID)
-  })
-
-  it('the provisional plate carries its honest in-world legend', () => {
-    render(<DesktopSurface />)
-    expect(document.querySelector('[data-provisional-plate]')).not.toBeNull()
-    expect(screen.getByText(/Provisional plate/i)).toBeDefined()
+    expect(resolved()).toBe('star-chart')
   })
 })
 

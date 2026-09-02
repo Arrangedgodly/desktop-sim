@@ -6,7 +6,9 @@
  *
  * Module map:
  *   DesktopSurface.tsx      the stage + selection + first-interaction wiring
- *   wallpaper.tsx           plate registry + the layer + the provisional plate
+ *   wallpaper.tsx           the wallpaper layer (settings id → plate registry)
+ *   wallpaper-registry.ts   plate registration + resolution; UI-4's authored
+ *                           plate set registers from src/assets/wallplates/
  *   SpecimenIcon.tsx        one pinned specimen card (button + drag surfaces)
  *   specimen-glyphs.tsx     the four authored kind glyphs + kind words
  *   DocentCallouts.tsx      first-visit leader-line hints
@@ -19,13 +21,12 @@
 export { DesktopSurface, type DesktopSurfaceProps } from './DesktopSurface'
 export { WallpaperLayer } from './wallpaper'
 export {
-  PROVISIONAL_PLATE_ID,
+  DEFAULT_WALLPAPER_PLATE_ID,
   listWallpaperPlates,
   registerWallpaperPlate,
   wallpaperPlateFor,
   type WallpaperPlate,
 } from './wallpaper-registry'
-export { ProvisionalGraticulePlate } from './provisional-plate'
 export { SpecimenIcon, type SpecimenIconProps } from './SpecimenIcon'
 export { KIND_GLYPHS, KIND_WORDS } from './specimen-kinds'
 export {

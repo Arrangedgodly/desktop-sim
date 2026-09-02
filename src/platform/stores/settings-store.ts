@@ -10,7 +10,12 @@ import { subscribeWithSelector } from 'zustand/middleware'
  * and write the persisted envelope on a debounce — never useEffect polling.
  */
 
-/** Default wallpaper plate id — UI-4 authors the plates and owns the final id list; align there. */
+/**
+ * Default wallpaper plate id — the star-chart plate from UI-4's authored set
+ * (src/assets/wallplates/). Kept as a literal so this store stays a leaf
+ * (node-side tests import it without the React plate graph); the wallplates
+ * test asserts it stays lockstep with the registry's DEFAULT_WALLPAPER_PLATE_ID.
+ */
 export const DEFAULT_WALLPAPER = 'star-chart'
 
 export interface SettingsState {

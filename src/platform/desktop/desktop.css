@@ -29,71 +29,11 @@
   pointer-events: none;
 }
 
-.wallplate-provisional {
-  position: absolute;
-  inset: 0;
-  /* The provisional plate, CSS-composed (no canvas, one paint):
-     · faint vignette so the ground reads as a lit bed, not a flat fill
-     · fine graticule — 1px ink every 64px, both axes (a survey chart's
-       coordinate grid; the map under the lines is the world itself)
-     · major graticule lines every 256px, one step heavier
-     · four registration rings at the plate corners (print registration)
-     Ink is low-alpha amber/parchment — printed plate ink, never phosphor. */
-  background:
-    /* registration rings: 22px crosshair rings, inset 28px from each corner */
-    radial-gradient(
-      circle 11px at center,
-      transparent 9px,
-      rgb(255 179 64 / 14%) 9.5px,
-      rgb(255 179 64 / 14%) 10.5px,
-      transparent 11px
-    )
-      28px 28px / 22px 22px no-repeat,
-    radial-gradient(
-      circle 11px at center,
-      transparent 9px,
-      rgb(255 179 64 / 14%) 9.5px,
-      rgb(255 179 64 / 14%) 10.5px,
-      transparent 11px
-    )
-      calc(100% - 28px) 28px / 22px 22px no-repeat,
-    radial-gradient(
-      circle 11px at center,
-      transparent 9px,
-      rgb(255 179 64 / 14%) 9.5px,
-      rgb(255 179 64 / 14%) 10.5px,
-      transparent 11px
-    )
-      28px calc(100% - 28px) / 22px 22px no-repeat,
-    radial-gradient(
-      circle 11px at center,
-      transparent 9px,
-      rgb(255 179 64 / 14%) 9.5px,
-      rgb(255 179 64 / 14%) 10.5px,
-      transparent 11px
-    )
-      calc(100% - 28px) calc(100% - 28px) / 22px 22px no-repeat,
-    /* major graticule: 1px at every 256px, both axes */
-    repeating-linear-gradient(to right, rgb(236 226 201 / 5%) 0 1px, transparent 1px 256px),
-    repeating-linear-gradient(to bottom, rgb(236 226 201 / 5%) 0 1px, transparent 1px 256px),
-    /* fine graticule: 1px at every 64px, both axes */
-    repeating-linear-gradient(to right, rgb(255 179 64 / 6%) 0 1px, transparent 1px 64px),
-    repeating-linear-gradient(to bottom, rgb(255 179 64 / 6%) 0 1px, transparent 1px 64px),
-    /* the bed: warm near-black with a faint top-light vignette */
-    radial-gradient(120% 90% at 50% 24%, rgb(255 230 176 / 3%), transparent 70%),
-    var(--chrome-ground);
-}
-
-/* The plate's honest legend — engraved chrome voice, never amber text. */
-.wallplate-legend {
-  position: absolute;
-  left: 56px;
-  bottom: 44px;
-  margin: 0;
-  font-size: var(--size-legend);
-  color: var(--chrome-ink-dim);
-  opacity: 0.72;
-}
+/* The plates themselves (UI-4, src/assets/wallplates/*) are self-contained
+   inline SVG: they fill this layer at width/height 100% and slice-crop to
+   the viewport (preserveAspectRatio="xMidYMid slice"). Their ink comes from
+   tokens via SVG presentation attributes — amber on the dark plates is
+   PLATE INK (flat, printed), never a lit well. */
 
 /* -- icon field ----------------------------------------------------------------
    Absolute playground for the specimen cards; the cards place themselves
