@@ -59,28 +59,31 @@ automatic script injection on this project. The shipped CSP
 policy working as designed (CA-1); turning both on just generates console
 noise.
 
-## Path B (fallback): direct upload with wrangler
+## Path B: direct upload with wrangler (this repo's active deploy path)
 
-For a quick manual deploy without the Git integration:
+The user chose CLI deploys for this repo. `wrangler.jsonc` carries the
+Pages project name (`desktop-sim`), `pages_build_output_dir: dist`, and
+the compatibility date — so one script does everything:
 
 ```sh
-npm run build
-npx wrangler pages deploy dist
+npm run deploy        # = npm run build && wrangler pages deploy
 ```
 
-The first run opens a browser to log in to your Cloudflare account, then
-asks you to create (or pick) the Pages project; later runs redeploy in
-seconds. Trade-off: no auto-deploy on push and no branch previews — every
-update means re-running the two commands. Path A remains the committed
-recommendation; this path exists for fast manual publishes.
+The first run opens a browser to log in to your Cloudflare account if
+you are not already logged in (`npx wrangler login`); the project must
+exist first — `npx wrangler pages project create desktop-sim
+--production-branch main` — after that, every run redeploys in seconds.
+Trade-off: no auto-deploy on push and no branch previews — every update
+means re-running `npm run deploy`. (Path A can still be added later by
+connecting the repo in the dashboard; the `wrangler.jsonc` name/output
+agree with it.)
 
-**Why there is no `wrangler.toml` in this repo:** Git-integration Pages
-projects are configured entirely in the dashboard (build command, output
-dir — as above), and direct upload needs nothing but the CLI command;
-`wrangler.toml` is the Workers config surface. Committing an unused — or
-worse, partially honored — config file would create a false second source
-of truth. Build truth lives in `package.json` + `vite.config.ts`; deploy
-truth lives in this file.
+**History note:** an earlier revision of this file recorded "no
+wrangler.toml, by design" — that decision was for a Git-integration-only
+workflow. When the user selected wrangler as the deploy path
+(2026-09-02), the minimal Pages config (`wrangler.jsonc`, not the Workers
+surface `wrangler.toml`) became the committed source of deploy truth;
+build truth still lives in `package.json` + `vite.config.ts`.
 
 ## Custom domain
 

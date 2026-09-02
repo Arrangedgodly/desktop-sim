@@ -5,3 +5,6 @@ dist/
 # HE-1 Playwright e2e artifacts (traces/screenshots on failure)
 test-results/
 playwright-report/
+# impeccable process artifacts (the .impeccable/design.json sidecar stays tracked)
+.impeccable/*
+!.impeccable/design.json
