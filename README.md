@@ -37,11 +37,13 @@ The repo keeps five gates (see [docs/TESTING.md](docs/TESTING.md) for what each 
 
 **Desktop.** Specimen icons sit on an archive-plate wallpaper (star chart by default; an anatomical plate, a phytograph print, and a survey sheet ship too). Drag specimens anywhere on the grid, drop them into drawers to file them, right-click (or press `Menu`) for the ground and specimen menus — new drawers, new specimens, rename, delete. Along the bottom runs the drawer-rail taskbar: open windows as LEDs, a live timecode, and the module pull that launches every app.
 
-**The six apps.**
+**The eight apps.**
 
 | App | What it is |
 | --- | --- |
 | **Specimen Notepad** | a parchment-sheet text editor — autosaves into the archive, guards unsaved changes on close |
+| **Catalog Terminal** | a phosphor-well shell over the real archive — `ls`, `cd`, `cat`, `mkdir`, `rm`, and the signature `accession` catalog walk; session and history persist |
+| **Plate Painter** | the specimen-plate studio — ink on parchment, save accessions your plate into the archive, reopen it, export a PNG |
 | **Plate Viewer** | the image reader — fit ↔ 1:1, 25–400% zoom, drag to pan, engraved captions |
 | **Catalog Explorer** | the file browser — drawers and specimens, breadcrumbs, card or ledger views, full file operations |
 | **Field Atlas** | the project index — curated plates with field notes and links out to live sites and repositories |
