@@ -210,7 +210,7 @@ function recordingPorts(): PaintSavePorts & {
       return spy.cueCount
     },
     commit: (fs) => void spy.commits.push(fs),
-    rebind: (windowId, plate) => void spy.rebinds.push({ windowId, plate }),
+    rebind: (windowId, plate) => (spy.rebinds.push({ windowId, plate }), true),
     cue: () => {
       spy.cueCount++
     },
