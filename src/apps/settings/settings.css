@@ -1,0 +1,531 @@
+/* ----------------------------------------------------------------------------
+   Settings styles — AP-4 (The Survey Archive). App-owned, app-scoped
+   (.settings-*), consuming src/styles/tokens.css + global.css primitives —
+   no custom properties defined here.
+
+   World law this sheet obeys (design-brief.md):
+   · "Settings uses hardware toggle switches" — the switches are INSTRUMENTS:
+     a raised beveled housing, brass screw heads (brass at hardware
+     touchpoints ONLY — this is the touchpoint), a recessed slot the brass
+     bat throws inside, and a phosphor state lamp seated in its own tiny
+     well (the brief's own lamp exception, same class as the title-bar LED).
+   · "destructive actions are guarded toggle covers" — the reset switch lives
+     under an OXIDE guard flap (oxide is warnings/destructive only; nothing
+     else in this module wears it). Lifting the flap is the module's one
+     authored motion moment: a perspective hinge, exponential ease-out.
+   · phosphor glow never leaves wells — the state lamps, the mounted flag,
+     the vault readout, and the resealed report are wells; everything else
+     is chrome ink.
+   · the console chrome side of the duality: near-black module faces, no
+     parchment here — this is the machine room, not the reading room.
+   · measuring law: the vault grid is a readout — digits ride B612 via the
+     .well primitive, tabular by construction.
+---------------------------------------------------------------------------- */
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--chrome-ground);
+  color: var(--chrome-ink);
+}
+
+.settings-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  align-content: start;
+  gap: 16px; /* more air above a section than under its head (craft floor) */
+  padding: 12px 14px 16px;
+}
+
+/* Section heads — engraved legends on the module face, hairline beneath. */
+.settings-head {
+  margin: 0 0 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--chrome-edge-lo);
+}
+
+/* -- module faces: recessed bays the controls sit in ------------------------- */
+
+.settings-bay {
+  border: 1px solid var(--chrome-edge-lo);
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+/* -- wallpaper plates ---------------------------------------------------------
+   A radiogroup of catalog rows: 40px swatch in a display-well seat, engraved
+   name + kind chip, and the MOUNTED lamp for the live plate. */
+
+.settings-plates {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-plate {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 10px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  text-align: left;
+  cursor: pointer;
+}
+
+.settings-plate:last-child {
+  border-bottom: 0;
+}
+
+.settings-plate:hover:not([data-mounted]) {
+  background: rgb(255 230 176 / 5%);
+}
+
+.settings-plate[data-mounted] {
+  background: var(--chrome-raised);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 40%);
+}
+
+.settings-plate-swatch {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  background: var(--well-ground);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.settings-plate-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.settings-plate-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+}
+
+.settings-plate-kind {
+  justify-self: start;
+  padding: 1px 6px;
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+  border: 1px solid var(--chrome-edge-hi);
+}
+
+/* The current-plate indicator: a lit phosphor chip in a well. */
+.settings-plate-flag {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  letter-spacing: 0.08em;
+}
+
+/* -- console hardware: the switch rows ---------------------------------------- */
+
+.settings-rows {
+  display: grid;
+  gap: 12px;
+  padding: 10px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.settings-row-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.settings-row-name {
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+}
+
+.settings-row-hint {
+  font-size: var(--size-legend);
+  line-height: 1.5;
+  color: var(--chrome-ink-dim);
+}
+
+/* -- the hardware switch itself ------------------------------------------------
+   A beveled housing with two brass screw heads, a recessed slot, a brass bat
+   that THROWS on translate (transform-only motion, snap-fast), and a phosphor
+   state lamp in its own tiny well. Keyboard: it is a real <button
+   role="switch"> — Space throws on keyDOWN (a hardware switch throws the
+   instant it is pressed, not on release), Enter uses native activation. */
+
+.settings-hw {
+  position: relative;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 72px;
+  height: 30px;
+  padding: 0;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%),
+    2px 3px 8px rgb(0 0 0 / 40%);
+  cursor: pointer;
+}
+
+.settings-hw:disabled {
+  cursor: default;
+}
+
+.settings-hw:disabled .settings-hw-bat {
+  filter: brightness(0.75); /* a de-energized switch under its guard */
+}
+
+.settings-hw-screw {
+  position: absolute;
+  top: 2.5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--brass-hi), var(--brass-lo) 75%);
+  box-shadow: 0 1px 1px rgb(0 0 0 / 55%);
+}
+
+.settings-hw-screw--l {
+  left: 3px;
+}
+
+.settings-hw-screw--r {
+  right: 3px;
+}
+
+.settings-hw-track {
+  position: absolute;
+  left: 9px;
+  top: 10px;
+  width: 46px;
+  height: 10px;
+  background: var(--chrome-sunken);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.settings-hw-bat {
+  position: absolute;
+  top: -6px;
+  left: 0;
+  width: 18px;
+  height: 20px;
+  background: linear-gradient(180deg, var(--brass-hi), var(--brass) 45%, var(--brass-lo));
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    0 2px 4px rgb(0 0 0 / 50%),
+    inset 1px 1px 0 rgb(255 255 255 / 30%);
+  transition: transform var(--dur-fast) var(--ease-console);
+  will-change: transform;
+}
+
+.settings-hw[data-on] .settings-hw-bat {
+  transform: translateX(26px);
+}
+
+/* The phosphor state lamp — dark when off, lit amber when thrown. */
+.settings-hw-lamp {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--well-ground);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 60%);
+}
+
+.settings-hw[data-on] .settings-hw-lamp {
+  background: var(--phosphor);
+  box-shadow: 0 0 6px var(--phosphor-glow);
+}
+
+/* -- the guarded reset ---------------------------------------------------------
+   The oxide guard cover rides rails over the armed switch. Lifting retracts
+   it INTO its housing (the bay clips it) — the module's one authored motion
+   moment — leaving a retracted sliver at the seat and the armed switch clear
+   beneath; the strip carries the release that re-seats it. */
+
+.settings-guard {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 118px;
+  padding: 12px 12px 10px;
+  overflow: hidden; /* the housing swallows the retracted guard */
+}
+
+.settings-guard-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-reset-hint {
+  margin: 0;
+  font-size: var(--size-legend);
+  line-height: 1.5;
+  color: var(--chrome-ink-dim);
+}
+
+/* The confirm strip: what throwing will do, in the archive's own words, and
+   the release that re-seats the guard without throwing anything. */
+.settings-reset-strip {
+  display: grid;
+  gap: 6px;
+  padding: 9px 10px;
+  border: 1px solid var(--oxide-deep);
+  background: var(--chrome-ground);
+}
+
+.settings-reset-strip-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--oxide-bright);
+}
+
+.settings-reset-strip-body {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  line-height: 1.5;
+  color: var(--chrome-ink-dim);
+}
+
+.settings-guard-lower {
+  justify-self: start;
+  min-height: 22px;
+  margin-top: 2px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.settings-guard-lower:hover {
+  background: var(--chrome-ground);
+}
+
+/* The oxide guard cover: seated over the whole bay, retracted on rails. */
+.settings-guard-cover {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  padding: 10px;
+  background: linear-gradient(180deg, var(--oxide), var(--oxide-deep));
+  border: 1px solid var(--oxide-deep);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 220 200 / 20%),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  transition: transform var(--dur-beat) var(--ease-console);
+  font-family: var(--font-label);
+  cursor: pointer;
+}
+
+.settings-guard-cover:hover {
+  background: linear-gradient(180deg, var(--oxide) 70%, var(--oxide-deep));
+}
+
+/* Lifted: the guard slides up into its housing — clear of the switch (hit
+   testing included; the strip's release re-seats it) with its edge showing. */
+.settings-guard[data-lifted] .settings-guard-cover {
+  transform: translateY(-84%);
+  pointer-events: none;
+}
+
+/* The console holding still (reduced-motion follow + OS ask): the guard
+   SNAPS between its seats — no slide, the end-state still visible. */
+.settings-guard[data-snap] .settings-guard-cover {
+  transition: none;
+}
+
+.settings-cover-engraved {
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 220 200 / 25%);
+}
+
+.settings-cover-action {
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+}
+
+/* The machined finger grip — the flap's handle, machined ridges in the oxide. */
+.settings-cover-grip {
+  width: 24px;
+  height: 9px;
+  margin-top: 3px;
+  background: repeating-linear-gradient(
+    180deg,
+    rgb(255 220 200 / 32%) 0 1.5px,
+    transparent 1.5px 3px
+  );
+  box-shadow: 0 1px 1px rgb(0 0 0 / 45%);
+}
+
+/* -- the resealed report -------------------------------------------------------
+   The reset's in-world receipt: a lit well strip, focused on arrival. */
+
+.settings-resealed {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  padding: 12px 12px 11px;
+}
+
+.settings-resealed-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+}
+
+.settings-resealed-body {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  line-height: 1.5;
+  color: var(--phosphor-dim);
+}
+
+.settings-resealed-dismiss {
+  justify-self: start;
+  min-height: 22px;
+  margin-top: 4px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.settings-resealed-dismiss:hover {
+  background: var(--chrome-ground);
+}
+
+.settings-resealed:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+/* -- the vault readout ---------------------------------------------------------
+   Read-only diagnostics in a B612 well: last write, write count, boot
+   origin, storage estimate. Labels ride the label face; values inherit the
+   well's mono + tabular discipline. */
+
+.settings-vault {
+  position: relative;
+  display: block;
+  padding: 10px 12px 9px;
+}
+
+.settings-vault-grid {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: space-between;
+  gap: 10px 18px;
+  margin: 0;
+}
+
+.settings-vault-cell {
+  display: grid;
+  gap: 2px;
+}
+
+.settings-vault-cell dt {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--phosphor-dim);
+}
+
+.settings-vault-cell dd {
+  margin: 0;
+  font-size: var(--size-legend-lg);
+}
+
+.settings-vault-note {
+  margin: 9px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid rgb(255 179 64 / 15%);
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  line-height: 1.5;
+  color: var(--phosphor-dim);
+}
+
+.settings-vault-note--failure {
+  color: var(--oxide-bright);
+  border-top-color: rgb(224 106 79 / 35%);
+}
