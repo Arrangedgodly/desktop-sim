@@ -4,6 +4,7 @@ import { explorerApp } from './explorer'
 import { notepadApp } from './notepad'
 import { viewerApp } from './image-viewer'
 import { aboutApp } from './about'
+import { browserApp } from './browser'
 import { settingsApp } from './settings'
 
 /**
@@ -16,7 +17,8 @@ import { settingsApp } from './settings'
  * of the full contract: reserved id, lazy chunk, file-instance windows,
  * platform-menu reuse; notepad/ and image-viewer/ are the second and third;
  * settings/ the fourth — singleton console, no file routing; about/ the fifth
- * — singleton nameplate, the seeded desktop reference's target.)
+ * — singleton nameplate, the seeded desktop reference's target; browser/ the
+ * sixth — singleton field atlas over the content pack's project plates.)
  *
  * ORDER IS LOAD-BEARING: registration order is the launcher's listing order
  * AND the tiebreak for capability routing — the explorer's "who opens this
@@ -37,5 +39,6 @@ export const apps: readonly AppManifest[] = [
   demoApp,
   explorerApp,
   aboutApp,
+  browserApp,
   settingsApp,
 ]

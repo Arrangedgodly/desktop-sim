@@ -118,11 +118,15 @@ describe('AP-5 · registration manifest', () => {
     expect(container.querySelector('svg[aria-hidden="true"]')).not.toBeNull()
   })
 
-  it('rides between explorer and settings — the launcher ends stay stable', () => {
+  it('rides between explorer and the fleet\'s tail — the launcher ends stay stable', () => {
     const ids = listApps().map((app) => app.id)
     expect(ids.indexOf('notepad')).toBe(0) // launcher's first item (taskbar floor)
     expect(ids.indexOf('settings')).toBe(ids.length - 1) // launcher's last item
-    expect(ids.indexOf('about')).toBe(ids.indexOf('settings') - 1)
+    // AP-6 UNFREEZE: the browser field atlas registered BEHIND the nameplate
+    // and BEFORE the console (its sanctioned slot), so the nameplate now
+    // rides directly ahead of the ATLAS, no longer of the console.
+    expect(ids.indexOf('about')).toBe(ids.indexOf('browser') - 1)
+    expect(ids.indexOf('browser')).toBe(ids.indexOf('settings') - 1)
   })
 })
 
