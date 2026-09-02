@@ -99,6 +99,17 @@ test('the commissioning stamp cites the archive record; the colophon names the c
   await expect(page.locator('[data-about-colophon-version]')).toHaveText('0.1.0')
   await expect(colophon).toContainText('REACT · TYPESCRIPT · VITE')
   await expect(page.locator('[data-about-colophon-note]')).toContainText('the portfolio')
+
+  // CONSOLE KEYS (refinement #5 onboard): the DD-1 map condensed in-world —
+  // keycaps in the mono face, actions engraved, the repo map cited.
+  const keysBlock = page.locator('[data-about-keys]')
+  await expect(keysBlock).toBeVisible()
+  await expect(keysBlock).toContainText('Console Keys')
+  await expect(keysBlock.locator('.about-key').first()).toHaveText('F6 / SHIFT+F6')
+  await expect(keysBlock).toContainText('travel the zones')
+  await expect(keysBlock).toContainText('ENTER')
+  await expect(keysBlock).toContainText('ESC')
+  await expect(page.locator('[data-about-keys-doc]')).toContainText('docs/KEYBOARD.md')
 })
 
 test('singleton: the launcher re-open raises the ONE manifest window', async ({ page }) => {

@@ -420,3 +420,32 @@
     transform: translateY(4px);
   }
 }
+
+/* -- the console's own annotation (refinement #5) -------------------------------
+   The keyboard hint docks ABOVE the drawer rail (44px, taskbar.css's own
+   figure) instead of hanging beside a specimen: it annotates the console
+   itself, and its leader drops from the card's foot to the rail's top edge.
+   Both offsets are CSS-seated so the card tracks the rail whatever the
+   viewport — the rail is furniture, never slot math. */
+
+.docent-card--rail {
+  bottom: calc(44px + 24px); /* rail height + the leader's clearance */
+  top: auto;
+}
+
+.docent-leaders--rail {
+  position: absolute;
+  inset: auto; /* un-seat the full-stage frame (.docent-leaders) first */
+  bottom: 44px; /* seated on the rail's top edge */
+  width: 24px;
+  height: 24px;
+}
+
+/* A keycap is a readout: inside the docent's serif sentence, the chord tokens
+   ride B612 (the measuring law) at the legend size — ink unchanged, face
+   changed, nothing boxed (the sentence stays one breath of prose). */
+.docent-key {
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  letter-spacing: 0.08em;
+}

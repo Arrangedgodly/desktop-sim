@@ -257,8 +257,26 @@ describe('DesktopSurface · docent callouts', () => {
     expect(screen.getByText('Double-click a specimen to open it.')).toBeDefined()
     expect(screen.getByText(/Drag to rearrange the hold/)).toBeDefined()
     expect(screen.getByText(/The archive remembers/)).toBeDefined()
-    // leader lines drawn for every rendered hint
-    expect(document.querySelectorAll('.docent-leader')).toHaveLength(3)
+    // leader lines drawn for every rendered hint (the specimen hints here;
+    // the console's own rail annotation is proven by its own test below)
+    expect(
+      document.querySelectorAll('[data-docent-hint]:not([data-docent-hint="rail"])'),
+    ).toHaveLength(3)
+  })
+
+  it('shows the fourth annotation — the keyboard hint, docked at the rail (refinement #5)', () => {
+    render(<DesktopSurface firstVisit />)
+
+    // The console's own card rides the same first-visit gate and × dismissal.
+    const rail = document.querySelector('[data-docent-hint="rail"]')
+    expect(rail).not.toBeNull()
+    expect(rail!.getAttribute('role')).toBe('note')
+    expect(rail!.textContent).toContain('This console answers the keyboard')
+    // Keycap tokens ride the mono face (the measuring law — a key is a readout)
+    const keys = Array.from(rail!.querySelectorAll('.docent-key'))
+    expect(keys.map((key) => key.textContent)).toEqual(['F6', 'Enter', 'Esc'])
+    // ...and its leader drops to the rail (4 leaders total: 3 specimens + rail)
+    expect(document.querySelectorAll('.docent-leader')).toHaveLength(4)
   })
 
   it('hidden on a return visit (firstVisit false)', () => {
@@ -271,7 +289,7 @@ describe('DesktopSurface · docent callouts', () => {
 
     // every card carries the ×; one click retires the whole docent
     const dismissButtons = screen.getAllByRole('button', { name: 'Dismiss hint' })
-    expect(dismissButtons).toHaveLength(3)
+    expect(dismissButtons).toHaveLength(4)
     fireEvent.click(dismissButtons[0]!)
 
     expect(document.querySelector('[data-docent]')).toBeNull()

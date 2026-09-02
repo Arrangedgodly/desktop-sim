@@ -4,6 +4,22 @@ How the console is operated without a pointer. Every surface of the desktop is
 reachable, operable, and closable from the keyboard alone (DD-1; the scripted
 non-visual pass lives in `tests/e2e/keyboard.spec.ts`).
 
+## Where this map surfaces in-world (refinement #5)
+
+This file is the full law, but the console no longer keeps it repo-only:
+
+- **First visit** — the docent's fourth annotation card (docked above the
+  drawer rail, leader line down to the rail) names the three essential chords:
+  *F6 travels · Enter opens · Esc closes*. First visit only; any interaction
+  or the card's × retires it (persisted).
+- **About manifest** — the dark-chrome colophon carries **CONSOLE KEYS**, the
+  map below condensed to its operating legend (keycaps in B612, actions
+  engraved), and cites this file for the full map.
+
+Both surfaces are fixtures of the world, not help chrome: the docent card is a
+parchment annotation like its siblings, and the colophon block rides the
+machine's own manifest plate.
+
 ## The three focus zones
 
 The console is organized as three zones. **F6** walks the ring

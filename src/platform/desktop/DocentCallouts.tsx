@@ -12,6 +12,12 @@
  * Anchors are NODE IDS resolved against the live slots — a hint whose anchor
  * was deleted simply doesn't render. One gentle fade-in is the only motion;
  * the global reduced-motion kill-switch collapses it to instant.
+ *
+ * Refinement #5 (`onboard`): a FOURTH annotation points at the console itself,
+ * not a specimen — the drawer rail carries the keyboard map's three essential
+ * chords (F6 / Enter / Esc). It rides the same first-visit gate, the same × ,
+ * the same settle; only its anchor differs (the rail, furniture that never
+ * leaves), so it is docked above the rail by CSS rather than slot math.
  */
 
 import type { GridPosition } from '../../lib/fs'
@@ -39,6 +45,17 @@ const HINTS: readonly DocentHintSpec[] = [
   },
   { anchorId: 'archive', text: 'The archive remembers: reload the console and your desk persists.' },
 ]
+
+/**
+ * The console's own annotation (refinement #5): the keyboard is the machine's,
+ * so its card points at the RAIL — the console's furniture — instead of a
+ * specimen, and is seated above the rail (CSS bottom anchoring, no slot math).
+ * Key tokens ride the mono face inside the docent's serif sentence: a keycap
+ * is a readout (the measuring law), and the three chords it names are the
+ * ones the map cannot leave unknown. The full condensed map lives in the
+ * About colophon (CONSOLE KEYS); the complete law in docs/KEYBOARD.md.
+ */
+const RAIL_HINT_GAP = 24 /** Clearance between the card and the rail it annotates. */
 
 export interface DocentCalloutsProps {
   /** Resolved desktop slots (nodeId → grid position) — hint anchors. */
@@ -83,6 +100,17 @@ export function DocentCallouts({ slots, onDismiss }: DocentCalloutsProps) {
           )
         })}
       </svg>
+      {/* The rail annotation's leader: a short vertical drop from the card's
+          foot to the rail's top edge (CSS-seated above the rail, so no slot
+          math — the rail is furniture, not a specimen). */}
+      <svg
+        className="docent-leaders docent-leaders--rail"
+        aria-hidden="true"
+        focusable="false"
+        style={{ left: cardLeft + 12 }}
+      >
+        <line className="docent-leader" x1={12} y1={0} x2={12} y2={RAIL_HINT_GAP} />
+      </svg>
       {placed.map((hint, index) => (
         <aside
           key={hint.anchorId}
@@ -106,6 +134,26 @@ export function DocentCallouts({ slots, onDismiss }: DocentCalloutsProps) {
           </button>
         </aside>
       ))}
+      <aside
+        className="docent-card docent-card--rail parchment-surface"
+        role="note"
+        data-docent-hint="rail"
+        style={{ left: cardLeft, animationDelay: `${placed.length * 90}ms` }}
+      >
+        <p className="docent-text">
+          This console answers the keyboard — <kbd className="docent-key">F6</kbd> travels ·{' '}
+          <kbd className="docent-key">Enter</kbd> opens · <kbd className="docent-key">Esc</kbd>{' '}
+          closes.
+        </p>
+        <button
+          type="button"
+          className="docent-close"
+          aria-label="Dismiss hint"
+          onClick={onDismiss}
+        >
+          ×
+        </button>
+      </aside>
     </div>
   )
 }

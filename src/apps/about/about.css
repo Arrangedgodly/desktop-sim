@@ -485,3 +485,78 @@
   line-height: 1.5;
   color: var(--chrome-ink-dim);
 }
+
+/* -- CONSOLE KEYS: the DD-1 map, condensed (refinement #5 `onboard`) ------------
+   The machine's operating legend, silkscreened into the colophon next to its
+   build truth: one engraved micro-legend over a two-column strip of chords.
+   Keys ride B612 (the measuring law — a keycap is a readout, digits included);
+   actions engrave at the legend floor in dim ink (5.1:1 on raised chrome), the
+   same secondary voice as the colophon note. Nothing boxes a key: the mono
+   face IS the keycap on an instrument panel. */
+
+.about-keys {
+  display: grid;
+  gap: 4px;
+  margin-top: 3px;
+  padding-top: 5px;
+  border-top: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 0 1px 0 rgb(0 0 0 / 25%); /* the seam's dark lip, cut like the colophon's own */
+}
+
+.about-keys-legend {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend); /* a secondary legend rides the floor */
+}
+
+.about-keys-rows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about-key-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* The chords too wide to share a row (F6's zone ring, MENU's two names). */
+.about-key-row--full {
+  grid-column: 1 / -1;
+}
+
+.about-key {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  font-weight: 400;
+  letter-spacing: 0.08em; /* readout tracking (the mono band) */
+  color: var(--chrome-ink);
+}
+
+.about-key-does {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend-narrow); /* wrapping secondary legends ride the band floor */
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+  overflow-wrap: anywhere;
+}
+
+/* The pointer to the complete map — a B612 reference line, dim like the
+   version chip (a citation, not a control). */
+.about-keys-doc {
+  margin: 1px 0 0;
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  letter-spacing: 0.08em;
+  color: var(--chrome-ink-dim);
+}

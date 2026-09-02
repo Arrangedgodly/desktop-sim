@@ -95,7 +95,13 @@ test('the first-visit docent hints are visible, dismiss on interaction, and stay
   await expect(page.locator('[data-docent]')).toBeVisible()
   await expect(page.getByText('Double-click a specimen to open it.')).toBeVisible()
   await expect(page.getByText(/Drag to rearrange the hold/)).toBeVisible()
-  await expect(page.locator('.docent-leader')).toHaveCount(3)
+  // 4 leaders: three specimens + the console's own keyboard hint at the rail
+  // (refinement #5 `onboard` — F6/Enter/Esc surface in-world, first visit only).
+  await expect(page.locator('[data-docent-hint="rail"]')).toBeVisible()
+  await expect(page.locator('[data-docent-hint="rail"]')).toContainText(
+    'This console answers the keyboard',
+  )
+  await expect(page.locator('.docent-leader')).toHaveCount(4)
 
   // Any interaction retires the docent (here: selecting a specimen).
   await page.locator('[data-specimen-id="nameplate"]').click()

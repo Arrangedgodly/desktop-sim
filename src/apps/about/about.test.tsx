@@ -23,6 +23,7 @@ import { AboutIcon } from './AboutIcon'
 import AboutSurface, { NameplateManifest } from './AboutSurface'
 import {
   commissioning,
+  CONSOLE_KEYS,
   formatLogStamp,
   linkDomain,
   manifestView,
@@ -338,14 +339,39 @@ describe('AP-5 · THIS CONSOLE colophon', () => {
     expect(note.textContent).toContain('the portfolio')
   })
 
+  it('condenses the keyboard map into CONSOLE KEYS (refinement #5 onboard)', () => {
+    mountFixture()
+
+    // Every chord of the condensed DD-1 map renders: key (B612) + engraving.
+    const keys = document.querySelector('[data-about-keys]')!
+    const rows = Array.from(keys.querySelectorAll('.about-key-row'))
+    expect(rows).toHaveLength(CONSOLE_KEYS.length)
+    for (const chord of CONSOLE_KEYS) {
+      const row = rows.find((it) => it.querySelector('.about-key')!.textContent === chord.keys)
+      expect(row, chord.keys).toBeDefined()
+      expect(row!.querySelector('.about-key-does')!.textContent).toBe(chord.does)
+    }
+    // The three essential chords ride in every surface the visitor meets.
+    expect(keys.textContent).toContain('F6')
+    expect(keys.textContent).toContain('ENTER')
+    expect(keys.textContent).toContain('ESC')
+    // The map cites its papers — the full map lives in the repo docs.
+    expect(document.querySelector('[data-about-keys-doc]')!.textContent).toContain(
+      'docs/KEYBOARD.md',
+    )
+  })
+
   it("typesets by the archive's laws (source-scan: jsdom applies no CSS)", () => {
-    // The measuring law: digits in readouts ride B612 — the version span and
-    // the stamp both do. The reading law: the bio rides Lora, never mono.
+    // The measuring law: digits in readouts ride B612 — the version span, the
+    // stamp, and the console-key keycaps (a keycap is a readout) all do. The
+    // reading law: the bio rides Lora, never mono.
     const css = readFileSync('src/apps/about/about.css', 'utf-8')
     const versionRule = /\.about-colophon-version\s*\{[^}]*\}/.exec(css)![0]!
     expect(versionRule).toContain('var(--font-mono)')
     const stampRule = /\.about-stamp\s*\{[^}]*\}/.exec(css)![0]!
     expect(stampRule).toContain('var(--font-mono)')
+    const keyRule = /\.about-key\s*\{[^}]*\}/.exec(css)![0]!
+    expect(keyRule).toContain('var(--font-mono)')
     const bioRule = /\.about-bio\s*\{[^}]*\}/.exec(css)![0]!
     expect(bioRule).toContain('var(--font-content)')
     const nameRule = /\.about-name\s*\{[^}]*\}/.exec(css)![0]!

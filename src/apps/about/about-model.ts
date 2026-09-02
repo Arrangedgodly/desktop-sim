@@ -164,3 +164,34 @@ export const BUILT_WITH: readonly string[] = Object.freeze(['React', 'TypeScript
 /** The one in-world sentence that says the desktop IS the portfolio. */
 export const COLOPHON_NOTE =
   'You are inside the exhibit itself — this console, its drawers, and everything the archive remembers under your hands are the portfolio.'
+
+/* --------------------------- console keys (onboard) ------------------------- */
+
+/** One chord of the condensed keyboard map: the keys + what they do. */
+export interface ConsoleKey {
+  /** The chord, verbatim as B612 prints it (e.g. 'F6 / SHIFT+F6'). */
+  readonly keys: string
+  /** What the chord does (engraved legend on the colophon plate). */
+  readonly does: string
+  /** True for the chords too long to share a row — the row spans both columns. */
+  readonly full?: boolean
+}
+
+/**
+ * The DD-1 map CONDENSED to the colophon (refinement #5 `onboard`): the
+ * machine's operating legend, silkscreened where the machine speaks last.
+ * Truth source is docs/KEYBOARD.md — every row here is that map's own wording
+ * compressed, nothing invented; the full map (per-app floors included) stays
+ * in the repo docs, pointed at by KEYS_DOC_REF.
+ */
+export const CONSOLE_KEYS: readonly ConsoleKey[] = Object.freeze([
+  { keys: 'F6 / SHIFT+F6', does: 'travel the zones · hold, rail, window', full: true },
+  { keys: 'ARROWS', does: 'walk specimens, lists, lamps' },
+  { keys: 'ENTER', does: 'open the focused specimen' },
+  { keys: 'ESC', does: 'close the focused module' },
+  { keys: 'ALT+ESC', does: 'walk the window stack' },
+  { keys: 'MENU / SHIFT+F10', does: 'the hold’s menus', full: true },
+])
+
+/** Where the complete map lives (the colophon cites its own papers). */
+export const KEYS_DOC_REF = 'docs/KEYBOARD.md'

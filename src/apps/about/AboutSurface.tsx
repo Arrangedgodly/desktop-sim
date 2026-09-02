@@ -26,6 +26,7 @@
  *   └──────────────────────────────────────────────────────────────────┘
  *   ┌ THIS CONSOLE (dark chrome colophon — the machine, not the officer) ┐
  *   │ HOLD/OS 0.1.0 · REACT · TYPESCRIPT · VITE                          │
+ *   │ CONSOLE KEYS — the DD-1 map condensed (F6 · ARROWS · ENTER · ESC…)  │
  *   │ You are inside the exhibit itself — …                              │
  *   └────────────────────────────────────────────────────────────────────┘
  *
@@ -54,8 +55,10 @@ import {
   COLOPHON_NOTE,
   COLOPHON_OS_NAME,
   COLOPHON_OS_VERSION,
+  CONSOLE_KEYS,
   EXTERNAL_LINK_REL,
   EXTERNAL_LINK_TARGET,
+  KEYS_DOC_REF,
   commissioning,
   linkDomain,
   manifestView,
@@ -209,6 +212,29 @@ export function NameplateManifest({
           </span>
           {BUILT_WITH.join(' · ').toUpperCase()}
         </p>
+        {/* CONSOLE KEYS (refinement #5 `onboard`): the DD-1 map condensed to
+            its operating legend — keys ride B612 (a keycap is a readout),
+            actions engrave at legend scale; the full map stays in the repo
+            docs, cited one line below. */}
+        <section className="about-keys" data-about-keys aria-labelledby="about-keys-legend">
+          <p className="about-keys-legend engraved" id="about-keys-legend">
+            Console Keys
+          </p>
+          <ul className="about-keys-rows">
+            {CONSOLE_KEYS.map((chord) => (
+              <li
+                key={chord.keys}
+                className={chord.full ? 'about-key-row about-key-row--full' : 'about-key-row'}
+              >
+                <kbd className="about-key">{chord.keys}</kbd>
+                <span className="about-key-does">{chord.does}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="about-keys-doc" data-about-keys-doc>
+            full map · {KEYS_DOC_REF}
+          </p>
+        </section>
         <p className="about-colophon-note" data-about-colophon-note>
           {COLOPHON_NOTE}
         </p>
