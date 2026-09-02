@@ -66,17 +66,37 @@ export default function SettingsSurface({ windowId }: { readonly windowId: strin
   const coverRef = useRef<HTMLButtonElement | null>(null)
   const resetSwitchRef = useRef<HTMLButtonElement | null>(null)
   const resealedRef = useRef<HTMLDivElement | null>(null)
+  const vaultSectionRef = useRef<HTMLElement | null>(null)
+
+  // HU-1: the storage-recovery notice's one-time "View vault readout" link
+  // flags the settings store; a console mounting with the flag pending opens
+  // ONTO the vault (scrolled into view, focused) — the operator asked for the
+  // readout, not the wallpaper bay. Ref-guarded so StrictMode's second effect
+  // pass cannot strand the focus (the first pass focused, the flag is gone);
+  // the store flag is cleared only once the section actually took focus.
+  const vaultFocusedRef = useRef(false)
+  useEffect(() => {
+    if (vaultFocusedRef.current) return
+    if (!useSettingsStore.getState().vaultFocusPending) return
+    const section = vaultSectionRef.current
+    if (section === null) return
+    vaultFocusedRef.current = true
+    section.scrollIntoView({ block: 'start' })
+    section.focus()
+    useSettingsStore.getState().consumeVaultFocus() // clears the session flag
+  }, [])
 
   // Guard ENGAGEMENT moves the operator's hand: lifting focuses the armed
   // switch (the revealed state owns focus); lowering hands it back to the
   // cover. Mount deliberately steals NOTHING — a focused guard would also
-  // scroll the panel mid-list on open (found in the visual pass).
-  const guardEngagedRef = useRef(false)
+  // scroll the panel mid-list on open (found in the visual pass). The
+  // previous-VALUE comparison keeps that law under StrictMode's double effect
+  // pass (the old first-run flag made the second pass focus the cover on
+  // mount — found by HU-1's vault-link e2e).
+  const prevGuardLiftedRef = useRef(false)
   useEffect(() => {
-    if (!guardEngagedRef.current) {
-      guardEngagedRef.current = true
-      return
-    }
+    if (prevGuardLiftedRef.current === guardLifted) return
+    prevGuardLiftedRef.current = guardLifted
     if (guardLifted) resetSwitchRef.current?.focus()
     else coverRef.current?.focus()
   }, [guardLifted])
@@ -216,9 +236,9 @@ export default function SettingsSurface({ windowId }: { readonly windowId: strin
               <span className="settings-row-text">
                 <span className="settings-row-name">Reduced-motion follow</span>
                 <span className="settings-row-hint">
-                  Console motion follows the vessel&rsquo;s reduced-motion preference — boot
-                  pacing and authored moments hold still on request. Off demands full motion,
-                  enforced at the boot seam (platform lane).
+                  Console motion follows the vessel&rsquo;s reduced-motion preference — boot pacing
+                  and authored moments hold still on request. Off demands full motion, enforced at
+                  the boot seam (platform lane).
                 </span>
               </span>
               <HardwareSwitch
@@ -271,9 +291,8 @@ export default function SettingsSurface({ windowId }: { readonly windowId: strin
                         Guard lifted — reseal the archive?
                       </p>
                       <p className="settings-reset-strip-body">
-                        Throwing reseeds the catalog from the seed collection and clears every
-                        icon position and open window. Per-session module memories reset on
-                        reload.
+                        Throwing reseeds the catalog from the seed collection and clears every icon
+                        position and open window. Per-session module memories reset on reload.
                       </p>
                       {/* The release: re-seat the guard without throwing. */}
                       <button
@@ -309,7 +328,12 @@ export default function SettingsSurface({ windowId }: { readonly windowId: strin
         </section>
 
         {/* -- the vault readout --------------------------------------------------- */}
-        <section aria-labelledby="settings-vault-head">
+        <section
+          ref={vaultSectionRef}
+          aria-labelledby="settings-vault-head"
+          tabIndex={-1}
+          data-settings-vault-section
+        >
           <p className="engraved settings-head" id="settings-vault-head">
             Vault
           </p>

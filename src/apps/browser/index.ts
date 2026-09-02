@@ -18,11 +18,11 @@
  * (both e2e floors ride those positions — see src/apps/index.ts).
  */
 
-import { lazy } from 'react'
+import { retryableLazy } from '../../platform/app-registry/lazy-mount'
 import { BROWSER_APP_ID, type AppManifest } from '../../platform/app-registry'
 import { BrowserIcon } from './BrowserIcon'
 
-const BrowserSurface = lazy(() => import('./BrowserSurface'))
+const BrowserSurface = retryableLazy(() => import('./BrowserSurface'))
 
 export const browserApp: AppManifest = {
   id: BROWSER_APP_ID,

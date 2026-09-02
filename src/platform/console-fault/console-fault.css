@@ -1,0 +1,156 @@
+/* ----------------------------------------------------------------------------
+   CONSOLE FAULT plate (HU-1) — the OS-level boundary's full-page fallback.
+   The last surface the console ever shows: dark ground, one instrument module,
+   a phosphor well carrying the POST-style fault report, oxide reserved for the
+   destructive reset path. No images, no motion — it must render when nothing
+   else can. Ink from tokens only.
+---------------------------------------------------------------------------- */
+
+.console-fault {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+  background: var(--chrome-ground);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+}
+
+.console-fault-module {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(460px, 100%);
+  padding: 18px;
+  border: 1px solid var(--chrome-edge-lo);
+  border-radius: 4px;
+  background: var(--chrome-raised);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 var(--chrome-edge-lo),
+    0 12px 32px rgb(0 0 0 / 45%);
+}
+
+.console-fault-os {
+  margin: 0;
+  color: var(--chrome-ink-dim);
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+}
+
+.console-fault-version {
+  font-family: var(--font-mono); /* version digits ride B612 (no tnum in Chakra) */
+}
+
+.console-fault-head {
+  margin: 0;
+  color: var(--oxide-bright);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+}
+
+.console-fault-well {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+}
+
+.console-fault-line {
+  margin: 0;
+  color: var(--phosphor);
+  letter-spacing: 0.04em;
+  white-space: pre-wrap;
+}
+
+.console-fault-line[data-state='fault'] {
+  color: var(--oxide-bright); /* the one oxide line: the fault itself */
+}
+
+.console-fault-advice {
+  margin: 8px 0 0;
+  color: var(--phosphor-dim);
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  line-height: 1.6;
+}
+
+.console-fault-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.console-fault-reload,
+.console-fault-reset-toggle,
+.console-fault-reset,
+.console-fault-cancel {
+  min-height: 34px;
+  padding: 5px 14px;
+  border: 1px solid var(--chrome-edge-lo);
+  border-radius: 3px;
+  background: var(--chrome-raised);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 var(--chrome-edge-lo);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.console-fault-reset-toggle[aria-expanded='true'] {
+  color: var(--oxide-bright);
+}
+
+.console-fault-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--oxide);
+  background: var(--chrome-sunken);
+}
+
+.console-fault-strip-title {
+  margin: 0;
+  color: var(--oxide-bright);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+}
+
+.console-fault-strip-body {
+  margin: 0;
+  color: var(--chrome-ink);
+  font-size: var(--size-legend);
+  line-height: 1.6;
+}
+
+.console-fault-strip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.console-fault-reset {
+  color: var(--oxide-bright);
+}
+
+.console-fault-reset:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}

@@ -47,7 +47,7 @@ canonical shape — all fields readonly):
 | `id` | `string` | yes | Stable unique identity, kebab-case (`APP_ID_PATTERN`: `^[a-z][a-z0-9-]*$`). Stored inside window records — **never rename a shipped id**. |
 | `name` | `string` | yes | Human label; default window title and launcher caption. |
 | `icon` | `AppIconComponent` | yes | React component taking `{ size?: number }`. Render-only; touches no stores. |
-| `mount` | `AppMountComponent` | yes | Your window content. A component accepting `AppSurfaceProps`, **or** `lazy(() => import(...))` — the platform mounts it inside a `Suspense` boundary. Lazy is the recommended pattern. |
+| `mount` | `AppMountComponent` | yes | Your window content. A component accepting `AppSurfaceProps`, **or** `retryableLazy(() => import(...))` — the platform mounts it inside a `Suspense` boundary. Lazy is the recommended pattern (see below). |
 | `singleton` | `boolean` | no (default `false`) | `true` → at most ONE window ever; re-open raises + focuses the existing one. Omit for multi-instance. |
 | `acceptedFileTypes` | `readonly FSNodeKind[]` | no | FS node kinds (`'folder' | 'text' | 'image' | 'app-link'`) your app can open. Declares file-opening capability (explorer child routing / launcher file opens consult it). |
 | `defaultGeometry` | `AppGeometryHints` | no | `{ w, h }` required, `{ x, y }` optional. Omitted origin → platform cascade placement. Hints apply to the first open only; the user's geometry always wins afterwards. |
@@ -58,6 +58,18 @@ in `src/platform/app-registry/app-ids.ts`. The desktop's double-click routing
 targets them (`folder` → explorer, `text` → notepad, `image` → image-viewer,
 app-links → their own `appId`); do not ship a third-party app under a reserved
 id. Until an id registers, `openApp` soft-fails on it by design.
+
+### Lazy mounts: use `retryableLazy` (HU-1)
+
+Declare a lazy mount as `retryableLazy(() => import('./Surface'))` — the exact
+shape you'd otherwise hand to React's `lazy()`, from
+`src/platform/app-registry/lazy-mount.tsx`. Why not plain `lazy()`: React
+caches a rejected load forever, and the BROWSER's module map caches a failed
+dynamic import for the page's lifetime — so a module whose chunk failed to
+transfer could never recover by remounting. `retryableLazy` gives the
+platform's MODULE FAULT card an honest "Reload module": a fresh `lazy()`
+payload, and (when the engine names the module URL) a cache-busted re-import
+under a fresh module-map key. Your surface never knows any of this happened.
 
 ## What your mounted component receives
 
@@ -299,5 +311,12 @@ export const apps: readonly AppManifest[] = [demoApp] // ← add yourApp here
 - Lazy loading under a Suspense fallback (`Mounting <name>…`).
 - Graceful absence: if your app is unregistered while windows are open, they
   render a "MODULE UNAVAILABLE" notice instead of crashing.
+- **Fault isolation (HU-1):** your window content mounts inside a per-window
+  error boundary. If your app throws during render — or its chunk fails to
+  load — the fault isolates to YOUR window as an in-world MODULE FAULT card
+  (module name, plain-language explanation, Reload module, Copy diagnostics);
+  the OS, other windows and persistence keep running. Do not build your own
+  error boundary for render crashes; let the platform's catch them. Faults
+  thrown from your own event handlers / promises remain yours to handle.
 - Persistence (MF-2, in flight): window records — including the launch context —
   and the FS tree survive reload; plan your app state accordingly.

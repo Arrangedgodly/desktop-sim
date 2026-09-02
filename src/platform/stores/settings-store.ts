@@ -27,22 +27,40 @@ export interface SettingsState {
   readonly reducedMotionFollow: boolean
   /** UI-3 docent hints dismissed — once true they never show again (persisted). */
   readonly docentDismissed: boolean
+  /**
+   * HU-1 session flag (NOT persisted — deliberately outside PersistedSettings):
+   * the storage-recovery notice's one-time "View vault readout" link sets it;
+   * the Settings console consumes it on mount and scrolls its vault readout
+   * into view. Session-scoped by construction: a reload clears it.
+   */
+  readonly vaultFocusPending: boolean
   setWallpaper: (wallpaper: string) => void
   setSoundsEnabled: (enabled: boolean) => void
   setReducedMotionFollow: (follow: boolean) => void
   /** One-way: the docent is seen once. No un-dismiss action exists by design. */
   dismissDocent: () => void
+  /** HU-1: request the Settings console open onto its vault readout. */
+  requestVaultFocus: () => void
+  /** HU-1: Settings-console mount consumption — returns + clears the flag. */
+  consumeVaultFocus: () => boolean
 }
 
 export const useSettingsStore = create<SettingsState>()(
-  subscribeWithSelector((set) => ({
+  subscribeWithSelector((set, get) => ({
     wallpaper: DEFAULT_WALLPAPER,
     soundsEnabled: false,
     reducedMotionFollow: true,
     docentDismissed: false,
+    vaultFocusPending: false,
     setWallpaper: (wallpaper) => set({ wallpaper }),
     setSoundsEnabled: (enabled) => set({ soundsEnabled: enabled }),
     setReducedMotionFollow: (follow) => set({ reducedMotionFollow: follow }),
     dismissDocent: () => set({ docentDismissed: true }),
+    requestVaultFocus: () => set({ vaultFocusPending: true }),
+    consumeVaultFocus: () => {
+      const pending = get().vaultFocusPending
+      if (pending) set({ vaultFocusPending: false })
+      return pending
+    },
   })),
 )

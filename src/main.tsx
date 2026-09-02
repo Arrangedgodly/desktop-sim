@@ -17,6 +17,11 @@ import { attachAudioCues } from './lib/audio'
 // effect, so a phone never boots persistence, wires audio, or mounts the
 // desktop graph at all (see src/platform/notice/gate.ts for the law).
 import { createViewportGate, NoticeCard } from './platform/notice'
+// HU-1: the OS-level boundary — a fault in the shell itself (either session)
+// shows the in-world CONSOLE FAULT plate, never a white screen. Wrapping both
+// sessions is deliberate: "never a white screen" is a promise about the page,
+// not about the desktop side only.
+import { ConsoleFaultBoundary } from './platform/console-fault'
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {
@@ -79,7 +84,9 @@ function mountDesktop(): void {
   sessionRoot = createRoot(mountPoint)
   sessionRoot.render(
     <StrictMode>
-      <BootSequence boot={boot} firstVisit={firstVisit} />
+      <ConsoleFaultBoundary session="desktop">
+        <BootSequence boot={boot} firstVisit={firstVisit} />
+      </ConsoleFaultBoundary>
     </StrictMode>,
   )
 
@@ -95,7 +102,9 @@ function mountNotice(): void {
   sessionRoot = createRoot(mountPoint)
   sessionRoot.render(
     <StrictMode>
-      <NoticeCard />
+      <ConsoleFaultBoundary session="handheld">
+        <NoticeCard />
+      </ConsoleFaultBoundary>
     </StrictMode>,
   )
 }

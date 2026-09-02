@@ -26,6 +26,7 @@ import {
   registerApps,
   resetAppRegistry,
 } from '../../platform/app-registry'
+import { resetLazyMount } from '../../platform/app-registry/lazy-mount'
 import { useFSStore } from '../../platform/stores/fs-store'
 import { useSettingsStore, DEFAULT_WALLPAPER } from '../../platform/stores/settings-store'
 import { useWMStore } from '../../platform/stores/wm-store'
@@ -119,7 +120,8 @@ describe('AP-4 · registration manifest', () => {
   })
 
   it('mounts a LAZY surface (own chunk) and a render-only icon', () => {
-    expect(typeof settingsApp.mount).toBe('object') // lazy(() => import(...))
+    expect(typeof settingsApp.mount).toBe('function') // retryableLazy(() => import(...)) — HU-1
+    expect(resetLazyMount(settingsApp.mount)).toBe(true) // it IS a retryable lazy mount
     expect(settingsApp.icon).toBe(SettingsIcon)
     const { container } = render(<SettingsIcon size={20} />)
     expect(container.querySelector('svg[aria-hidden="true"]')).not.toBeNull()

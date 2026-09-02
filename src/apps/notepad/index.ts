@@ -23,11 +23,11 @@
  * claim in src/apps/index.ts.
  */
 
-import { lazy } from 'react'
+import { retryableLazy } from '../../platform/app-registry/lazy-mount'
 import { NOTEPAD_APP_ID, type AppManifest } from '../../platform/app-registry'
 import { NotepadIcon } from './NotepadIcon'
 
-const NotepadSurface = lazy(() => import('./NotepadSurface'))
+const NotepadSurface = retryableLazy(() => import('./NotepadSurface'))
 
 export const notepadApp: AppManifest = {
   id: NOTEPAD_APP_ID,

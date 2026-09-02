@@ -3,6 +3,11 @@
    itself never renders: the lazy-chunk loading fallback and the unregistered-app
    notice. Structural styles only; colors ride the provisional token block in
    src/platform/wm/wm.css (deleted when UI-1's token sheet lands).
+
+   HU-1 adds the MODULE FAULT console card (AppBoundary.tsx) — the per-window
+   isolation surface for a thrown app error or a failed chunk load. Console
+   chrome + one phosphor well (the fault IS a console event, not a parchment
+   content moment); oxide reserved for the headline + the fault-kind line.
 ---------------------------------------------------------------------------- */
 
 .app-loading,
@@ -35,4 +40,108 @@
 
 .app-notice code {
   font-family: inherit;
+}
+
+/* -- MODULE FAULT card (HU-1) ---------------------------------------------- */
+
+.module-fault {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 14px;
+  overflow-y: auto;
+  background: var(--chrome-ground);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+}
+
+.module-fault-head {
+  margin: 0;
+  color: var(--oxide-bright);
+  font-size: var(--size-legend-lg);
+  font-weight: 700;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+}
+
+.module-fault-name {
+  margin: 0;
+  color: var(--chrome-ink);
+  font-size: var(--size-legend-lg);
+}
+
+.module-fault-name code {
+  padding: 0 4px;
+  border: 1px solid var(--chrome-edge-lo);
+  border-radius: 2px;
+  color: var(--chrome-ink-dim);
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+}
+
+.module-fault-explain {
+  margin: 0;
+  color: var(--chrome-ink);
+  line-height: 1.5;
+}
+
+.module-fault-kind {
+  margin: 0;
+  padding: 6px 8px;
+  border-left: 2px solid var(--oxide);
+  color: var(--chrome-ink-dim);
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  letter-spacing: 0.02em;
+}
+
+.module-fault-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.module-fault-reload,
+.module-fault-copy {
+  min-height: 30px;
+  padding: 4px 12px;
+  border: 1px solid var(--chrome-edge-lo);
+  border-radius: 3px;
+  background: var(--chrome-raised);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 var(--chrome-edge-lo);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.module-fault-reload:active,
+.module-fault-copy:active {
+  box-shadow:
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    inset 1px 1px 0 var(--chrome-edge-lo);
+}
+
+.module-fault-copy[data-module-fault-copy] {
+  color: var(--phosphor);
+}
+
+.module-fault-report {
+  margin: 4px 0 0;
+  padding: 8px;
+  overflow-x: auto;
+  border: 1px solid var(--chrome-edge-lo);
+  color: var(--phosphor);
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }

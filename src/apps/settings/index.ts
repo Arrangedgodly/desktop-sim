@@ -20,11 +20,11 @@
  * (the taskbar keyboard e2e rides its position — see src/apps/index.ts).
  */
 
-import { lazy } from 'react'
+import { retryableLazy } from '../../platform/app-registry/lazy-mount'
 import { SETTINGS_APP_ID, type AppManifest } from '../../platform/app-registry'
 import { SettingsIcon } from './SettingsIcon'
 
-const SettingsSurface = lazy(() => import('./SettingsSurface'))
+const SettingsSurface = retryableLazy(() => import('./SettingsSurface'))
 
 export const settingsApp: AppManifest = {
   id: SETTINGS_APP_ID,

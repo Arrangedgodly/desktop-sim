@@ -18,11 +18,11 @@
  * the eager bundle; the surface ships as its own chunk (TH-2 budget).
  */
 
-import { lazy } from 'react'
+import { retryableLazy } from '../../platform/app-registry/lazy-mount'
 import { EXPLORER_APP_ID, type AppManifest } from '../../platform/app-registry'
 import { ExplorerIcon } from './ExplorerIcon'
 
-const ExplorerSurface = lazy(() => import('./ExplorerSurface'))
+const ExplorerSurface = retryableLazy(() => import('./ExplorerSurface'))
 
 export const explorerApp: AppManifest = {
   id: EXPLORER_APP_ID,

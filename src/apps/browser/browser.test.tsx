@@ -14,6 +14,7 @@ import { cleanup, fireEvent, render } from '@testing-library/react'
 import { seedFSState } from '../../lib/fs'
 import { defaultAuthorPack, parseAuthorPack, PLACEHOLDER_MARK } from '../../lib/content'
 import { listApps, openApp, registerApps, resetAppRegistry } from '../../platform/app-registry'
+import { resetLazyMount } from '../../platform/app-registry/lazy-mount'
 import { useFSStore } from '../../platform/stores/fs-store'
 import { useWMStore } from '../../platform/stores/wm-store'
 import { apps } from '../index'
@@ -137,7 +138,8 @@ describe('AP-6 · registration manifest', () => {
   })
 
   it('mounts a LAZY surface (own chunk) and a render-only icon', () => {
-    expect(typeof browserApp.mount).toBe('object') // lazy(() => import(...))
+    expect(typeof browserApp.mount).toBe('function') // retryableLazy(() => import(...)) — HU-1
+    expect(resetLazyMount(browserApp.mount)).toBe(true) // it IS a retryable lazy mount
     expect(browserApp.icon).toBe(BrowserIcon)
     const { container } = render(<BrowserIcon size={20} />)
     expect(container.querySelector('svg[aria-hidden="true"]')).not.toBeNull()

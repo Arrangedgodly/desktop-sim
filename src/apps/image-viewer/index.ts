@@ -25,11 +25,11 @@
  * carries the why).
  */
 
-import { lazy } from 'react'
+import { retryableLazy } from '../../platform/app-registry/lazy-mount'
 import { IMAGE_VIEWER_APP_ID, type AppManifest } from '../../platform/app-registry'
 import { ViewerIcon } from './ViewerIcon'
 
-const ViewerSurface = lazy(() => import('./ViewerSurface'))
+const ViewerSurface = retryableLazy(() => import('./ViewerSurface'))
 
 export const viewerApp: AppManifest = {
   id: IMAGE_VIEWER_APP_ID,

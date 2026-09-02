@@ -23,11 +23,11 @@
  * floors ride those positions — see src/apps/index.ts).
  */
 
-import { lazy } from 'react'
+import { retryableLazy } from '../../platform/app-registry/lazy-mount'
 import { ABOUT_APP_ID, type AppManifest } from '../../platform/app-registry'
 import { AboutIcon } from './AboutIcon'
 
-const AboutSurface = lazy(() => import('./AboutSurface'))
+const AboutSurface = retryableLazy(() => import('./AboutSurface'))
 
 export const aboutApp: AppManifest = {
   id: ABOUT_APP_ID,

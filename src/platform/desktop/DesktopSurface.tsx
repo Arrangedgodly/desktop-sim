@@ -51,6 +51,7 @@ import { arrowNavigate, attachOSKeyboard, isTextEntryTarget, type NavDirection }
 import { WindowHost } from '../wm'
 import { useViewportSize } from '../wm/use-viewport-size'
 import { TaskbarRail } from '../taskbar'
+import { StorageNotices } from '../storage-notices'
 import {
   buildGroundMenuItems,
   buildSpecimenMenuItems,
@@ -313,6 +314,9 @@ function DesktopStage({ firstVisit = false }: DesktopSurfaceProps) {
       {docentVisible && <DocentCallouts slots={slots} onDismiss={handleDismissDocent} />}
       <WindowHost contentFor={appContentFor} />
       <TaskbarRail />
+      {/* HU-1: storage failure/recovery notices — fixed furniture above the
+          rail; visible even when every window is closed. */}
+      <StorageNotices />
     </div>
   )
 }

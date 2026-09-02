@@ -52,6 +52,10 @@ export {
   type AppRegistryState,
 } from './registry'
 
+// HU-1: retryable lazy mounts — the manifest `mount` helper whose failed chunk
+// loads the MODULE FAULT card's "Reload module" can honestly re-attempt.
+export { retryableLazy, type AppSurfaceLoader } from './lazy-mount'
+
 export {
   ABOUT_APP_ID,
   BROWSER_APP_ID,

@@ -19,6 +19,7 @@ import {
   openApp,
   type AppLaunchContext,
 } from '../../platform/app-registry'
+import { resetLazyMount } from '../../platform/app-registry/lazy-mount'
 import { useFSStore } from '../../platform/stores/fs-store'
 import { useWMStore } from '../../platform/stores/wm-store'
 import { useSettingsStore } from '../../platform/stores/settings-store'
@@ -138,8 +139,10 @@ describe('AP-1 · registration manifest', () => {
   })
 
   it('mounts a LAZY surface (own chunk) and a render-only icon', () => {
-    // lazy(() => import(...)) produces a lazy exotic component object.
-    expect(typeof explorerApp.mount).toBe('object')
+    // retryableLazy(() => import(...)) — HU-1: a function component carrying
+    // the reset seam over a fresh-able lazy payload (own chunk, same as lazy()).
+    expect(typeof explorerApp.mount).toBe('function')
+    expect(resetLazyMount(explorerApp.mount)).toBe(true) // it IS a retryable lazy mount
     expect(explorerApp.icon).toBe(ExplorerIcon)
     // The icon renders without any store — svg only, aria-hidden.
     const { container } = render(<ExplorerIcon size={20} />)

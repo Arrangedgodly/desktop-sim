@@ -25,6 +25,7 @@ import {
   resetAppRegistry,
   type AppLaunchContext,
 } from '../../platform/app-registry'
+import { resetLazyMount } from '../../platform/app-registry/lazy-mount'
 import { openSpecimen, resolveOpenRoute } from '../../platform/desktop'
 import { useFSStore } from '../../platform/stores/fs-store'
 import { useWMStore } from '../../platform/stores/wm-store'
@@ -140,7 +141,8 @@ describe('AP-2 · registration manifest', () => {
   })
 
   it('mounts a LAZY surface (own chunk) and a render-only icon', () => {
-    expect(typeof notepadApp.mount).toBe('object') // lazy(() => import(...))
+    expect(typeof notepadApp.mount).toBe('function') // retryableLazy(() => import(...)) — HU-1
+    expect(resetLazyMount(notepadApp.mount)).toBe(true) // it IS a retryable lazy mount
     expect(notepadApp.icon).toBe(NotepadIcon)
     const { container } = render(<NotepadIcon size={20} />)
     expect(container.querySelector('svg[aria-hidden="true"]')).not.toBeNull()
