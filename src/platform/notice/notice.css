@@ -1,0 +1,255 @@
+/* ----------------------------------------------------------------------------
+   Notice card styles — UI-7 (The Survey Archive). Platform-owned, scoped
+   (.notice-*), consuming src/styles/tokens.css + global.css primitives — no
+   custom properties, no hex; every ink is a token (grep-tested).
+
+   World law this sheet obeys (design-brief.md):
+   · THE PHONE CARD IS A CONSOLE PLATE, not a shrunken desktop: one beveled
+     instrument module on the warm near-black hold, amber ONLY inside the
+     recessed well (the .well primitive enforces the phosphor discipline).
+   · BRASS at exactly one touchpoint — the channel rows: they are the card's
+     interactive hardware (the about nameplate's riveted-channel precedent).
+     Nowhere else here does brass appear.
+   · PORTRAIT-FIRST, per the task floor: single column; reading type ≥16px
+     (message 17px, name 22px, channel labels 16px); every channel row ≥44px
+     of touch target; `overflow-wrap: anywhere` on every long string so 320px
+     never sees a horizontal scrollbar; the plate centers via `margin: auto`
+     inside a `min-height: 100dvh` flex stage, so short landscape viewports
+     SCROLL instead of clipping (the classic flex-centering overflow trap).
+   · One authored moment — the well warms up like a tube (the boot screen's
+     own move); the caret blinks beside the message. Both collapse under the
+     global reduced-motion kill-switch.
+---------------------------------------------------------------------------- */
+
+.notice {
+  min-height: 100dvh; /* dvh: mobile browser chrome never bites the layout */
+  display: flex;
+  padding: 24px 16px 28px;
+  background: var(--chrome-ground);
+}
+
+/* -- the plate: one instrument module, border-box so padding never overflows */
+.notice-plate {
+  box-sizing: border-box;
+  margin: auto; /* centers when short, scrolls when tall — never clips */
+  display: grid;
+  gap: 18px;
+  width: min(460px, 100%);
+  padding: 26px 22px 18px;
+  background: var(--chrome-raised);
+}
+
+/* The plate's principal engraving — the page's single h1. */
+.notice-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 1.3125rem; /* 21px */
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--chrome-ink);
+  overflow-wrap: anywhere;
+}
+
+/* -- the phosphor well (the handheld link's POST) -----------------------------
+   .well supplies the recess, amber, glow, and the mono face. The warm-up is
+   the card's one entrance: exponential ease-out from an already-lit 35%. */
+
+.notice-well {
+  display: grid;
+  gap: 5px;
+  padding: 16px 18px 14px;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  animation: notice-well-up var(--dur-beat) var(--ease-console) both;
+}
+
+@keyframes notice-well-up {
+  from {
+    opacity: 0.35; /* the tube warms from visible, never from blank */
+  }
+}
+
+.notice-post-line {
+  margin: 0;
+  white-space: pre-wrap; /* the dot-leader is part of the line, but it may wrap */
+  color: var(--phosphor);
+}
+
+.notice-post-msg {
+  margin: 5px 0 0;
+  font-size: 1.0625rem; /* 17px — the human line is reading type */
+  line-height: 1.65;
+  color: var(--phosphor-bright);
+  overflow-wrap: anywhere;
+}
+
+/* The beam's caret, riding the message — solid under reduced motion (the
+   global kill-switch ends the blink in its lit keyframe). */
+.notice-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 1px;
+  transform: translateY(0.14em);
+  background: var(--phosphor-bright);
+  animation: notice-caret-blink 1.1s steps(1) infinite;
+}
+
+@keyframes notice-caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* -- section legends (the OS label voice, engraved on chrome) ----------------- */
+
+.notice-legend {
+  margin: 0 0 8px;
+}
+
+/* -- the officer's name (pack name, or the stand-in seat) --------------------- */
+
+.notice-name {
+  margin: 0;
+  font-family: var(--font-content); /* a name is content, not chrome */
+  font-size: 1.375rem; /* 22px */
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--chrome-ink);
+  overflow-wrap: anywhere;
+}
+
+/* -- the awaiting notice: dashed brass = provisional (about precedent) -------- */
+
+.notice-awaiting {
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  text-align: center;
+  padding: 9px 16px 10px;
+  border: 1px dashed var(--brass-lo);
+}
+
+.notice-awaiting-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+}
+
+.notice-awaiting-body {
+  margin: 0;
+  max-width: 44ch;
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--chrome-ink-dim);
+}
+
+/* -- contact channels: brass rows, one hardware touchpoint -------------------- */
+
+.notice-channel-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notice-link {
+  display: grid;
+  gap: 2px;
+  align-content: center;
+  min-height: 48px; /* ≥44px touch target, with margin */
+  padding: 8px 14px;
+  text-decoration: none;
+  color: var(--chrome-ground); /* engraved ink on brass */
+  background: linear-gradient(
+    180deg,
+    var(--brass-hi) 0%,
+    var(--brass) 58%,
+    color-mix(in srgb, var(--brass) 82%, var(--brass-lo)) 100%
+  );
+  border: 1px solid var(--brass-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 246 214 / 35%),
+    inset -1px -1px 0 rgb(0 0 0 / 22%),
+    1px 2px 5px rgb(0 0 0 / 30%);
+  transition:
+    translate var(--dur-fast) var(--ease-console),
+    box-shadow var(--dur-fast) var(--ease-console);
+}
+
+.notice-link:hover {
+  translate: 0 -1px; /* the plate lifts on its rivets */
+  box-shadow:
+    inset 1px 1px 0 rgb(255 246 214 / 35%),
+    inset -1px -1px 0 rgb(0 0 0 / 22%),
+    1px 3px 7px rgb(0 0 0 / 38%);
+}
+
+/* The in-world ring: the console's amber beam around the thrown plate. */
+.notice-link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.notice-link-label {
+  font-family: var(--font-label);
+  font-size: 1rem; /* 16px — actionable content floor */
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgb(255 246 214 / 30%);
+  overflow-wrap: anywhere;
+}
+
+.notice-link-domain {
+  font-family: var(--font-label);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 0 rgb(255 246 214 / 25%);
+  overflow-wrap: anywhere; /* a long host wraps, never a scrollbar */
+}
+
+/* No channels (or an unfiled pack): the console states its emptiness. */
+.notice-empty {
+  margin: 0;
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--chrome-ink-dim);
+}
+
+/* -- HOLD/OS colophon: the machine's name, quiet at the plate's foot --------- */
+
+.notice-colophon {
+  display: grid;
+  justify-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--chrome-sunken);
+}
+
+.notice-colophon-line {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--chrome-ink-dim);
+}
+
+.notice-colophon-version {
+  font-family: var(--font-mono); /* digits ride B612 (the measuring law) */
+  font-variant-numeric: tabular-nums;
+}
