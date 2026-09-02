@@ -197,13 +197,7 @@ describe('AP-1 · drawer contents', () => {
   it('a launcher open (no file) lands on the hold root', () => {
     mountSurface({ source: 'launcher' })
     expect(crumbs()).toEqual(['root'])
-    expect(optionIds()).toEqual([
-      'projects',
-      'field-notes',
-      'archive',
-      'nameplate',
-      'charter',
-    ])
+    expect(optionIds()).toEqual(['projects', 'field-notes', 'archive', 'nameplate', 'charter'])
   })
 
   it('the ledger view lists the same accession order with readout columns', () => {
@@ -213,9 +207,11 @@ describe('AP-1 · drawer contents', () => {
     const rows = [...document.querySelectorAll('.explorer-row')]
     expect(rows).toHaveLength(3)
     // Accession column rides the mono digits; order is the catalog's.
-    expect(
-      rows.map((row) => row.querySelector('.explorer-row-accession')!.textContent),
-    ).toEqual(['PLT-0001', 'SPC-0001', 'SPC-0002'])
+    expect(rows.map((row) => row.querySelector('.explorer-row-accession')!.textContent)).toEqual([
+      'PLT-0001',
+      'SPC-0001',
+      'SPC-0002',
+    ])
     expect(rows[0]!.querySelector('.explorer-row-kind')!.textContent).toBe('plate')
     expect(rows[0]!.querySelector('.explorer-row-stamp')!.textContent).toBe('2087-03-14 09:32')
   })
@@ -223,7 +219,9 @@ describe('AP-1 · drawer contents', () => {
   it('an empty drawer shows the in-world empty state, not a listbox', () => {
     act(() => {
       const { fs, commit } = useFSStore.getState()
-      commit(createNode(fs, { id: 'empty-drawer', parentId: 'root', name: 'Empty', kind: 'folder' }))
+      commit(
+        createNode(fs, { id: 'empty-drawer', parentId: 'root', name: 'Empty', kind: 'folder' }),
+      )
     })
     mountSurface(fileLaunch('empty-drawer'))
 
@@ -314,13 +312,18 @@ describe('AP-1 · open routing from inside a drawer', () => {
     expect(record.launch).toEqual({ source: 'file', file: node('exhibit-01') })
   })
 
-  it('a module reference opens its own appId (soft-fail lands on the registry)', () => {
+  it('a module reference opens its own appId — the interim ended at AP-5 (about)', () => {
+    // This was the "soft-fail while about is unregistered" honest-interim
+    // probe until the nameplate registered: same unfreeze class as the
+    // notepad's text route and the viewer's image route. The seeded
+    // nameplate module reference now opens the manifest window for real.
     mountSurface({ source: 'launcher' })
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    fireEvent.doubleClick(option('nameplate')) // targets 'about' — unregistered
+    fireEvent.doubleClick(option('nameplate')) // targets 'about' — registered
 
-    expect(windowCount()).toBe(0) // openApp soft-failed: no window, no throw
-    expect(warn).toHaveBeenCalledTimes(1)
+    expect(windowCount()).toBe(1)
+    const record = Object.values(useWMStore.getState().windows)[0]!
+    expect(record.appId).toBe('about')
+    expect(record.launch).toEqual({ source: 'file', file: node('nameplate') })
   })
 
   it('an image child opens its OWNING app — the interim ended at AP-3 (image-viewer)', () => {
@@ -403,8 +406,7 @@ describe('AP-1 · context menus reuse the platform shell + builders', () => {
   })
 
   it('no forked menu code: the app ships no portal/shell of its own and imports the barrel', () => {
-    const read = (file: string): string =>
-      readFileSync(new URL(file, import.meta.url), 'utf-8')
+    const read = (file: string): string => readFileSync(new URL(file, import.meta.url), 'utf-8')
     for (const file of ['ExplorerSurface.tsx', 'explorer-menus.ts']) {
       const source = read(`./${file}`)
       expect(source).not.toContain('createPortal') // no private menu shell
@@ -571,13 +573,7 @@ describe('AP-1 · deleted-drawer fallback', () => {
     })
 
     expect(crumbs()).toEqual(['root'])
-    expect(optionIds()).toEqual([
-      'projects',
-      'field-notes',
-      'archive',
-      'nameplate',
-      'charter',
-    ])
+    expect(optionIds()).toEqual(['projects', 'field-notes', 'archive', 'nameplate', 'charter'])
   })
 })
 

@@ -3,6 +3,7 @@ import { demoApp } from './demo'
 import { explorerApp } from './explorer'
 import { notepadApp } from './notepad'
 import { viewerApp } from './image-viewer'
+import { aboutApp } from './about'
 import { settingsApp } from './settings'
 
 /**
@@ -14,7 +15,8 @@ import { settingsApp } from './settings'
  * (See docs/APP-CONTRACT.md — explorer/ is the fleet's reference implementation
  * of the full contract: reserved id, lazy chunk, file-instance windows,
  * platform-menu reuse; notepad/ and image-viewer/ are the second and third;
- * settings/ the fourth — singleton console, no file routing.)
+ * settings/ the fourth — singleton console, no file routing; about/ the fifth
+ * — singleton nameplate, the seeded desktop reference's target.)
  *
  * ORDER IS LOAD-BEARING: registration order is the launcher's listing order
  * AND the tiebreak for capability routing — the explorer's "who opens this
@@ -24,13 +26,16 @@ import { settingsApp } from './settings'
  * text specimens would open the demo instead of their real owner. The
  * viewer's `image` claim has no rival (the demo declares only `text`); its
  * position behind the notepad keeps the launcher's first item stable. The
- * settings console declares no file types — its position is free; it rides
- * last so the launcher's opening run (notepad first) stays untouched.
+ * settings console and the about nameplate declare no file types — their
+ * positions are free; the nameplate rides behind the explorer and the
+ * console stays last so the launcher's opening run (notepad first) and
+ * closing run (console last) stay untouched.
  */
 export const apps: readonly AppManifest[] = [
   notepadApp,
   viewerApp,
   demoApp,
   explorerApp,
+  aboutApp,
   settingsApp,
 ]

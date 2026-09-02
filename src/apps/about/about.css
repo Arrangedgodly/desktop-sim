@@ -1,0 +1,486 @@
+/* ----------------------------------------------------------------------------
+   About styles — AP-5 (The Survey Archive). App-owned, app-scoped (.about-*),
+   consuming src/styles/tokens.css + global.css primitives — no custom
+   properties defined here.
+
+   World law this sheet obeys (design-brief.md):
+   · THE NAMEPLATE IS THE ONE SANCTIONED BRASS SURFACE — "brass appears only
+     at hardware touchpoints (drawer pulls, label frames)": a ship's
+     commissioning plate IS a label frame, physically riveted to the sheet.
+     The contact rows are riveted channel plates for the same reason — and
+     nowhere else in this module does brass appear.
+   · THE DUALITY, reading side — a parchment sheet carries the whole manifest
+     (Lora for the officer's own words, generous leading), closed by a dark
+     chrome colophon strip: the machine speaks last, on chrome.
+   · phosphor ONLY in wells — the channel rows' lamps sit in their own tiny
+     recessed seats (the brief's sanctioned lamp class, like the title-bar
+     LED and the settings state lamps); the glow never leaves a seat.
+   · engraved ink on brass is the dark warm chrome-ground (5.5:1+ on the
+     plate body; the brass-lo bevel stays at the edges, never under text).
+   · one authored moment — the commissioning stamp PRESSES IN on mount
+     (transform+opacity only; the global reduced-motion switch collapses it
+     to the pressed state). Everything else holds still.
+---------------------------------------------------------------------------- */
+
+.about {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--chrome-ground);
+}
+
+/* -- the parchment sheet (the scrolling document) -----------------------------
+   Inherits bg/ink/serif/caret/scrollbar/focus-ring from .parchment-surface. */
+
+.about-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  align-content: start;
+  gap: 13px;
+  padding: 14px 22px 13px;
+}
+
+/* -- the brass commissioning plate ---------------------------------------------
+   A physically mounted plate: raised brass with a light catch on the upper
+   lip and a dark bevel at the foot, four setting screws at the corners, and
+   everything engraved (dark ink with a light lip cut below the stroke). */
+
+.about-plate {
+  position: relative; /* seats the corner screws */
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+  text-align: center;
+  padding: 15px 24px 13px;
+  color: var(--chrome-ground); /* engraved ink on brass */
+  background: linear-gradient(
+    180deg,
+    var(--brass-hi) 0%,
+    var(--brass) 36%,
+    var(--brass) 78%,
+    color-mix(in srgb, var(--brass) 74%, var(--brass-lo)) 100%
+  );
+  border: 1px solid var(--brass-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 246 214 / 40%),
+    inset -1px -2px 0 rgb(0 0 0 / 30%),
+    2px 3px 10px rgb(51 41 28 / 32%);
+}
+
+/* The setting screws — polished brass heads, one per corner. */
+.about-rivet {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--brass-hi), var(--brass-lo) 75%);
+  box-shadow: 0 1px 1px rgb(0 0 0 / 45%);
+}
+
+.about-rivet--tl {
+  top: 5px;
+  left: 5px;
+}
+
+.about-rivet--tr {
+  top: 5px;
+  right: 5px;
+}
+
+.about-rivet--bl {
+  bottom: 5px;
+  left: 5px;
+}
+
+.about-rivet--br {
+  bottom: 5px;
+  right: 5px;
+}
+
+/* The plate's engraved legend — the cut is shallower than the name. */
+.about-plate-legend {
+  margin: 0;
+  max-width: 40ch;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgb(255 246 214 / 35%);
+}
+
+/* The officer's name — the plate's principal engraving, in the archive's
+   content voice (an engraved plaque is set in a serif). */
+.about-name {
+  margin: 2px 0 0;
+  font-family: var(--font-content);
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere; /* a long name never escapes the plate */
+  text-shadow: 0 1px 0 rgb(255 246 214 / 35%);
+}
+
+/* The code-site handle, engraved small caps beside the name. */
+.about-handle {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 0 rgb(255 246 214 / 30%);
+}
+
+/* The mission statement — the plate's charge, cut in the serif italic. */
+.about-tagline {
+  margin: 2px 0 0;
+  max-width: 46ch;
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  text-shadow: 0 1px 0 rgb(255 246 214 / 30%);
+}
+
+/* -- the commissioning stamp ----------------------------------------------------
+   The archive's rubber stamp on the plate: a double-ruled frame, B612 (the
+   stamp is a readout — accession code + mission-epoch timecode), pressed
+   slightly askew. THE module's one authored moment: it presses IN on mount. */
+
+.about-stamp {
+  display: grid;
+  gap: 1px;
+  justify-items: center;
+  margin: 8px 0 0;
+  padding: 4px 12px 5px;
+  transform: rotate(-1.5deg);
+  border: 1.5px solid rgb(32 26 19 / 60%);
+  box-shadow: 0 0 0 1px rgb(32 26 19 / 20%); /* the outer rule of the double frame */
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  animation: about-stamp-press 420ms var(--ease-console) 160ms backwards;
+}
+
+@keyframes about-stamp-press {
+  0% {
+    transform: rotate(-1.5deg) scale(1.6);
+    opacity: 0;
+  }
+  62% {
+    transform: rotate(-1.5deg) scale(0.97);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(-1.5deg) scale(1);
+  }
+}
+
+.about-stamp-code {
+  font-size: var(--size-legend);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.about-stamp-log {
+  font-size: var(--size-legend);
+  letter-spacing: 0.06em;
+}
+
+/* -- the awaiting notice ---------------------------------------------------------
+   Placeholder mode: a pending notice, dashed brass frame = provisional. */
+
+.about-awaiting {
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  text-align: center;
+  padding: 8px 14px 9px;
+  border: 1px dashed var(--brass-lo);
+}
+
+.about-awaiting-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+}
+
+.about-awaiting-body {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--parchment-ink-dim);
+}
+
+/* -- the ledger note --------------------------------------------------------------
+   The bio as a pasted specimen label: a recessed parchment card, legend band
+   ruled off, then the officer's own words — Lora, generous leading. */
+
+.about-note {
+  display: grid;
+  gap: 8px;
+  padding: 10px 16px 12px 18px;
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 22%);
+  box-shadow:
+    inset 0 1px 3px rgb(51 41 28 / 12%),
+    0 1px 2px rgb(51 41 28 / 10%);
+}
+
+.about-note-legend {
+  margin: 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgb(51 41 28 / 25%);
+}
+
+.about-bio {
+  margin: 0;
+  max-width: 72ch;
+  font-family: var(--font-content);
+  font-size: 0.9375rem;
+  line-height: 1.8; /* generous leading — the brief's explicit ask */
+  color: var(--parchment-ink);
+  overflow-wrap: anywhere;
+}
+
+/* -- section legends on the sheet ------------------------------------------------- */
+
+.about-legend {
+  margin: 2px 0 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgb(51 41 28 / 18%);
+}
+
+/* -- contact channels: brass plate-riveted rows -----------------------------------
+   Each channel is a riveted brass plate: engraved label + the host it opens
+   to, a phosphor lamp at the right rail that LITS on hover/focus (the
+   channel opens), screws standing proud at both ends. Real anchors. */
+
+.about-channel-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 4px 9px;
+  text-decoration: none;
+  color: var(--chrome-ground); /* engraved ink on brass */
+  background: linear-gradient(
+    180deg,
+    var(--brass-hi) 0%,
+    var(--brass) 58%,
+    color-mix(in srgb, var(--brass) 82%, var(--brass-lo)) 100%
+  );
+  border: 1px solid var(--brass-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 246 214 / 35%),
+    inset -1px -1px 0 rgb(0 0 0 / 22%),
+    1px 2px 5px rgb(51 41 28 / 24%);
+  transition:
+    translate var(--dur-fast) var(--ease-console),
+    box-shadow var(--dur-fast) var(--ease-console);
+}
+
+.about-link:hover {
+  translate: 0 -1px; /* the plate lifts on its rivets */
+  box-shadow:
+    inset 1px 1px 0 rgb(255 246 214 / 35%),
+    inset -1px -1px 0 rgb(0 0 0 / 22%),
+    1px 3px 7px rgb(51 41 28 / 32%);
+}
+
+/* The in-world focus ring: brass frame on parchment (via .parchment-surface),
+   riding inside the plate so the engraving stays readable. */
+.about-link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+/* Row screws stand proud of the plate (mid-height, both rails). */
+.about-rivet--row {
+  position: static;
+  flex: 0 0 auto;
+  width: 4px;
+  height: 4px;
+}
+
+.about-link-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgb(255 246 214 / 30%);
+}
+
+.about-link-domain {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 0 rgb(255 246 214 / 25%);
+}
+
+/* The channel lamp: dark in its seat until the channel opens (hover/focus). */
+.about-lamp {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--well-ground);
+  border: 1px solid rgb(0 0 0 / 55%);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+  opacity: 0.65;
+  transition: opacity var(--dur-fast) var(--ease-console);
+}
+
+.about-link:hover .about-lamp,
+.about-link:focus-visible .about-lamp {
+  opacity: 1;
+  background: radial-gradient(
+    circle at 50% 45%,
+    var(--phosphor-bright) 0 32%,
+    var(--phosphor) 58%,
+    var(--phosphor-dim) 78%,
+    transparent 85%
+  );
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    inset 0 0 4px var(--phosphor-glow); /* the glow stays inside the seat */
+}
+
+/* No channels (or an unfiled pack): the manifest states its emptiness. */
+.about-empty {
+  margin: 2px 0 0;
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.8125rem;
+  color: var(--parchment-ink-dim);
+}
+
+/* -- apparatus & pursuits: engraved chips ------------------------------------------ */
+
+.about-chip-groups {
+  display: grid;
+  gap: 10px;
+}
+
+.about-chip-group {
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+}
+
+.about-chip-legend {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 400;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink-dim);
+}
+
+.about-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about-chip {
+  padding: 2px 9px;
+  font-size: var(--size-legend);
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 25%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 35%);
+}
+
+/* -- the mission-log line, quiet at the foot ---------------------------------------- */
+
+.about-missionlog {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid rgb(51 41 28 / 18%);
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--parchment-ink-dim);
+}
+
+/* -- THIS CONSOLE: the colophon ------------------------------------------------------
+   The machine speaks last, on dark chrome: name + version (digits ride B612,
+   the fleet's version treatment), the built-with line, and the one sentence
+   that says the desktop is the exhibit. */
+
+.about-colophon {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 3px;
+  padding: 8px 16px 9px;
+  background: var(--chrome-raised);
+  border-top: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+}
+
+.about-colophon-legend {
+  margin: 0;
+}
+
+.about-colophon-line {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+}
+
+.about-colophon-version {
+  font-family: var(--font-mono); /* digits ride B612 (the measuring law) */
+  font-variant-numeric: tabular-nums;
+  color: var(--chrome-ink-dim);
+}
+
+.about-colophon-note {
+  margin: 0;
+  max-width: 72ch;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  line-height: 1.5;
+  color: var(--chrome-ink-dim);
+}

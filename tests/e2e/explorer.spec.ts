@@ -15,8 +15,9 @@ import { expect, test } from '@playwright/test'
  *    the back affordance returns through history.
  * 4. New Drawer / New Specimen via the explorer's context menu (the platform
  *    shell) appear in the drawer; an inline rename persists after reload.
- * 5. Opening the about module reference from inside the explorer soft-fails
- *    honestly while `about` is unregistered (no crash, no window).
+ * 5. Opening the about module reference from inside the explorer opens the
+ *    nameplate manifest window (AP-5 registered `about` — the route that
+ *    soft-failed until then).
  *
  * Selectors ride stable seams (data-* attributes / accessible names), never
  * CSS pixels — the two content right-clicks use a deliberately empty region
@@ -68,7 +69,10 @@ test('double-click a drawer opens the explorer at that drawer; one window per dr
 
   // Per-folder dedupe: stow the module, re-open the SAME drawer → the ONE
   // window restores (focus + un-minimize), never a second module.
-  await page.locator('.wm-window[data-app-id="explorer"]').getByRole('button', { name: 'Minimize' }).click()
+  await page
+    .locator('.wm-window[data-app-id="explorer"]')
+    .getByRole('button', { name: 'Minimize' })
+    .click()
   await expect(page.locator('.wm-window[data-app-id="explorer"]')).toBeHidden()
   await page.locator('[data-specimen-id="projects"]').dblclick()
   await expect(page.locator('.wm-window[data-app-id="explorer"]')).toBeVisible()
@@ -137,7 +141,7 @@ test('New Specimen via the drawer menu; inline rename persists after reload', as
   await expect(page.getByText('field-manual.txt').first()).toBeVisible()
 })
 
-test('the about module reference opens (soft-fail while about is unregistered)', async ({
+test('the about module reference opens the nameplate manifest (AP-5 registered it)', async ({
   page,
 }) => {
   await toDesktop(page)
@@ -149,8 +153,11 @@ test('the about module reference opens (soft-fail while about is unregistered)',
 
   await page.locator('[data-explorer-option="nameplate"]').dblclick()
 
-  // `about` is a reserved id no app registers yet (AP-5): openApp soft-fails —
-  // no crash, no new window, the drawer module carries on.
-  await expect(page.locator('.wm-window')).toHaveCount(1)
-  await expect(page.locator('[data-explorer-crumb="root"]')).toBeVisible()
+  // `about` was a reserved id with no registered app until AP-5: openApp
+  // soft-failed (no crash, no window). The nameplate module now opens the
+  // manifest for real — same unfreeze class as the drawers at AP-1.
+  await expect(page.locator('.wm-window[data-app-id="about"]')).toBeVisible()
+  await expect(page.locator('.wm-window')).toHaveCount(2) // this drawer + the manifest
+  await expect(page.locator('[data-about-name]')).toHaveText('Unassigned Officer')
+  await expect(page.locator('[data-explorer-crumb="root"]')).toBeVisible() // the drawer carries on
 })

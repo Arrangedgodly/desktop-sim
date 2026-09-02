@@ -11,8 +11,9 @@ import { expect, test, type Page } from '@playwright/test'
  *    placement persists (the archive remembers).
  * 2. Drag a specimen onto the Projects drawer → it files INSIDE (drawer-pull
  *    highlight mid-drag, icon leaves the field, parentId moves, persists).
- * 3. Double-click the about module reference → soft-fail (no explorer/about
- *    app registered yet) — no window, no crash, the desktop stays operable.
+ * 3. Double-click the about module reference → the nameplate manifest opens
+ *    (AP-5 registered it; the route soft-failed until then) — one window, no
+ *    crash, the desktop stays operable.
  * 4. THE FPS PROOF — a ~1s continuous icon drag while rAF frames are counted
  *    in-page via the TH-1 measureFps probe: ≥55fps average, no avalanche.
  *
@@ -152,18 +153,20 @@ test('dragging a specimen onto the Projects drawer files it inside — and it st
   expect(reloaded.nodes['charter']!.parentId).toBe('projects')
 })
 
-test('double-clicking the about module reference soft-fails: no window, no crash', async ({
+test('double-clicking the about module reference opens the nameplate (AP-5), desktop stays operable', async ({
   page,
 }) => {
   await toDesktop(page)
   await retireDocent(page)
 
-  // 'about' is not registered until AP-5 — the routing table still dispatches
-  // to it; openApp's contract soft-fail (warn + null, never a throw) is the
-  // correct behavior. No window appears and the desktop stays fully operable.
+  // 'about' was an unregistered reserved id until AP-5 — openApp's contract
+  // soft-fail (warn + null, never a throw) held the seat. The nameplate now
+  // opens the manifest window for real, and the desktop stays fully operable.
   await page.locator('[data-specimen-id="nameplate"]').dblclick()
 
-  await expect(page.locator('.wm-window')).toHaveCount(0)
+  await expect(page.locator('.wm-window[data-app-id="about"]')).toBeVisible()
+  await expect(page.locator('.wm-window')).toHaveCount(1)
+  await expect(page.locator('[data-about-name]')).toHaveText('Unassigned Officer')
   await expect(page.locator('[data-desktop-stage]')).toBeVisible()
 
   const projects = page.locator('[data-specimen-id="projects"]')
@@ -184,23 +187,25 @@ test('THE FPS PROOF — ~1s continuous icon drag holds ≥55fps average with no 
 
   // rAF counting starts in-page (TH-1 measureFps, interval-based) before the
   // pointer goes down, and outlives the drag so the average includes settle.
-  const sample = page.evaluate(async (): Promise<{
-    fps: number
-    frames: number
-    elapsedMs: number
-    longestDeltaMs: number
-  }> => {
-    const url = '/src/lib/perf/fps.ts' // page-context dev-server URL, not a TS module
-    const { measureFps } = (await import(url)) as {
-      measureFps: (durationMs: number) => Promise<{
-        fps: number
-        frames: number
-        elapsedMs: number
-        longestDeltaMs: number
-      }>
-    }
-    return measureFps(1600)
-  })
+  const sample = page.evaluate(
+    async (): Promise<{
+      fps: number
+      frames: number
+      elapsedMs: number
+      longestDeltaMs: number
+    }> => {
+      const url = '/src/lib/perf/fps.ts' // page-context dev-server URL, not a TS module
+      const { measureFps } = (await import(url)) as {
+        measureFps: (durationMs: number) => Promise<{
+          fps: number
+          frames: number
+          elapsedMs: number
+          longestDeltaMs: number
+        }>
+      }
+      return measureFps(1600)
+    },
+  )
 
   await page.mouse.move(grabX, grabY)
   await page.mouse.down()
