@@ -78,6 +78,9 @@
   position: relative;
   flex: 1 1 auto;
   min-width: 0;
+  /* The entry's children are all absolutely positioned (the mirror + the
+     input), so the box needs its own floor or it collapses to zero height. */
+  min-height: 1.6em;
 }
 
 /* The invisible mirror: its text sizes the entry exactly like the input's
