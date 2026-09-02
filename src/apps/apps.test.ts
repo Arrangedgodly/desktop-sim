@@ -26,10 +26,13 @@ import { apps } from './index'
  * reads "reserved ⊆ fleet" because a federated id is legitimate), every
  * mount still retryableLazy, and the order is still pinned — the notepad
  * keeps the launcher's opening run, the console keeps the closing one.
+ *
+ * FEDERATED FLEET (session 2): `paint` joined the closing run the same way,
+ * between the terminal and the console. Same intent, same laws.
  */
 
 describe('TH-2 · the shipped app fleet', () => {
-  it('registers the reserved platform apps plus the catalog terminal, in the stable order', () => {
+  it('registers the reserved platform apps plus the catalog terminal and plate painter, in the stable order', () => {
     expect(apps.map((app) => app.id)).toEqual([
       'notepad',
       'image-viewer',
@@ -37,16 +40,17 @@ describe('TH-2 · the shipped app fleet', () => {
       'about',
       'browser',
       'terminal',
+      'paint',
       'settings',
     ])
-    // Every reserved id still ships — no squatters, no gaps. The terminal is
-    // the one legitimate non-reserved id (a federated app, registered the
-    // standard way; the reserved set itself is untouched).
+    // Every reserved id still ships — no squatters, no gaps. The terminal and
+    // the painter are the two legitimate non-reserved ids (federated apps,
+    // registered the standard way; the reserved set itself is untouched).
     const fleetIds = apps.map((a) => a.id)
     for (const reserved of RESERVED_APP_IDS) {
       expect(fleetIds, reserved).toContain(reserved)
     }
-    expect(fleetIds.filter((id) => !RESERVED_APP_IDS.includes(id))).toEqual(['terminal'])
+    expect(fleetIds.filter((id) => !RESERVED_APP_IDS.includes(id))).toEqual(['terminal', 'paint'])
   })
 
   it('does NOT ship the demo module — it is a test-only fixture now', () => {

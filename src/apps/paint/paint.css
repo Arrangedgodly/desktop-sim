@@ -1,0 +1,687 @@
+/* ----------------------------------------------------------------------------
+   Paint styles — federated session 2 (The Survey Archive). App-owned,
+   app-scoped (.paint-*), consuming src/styles/tokens.css + global primitives
+   — no custom properties defined here, NO RAW HEX anywhere (the repo's
+   grep-tested token law).
+
+   World law this sheet obeys (design-brief.md + DESIGN.md):
+   · THE DUALITY, drawing side — console-chrome toolbars over the PARCHMENT
+     plate; the plate is a working specimen plate (ink on parchment), never
+     a display well — there is NO phosphor and NO glow inside the artwork;
+   · brass ONLY at hardware touchpoints — the selected pigment's frame (the
+     rack-handle grasp) and the parchment-side focus ring;
+   · oxide ONLY on the destructive Clear control (two-step, guarded);
+   · digits ride B612 Mono (the Measuring Law) — the accession well and the
+     size readout; legends are engraved Chakra Petch caps;
+   · ONE authored moment: the close-guard interposition (the strip rises
+     while the lamp flares — the notepad's exact moment); everything else
+     holds still; sharp corners everywhere (the Machined Edge Rule).
+---------------------------------------------------------------------------- */
+
+.paint {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* -- toolbars (console chrome) ----------------------------------------------- */
+
+.paint-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 5px 8px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.paint-toolbar--studio {
+  gap: 12px;
+  overflow-x: auto; /* narrow windows scroll the studio row, never wrap it */
+}
+
+/* The engraved plate label (read-only: naming happens once, at first save). */
+.paint-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+/* The label-edit state: a field on the chrome, the save flow's seat. */
+.paint-name-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3px 6px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  text-align: left;
+  line-height: 1.35;
+  color: var(--chrome-ink);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 70%);
+  background: var(--chrome-sunken);
+  border: 1px solid var(--brass);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 55%);
+  caret-color: var(--phosphor);
+}
+
+.paint-name-field::selection {
+  background: rgb(255 179 64 / 32%); /* the console's amber wash */
+}
+
+.paint-name-field:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 0;
+}
+
+@keyframes paint-name-reject {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -6px 0;
+  }
+  55% {
+    translate: 5px 0;
+  }
+  80% {
+    translate: -3px 0;
+  }
+}
+
+.paint-name-field[data-rename-rejected='true'] {
+  animation: paint-name-reject 0.32s var(--ease-console);
+}
+
+/* The accession readout + the size readout: digits ride B612 in wells. */
+.paint-accession {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  font-size: var(--size-legend);
+  white-space: nowrap;
+}
+
+/* The dirty lamp: a miniature recessed well — lit = un-filed work. The glow
+   NEVER leaves the seat (phosphor's law). */
+.paint-lamp {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--well-ground);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+  background-image: radial-gradient(circle at 50% 45%, var(--phosphor-dim) 0 22%, transparent 60%);
+  opacity: 0.55;
+}
+
+.paint-lamp[data-lit='true'] {
+  opacity: 1;
+  background-image: radial-gradient(
+    circle at 50% 45%,
+    var(--phosphor) 0 34%,
+    var(--phosphor-dim) 60%,
+    transparent 75%
+  );
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    inset 0 0 5px var(--phosphor-glow);
+}
+
+.paint-lamp[data-flare='true'] {
+  background-image: radial-gradient(
+    circle at 50% 45%,
+    var(--phosphor-bright) 0 40%,
+    var(--phosphor) 62%,
+    transparent 78%
+  );
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    inset 0 0 7px var(--phosphor-glow);
+}
+
+@keyframes paint-lamp-flare {
+  0%,
+  100% {
+    box-shadow:
+      inset 1px 1px 0 rgb(0 0 0 / 60%),
+      inset -1px -1px 0 var(--chrome-edge-hi),
+      inset 0 0 7px var(--phosphor-glow);
+  }
+  50% {
+    box-shadow:
+      inset 1px 1px 0 rgb(0 0 0 / 60%),
+      inset -1px -1px 0 var(--chrome-edge-hi),
+      inset 0 0 11px var(--phosphor-glow),
+      0 0 6px var(--phosphor-glow);
+  }
+}
+
+.paint-lamp[data-flare='true'] {
+  animation: paint-lamp-flare var(--dur-beat) var(--ease-console) 2;
+}
+
+.paint-actions,
+.paint-edits {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+/* -- control plates (26×22 min hardware, text-bearing where labeled) --------- */
+
+.paint-control,
+.paint-tool {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.paint-control:hover:not(:disabled),
+.paint-tool:hover:not(:disabled) {
+  background: var(--chrome-ground);
+}
+
+.paint-control:active:not(:disabled),
+.paint-tool:active:not(:disabled) {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.paint-control:disabled {
+  color: var(--chrome-ink-dim);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.paint-control:focus-visible,
+.paint-tool:focus-visible,
+.paint-swatch:focus-visible,
+.paint-mix-input:focus-visible,
+.paint-picker-row:focus-visible,
+.paint-removed-close:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.paint-control--glyph {
+  min-width: 26px;
+  padding: 2px 8px;
+  font-family: var(--font-mono); /* − and + are readout glyphs */
+}
+
+.paint-control--save {
+  color: var(--chrome-ground);
+  background: var(--brass); /* the primary brass action — hardware you press */
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--brass-hi),
+    inset -1px -1px 0 var(--brass-lo);
+}
+
+.paint-control--save:hover:not(:disabled) {
+  background: var(--brass-hi);
+}
+
+.paint-control--save:disabled {
+  color: var(--chrome-ink-dim);
+  background: var(--chrome-raised);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  opacity: 0.5;
+}
+
+/* The engaged tool: pressed INTO the plate with LIT legend ink (the platform's
+   density-toggle precedent) — lit color, never a glow outside a well. */
+.paint-tool[data-active='true'] {
+  color: var(--phosphor);
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+/* The destructive Clear — oxide only here, two-step armed state. */
+.paint-control--clear {
+  color: var(--chrome-ink);
+}
+
+.paint-control--clear[data-armed='true'] {
+  color: var(--parchment); /* light ink on the deep oxide base (the law) */
+  background: var(--oxide-deep);
+  border: 1px solid var(--oxide);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 220 200 / 14%),
+    inset -1px -1px 0 rgb(0 0 0 / 40%);
+}
+
+.paint-control--clear[data-armed='true']:hover {
+  border-color: var(--oxide-bright); /* engagement lights the border, never the surface */
+}
+
+/* -- the size stepper ---------------------------------------------------------- */
+
+.paint-size {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.paint-size-readout {
+  min-width: 4ch;
+  padding: 3px 8px;
+  text-align: center;
+  font-size: var(--size-legend);
+}
+
+/* -- the pigment palette -------------------------------------------------------- */
+
+.paint-palette {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  background: var(--chrome-sunken);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+}
+
+.paint-swatch {
+  display: block;
+  padding: 2px;
+  background: transparent;
+  border: 1px solid var(--chrome-edge-lo);
+  cursor: pointer;
+}
+
+/* The selected pigment wears the rack-handle grasp: a brass frame. */
+.paint-swatch[data-selected='true'] {
+  border-color: var(--brass);
+  box-shadow:
+    inset 0 0 0 1px var(--brass-hi),
+    0 0 0 1px var(--brass-lo);
+}
+
+.paint-swatch-pigment {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.paint-mix {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  margin-left: 2px;
+}
+
+.paint-mix-legend {
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+}
+
+.paint-mix-input {
+  box-sizing: border-box;
+  width: 26px;
+  height: 20px;
+  padding: 1px 2px;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+/* -- content (THE parchment plate) -----------------------------------------------
+   The studio's bench: parchment ground, the plate centered upon it, a
+   marginal note beneath (the cap, stated in-world). The plate itself is
+   canvas — pigment on parchment, no glow, no well. */
+
+.paint-content {
+  position: relative; /* anchors the picker panel + the guard strip */
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  padding: 12px;
+}
+
+.paint-platewrap {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 0;
+}
+
+.paint-plate {
+  display: block;
+  max-width: min(100%, 960px);
+  max-height: min(100%, 600px); /* aspect-fit; pointer math normalizes */
+  background: var(--parchment);
+  border: 1px solid rgb(51 41 28 / 22%);
+  box-shadow: 3px 4px 12px rgb(51 41 28 / 38%); /* a plate lying on the mat */
+  touch-action: none; /* the pointer draws; the page never scrolls under it */
+  cursor: crosshair;
+}
+
+.paint-plate:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass frame on parchment */
+  outline-offset: 2px;
+}
+
+.paint-plate-note {
+  flex: 0 0 auto;
+  margin: 0;
+  font-family: var(--font-content); /* a marginal note, in the reading voice */
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--parchment-ink-dim);
+}
+
+/* -- the open picker (a recessed console panel over the bench) ------------------- */
+
+.paint-picker {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: min(320px, calc(100% - 28px));
+  max-height: 70%;
+  background: var(--chrome-sunken);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    2px 3px 12px rgb(0 0 0 / 45%);
+  color: var(--chrome-ink);
+}
+
+.paint-picker-head {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 7px 10px 5px;
+  border-bottom: 1px solid var(--chrome-edge-lo);
+}
+
+.paint-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.paint-picker-row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 6px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.paint-picker-row:hover,
+.paint-picker-row:focus-visible {
+  background: var(--chrome-raised); /* the press: the row sinks into the panel */
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 55%);
+}
+
+.paint-picker-accession {
+  font-family: var(--font-mono); /* accession codes are readouts — B612 */
+  font-size: var(--size-legend);
+  color: var(--chrome-ink-dim);
+}
+
+.paint-picker-row:hover .paint-picker-accession,
+.paint-picker-row:focus-visible .paint-picker-accession {
+  color: var(--chrome-ink);
+}
+
+.paint-picker-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+}
+
+.paint-picker-empty {
+  margin: 0;
+  padding: 10px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  color: var(--chrome-ink-dim);
+}
+
+/* -- the close guard strip (the ONE authored moment, with the lamp flare) ---------- */
+
+@keyframes paint-strip-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.paint-strip {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  background: var(--chrome-raised);
+  border-top: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    0 -2px 8px rgb(0 0 0 / 35%);
+  color: var(--chrome-ink);
+  animation: paint-strip-rise var(--dur-beat) var(--ease-console);
+}
+
+.paint-strip-title {
+  flex: 0 0 auto;
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--oxide-bright); /* the warning reads on chrome (5.2:1) */
+  text-shadow: 0 1px 0 rgb(0 0 0 / 70%);
+}
+
+.paint-strip-body {
+  flex: 1 1 16ch;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  color: var(--chrome-ink-dim);
+}
+
+.paint-strip-actions {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.paint-strip-keep,
+.paint-strip-discard {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.paint-strip-keep {
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+}
+
+.paint-strip-keep:hover {
+  background: var(--chrome-ground);
+}
+
+.paint-strip-keep:focus-visible,
+.paint-strip-discard:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.paint-strip-discard {
+  color: var(--parchment); /* light ink on the deep oxide base (the law) */
+  background: var(--oxide-deep);
+  border: 1px solid var(--oxide);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 255 255 / 14%),
+    inset -1px -1px 0 rgb(0 0 0 / 40%);
+}
+
+.paint-strip-discard:hover {
+  border-color: var(--oxide-bright); /* engagement lights the border */
+}
+
+/* -- notices (removed plate, bay unavailable) --------------------------------------
+   Parchment-side notices in the reading voice; close is the only action. */
+
+.paint-bay,
+.paint-removed {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+  margin: auto;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.paint-bay-title,
+.paint-removed-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+}
+
+.paint-bay-hint,
+.paint-removed-hint {
+  max-width: 34ch;
+  margin: 0 0 10px;
+  font-family: var(--font-content);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--parchment-ink-dim);
+}
+
+.paint-removed-glyph {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 8px;
+  color: var(--parchment-ink-dim);
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 18%);
+  box-shadow: inset 0 1px 3px rgb(51 41 28 / 14%);
+}
+
+.paint-removed-close {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.paint-removed-close:hover {
+  background: var(--chrome-ground);
+}
+
+/* -- assistive mirror of the lamp (the lamp itself is decorative) ----------------- */
+
+.paint-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

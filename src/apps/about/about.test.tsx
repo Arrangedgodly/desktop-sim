@@ -133,7 +133,11 @@ describe('AP-5 · registration manifest', () => {
     // run between the atlas and the console (its sanctioned slot) — the ends
     // (notepad first, settings last) stay stable, and the atlas no longer
     // rides directly ahead of the console.
-    expect(ids.indexOf('terminal')).toBe(ids.indexOf('settings') - 1)
+    // FEDERATED UNFREEZE (session 2): the plate painter joined the closing
+    // run between the terminal and the console — same law, same ends; the
+    // terminal no longer rides directly ahead of the console.
+    expect(ids.indexOf('paint')).toBe(ids.indexOf('settings') - 1)
+    expect(ids.indexOf('terminal')).toBe(ids.indexOf('paint') - 1)
     expect(ids.indexOf('browser')).toBe(ids.indexOf('terminal') - 1)
   })
 })

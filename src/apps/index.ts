@@ -5,6 +5,7 @@ import { viewerApp } from './image-viewer'
 import { aboutApp } from './about'
 import { browserApp } from './browser'
 import { terminalApp } from './terminal'
+import { paintApp } from './paint'
 import { settingsApp } from './settings'
 
 /**
@@ -45,6 +46,13 @@ import { settingsApp } from './settings'
  * standard way. It declares no file types (it is a shell OVER the archive,
  * not a specimen handler), so its position is free by the same law; it rides
  * immediately before the console to keep the closing run intact.
+ *
+ * FEDERATED FLEET (session 2): paint/ joins it the same way — the Plate
+ * Painter. It DECLARES acceptedFileTypes: ['image'] as intent, but the
+ * declaration is routing-inert (the viewer registered first and owns the
+ * image route); opening plates into the painter happens through its own
+ * picker or an explicit file launch. It rides between the terminal and the
+ * console — the opening run (notepad) and the closing run (console) stay put.
  */
 export const apps: readonly AppManifest[] = [
   notepadApp,
@@ -53,5 +61,6 @@ export const apps: readonly AppManifest[] = [
   aboutApp,
   browserApp,
   terminalApp,
+  paintApp,
   settingsApp,
 ]

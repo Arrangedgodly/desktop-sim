@@ -121,6 +121,7 @@ guarded step (Delete) steps back on Esc before closing.
 | Settings | arrows move the wallpaper radiogroup, `Space` throws switches |
 | Explorer | arrows walk the specimen listbox, Enter opens |
 | Catalog terminal | `Enter` commits the command line, `↑` / `↓` walk command history, `Tab` completes sibling names, `Esc` clears the current line (the terminal's first claim on Esc) |
+| Plate painter | `Ctrl/Cmd+S` accessions (name offered on first save), `B` / `E` / `F` pick brush/eraser/fill, `[` / `]` step the brush size, `Ctrl/Cmd+Z` undo (20-stroke ring), `Esc` disarms a confirmed Clear, closes the picker, or guards un-filed plate work (Keep painting / Discard) before closing |
 
 ## Laws
 
