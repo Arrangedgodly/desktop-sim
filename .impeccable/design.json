@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-02T13:20:17Z",
+  "generatedAt": "2026-09-02T14:46:25Z",
   "title": "Design System: HOLD/OS — The Survey Archive",
   "extensions": {
     "colorMeta": {
@@ -9,397 +9,167 @@
         "displayName": "Amber Phosphor",
         "canonical": "#ffb340",
         "oklch": "oklch(82.0% 0.152 73.2)",
-        "purpose": "Lit well text, status lamps, the caret. Glows only inside a recessed well.",
-        "tonalRamp": [
-          "#2b0000",
-          "#4d0600",
-          "#6f2c00",
-          "#934e00",
-          "#b87000",
-          "#dd9306",
-          "#ffb846",
-          "#ffde70"
-        ]
+        "purpose": "Lit well text, status lamps, the caret. Glows only inside a recessed well."
       },
       "phosphor-bright": {
         "role": "primary",
         "displayName": "Hot Amber",
         "canonical": "#ffd28a",
         "oklch": "oklch(88.7% 0.103 78.6)",
-        "purpose": "The fresh POST line, the caret, lamp flares, editable-label hover.",
-        "tonalRamp": [
-          "#200000",
-          "#3f1a00",
-          "#5f3900",
-          "#805900",
-          "#a47a31",
-          "#c89d56",
-          "#eec17a",
-          "#ffe79e"
-        ]
+        "purpose": "The fresh POST line, the caret, lamp flares, editable-label hover."
       },
       "phosphor-dim": {
         "role": "primary",
         "displayName": "Aged Amber",
         "canonical": "#b97e24",
         "oklch": "oklch(63.9% 0.124 72.5)",
-        "purpose": "Secondary well text, scan shading, stowed-module lamps.",
-        "tonalRamp": [
-          "#260000",
-          "#461200",
-          "#683200",
-          "#8b5300",
-          "#af7415",
-          "#d49843",
-          "#fabc69",
-          "#ffe18e"
-        ]
+        "purpose": "Secondary well text, scan shading, stowed-module lamps."
       },
       "phosphor-glow": {
         "role": "primary",
         "displayName": "Phosphor Glow",
         "canonical": "rgb(255 179 64 / 50%)",
         "oklch": "oklch(82.0% 0.152 73.2)",
-        "purpose": "Shadow color of the tube bloom — text-shadow/box-shadow only, never a background.",
-        "tonalRamp": [
-          "#2b0000",
-          "#4d0600",
-          "#6f2c00",
-          "#934e00",
-          "#b87000",
-          "#dd9306",
-          "#ffb846",
-          "#ffde70"
-        ]
+        "purpose": "Shadow color of the tube bloom — text-shadow/box-shadow only, never a background."
       },
       "well-ground": {
         "role": "primary",
         "displayName": "Well Ground",
         "canonical": "#120d07",
         "oklch": "oklch(16.3% 0.015 73.0)",
-        "purpose": "Display-well interior; the deepest value in the world.",
-        "tonalRamp": [
-          "#0f0a05",
-          "#2a241d",
-          "#474139",
-          "#676058",
-          "#888179",
-          "#aba49b",
-          "#cfc8bf",
-          "#f5ede4"
-        ]
+        "purpose": "Display-well interior; the deepest value in the world."
       },
       "brass": {
         "role": "secondary",
         "displayName": "Brass",
         "canonical": "#b08d3f",
         "oklch": "oklch(66.1% 0.105 84.9)",
-        "purpose": "Hardware touchpoints: the drawer pull, switch bats, label frames, rivets.",
-        "tonalRamp": [
-          "#1e0200",
-          "#3c1d00",
-          "#5b3b00",
-          "#7c5b00",
-          "#9f7d2d",
-          "#c3a052",
-          "#e9c477",
-          "#ffea9b"
-        ]
+        "purpose": "Hardware touchpoints: the drawer pull, switch bats, label frames, rivets."
       },
       "brass-hi": {
         "role": "secondary",
         "displayName": "Polished Brass",
         "canonical": "#d8b25e",
         "oklch": "oklch(78.0% 0.112 85.3)",
-        "purpose": "Catch-light on brass hardware: upper bevel lips, lit brackets, brass hover.",
-        "tonalRamp": [
-          "#1f0100",
-          "#3d1c00",
-          "#5c3b00",
-          "#7e5b00",
-          "#a17c22",
-          "#c59f4b",
-          "#eac470",
-          "#ffe995"
-        ]
+        "purpose": "Catch-light on brass hardware: upper bevel lips, lit brackets, brass hover."
       },
       "brass-lo": {
         "role": "secondary",
         "displayName": "Brass in Shadow",
         "canonical": "#6b5524",
         "oklch": "oklch(46.1% 0.072 84.9)",
-        "purpose": "Brass bevel shadow, label frames on parchment, the parchment focus ring.",
-        "tonalRamp": [
-          "#180600",
-          "#352100",
-          "#543e09",
-          "#745e2d",
-          "#967f4e",
-          "#baa270",
-          "#dfc693",
-          "#ffecb7"
-        ]
+        "purpose": "Brass bevel shadow, label frames on parchment, the parchment focus ring."
       },
       "oxide": {
         "role": "tertiary",
         "displayName": "Oxide Red",
         "canonical": "#a63d2a",
         "oklch": "oklch(50.4% 0.143 32.4)",
-        "purpose": "Guarded covers and destructive surfaces. Never decoration.",
-        "tonalRamp": [
-          "#320000",
-          "#570000",
-          "#7c1200",
-          "#a23a27",
-          "#c95d48",
-          "#f1806a",
-          "#ffa58d",
-          "#ffcab1"
-        ]
+        "purpose": "Guarded covers and destructive surfaces. Never decoration."
       },
       "oxide-deep": {
         "role": "tertiary",
         "displayName": "Deep Oxide",
         "canonical": "#7c2b1c",
         "oklch": "oklch(40.7% 0.116 32.6)",
-        "purpose": "Oxide bevel shadow; the base of destructive commit surfaces.",
-        "tonalRamp": [
-          "#2c0000",
-          "#4f0000",
-          "#732314",
-          "#984434",
-          "#bd6654",
-          "#e48976",
-          "#ffad99",
-          "#ffd2bd"
-        ]
+        "purpose": "Oxide bevel shadow; the base of destructive commit surfaces."
       },
       "oxide-bright": {
         "role": "tertiary",
         "displayName": "Bright Oxide",
         "canonical": "#e06a4f",
         "oklch": "oklch(66.1% 0.154 34.2)",
-        "purpose": "Destructive/warning text on dark chrome (5.2:1).",
-        "tonalRamp": [
-          "#350000",
-          "#5a0000",
-          "#800700",
-          "#a6351b",
-          "#cd593f",
-          "#f57d61",
-          "#ffa284",
-          "#ffc7a9"
-        ]
+        "purpose": "Destructive/warning text on dark chrome (5.2:1)."
       },
       "chrome-ground": {
         "role": "neutral",
         "displayName": "Warm Near-Black Ground",
         "canonical": "#201a13",
         "oklch": "oklch(22.3% 0.016 71.2)",
-        "purpose": "Module bodies and the page ground — the warm near-black hold.",
-        "tonalRamp": [
-          "#0f0a05",
-          "#2a241d",
-          "#484139",
-          "#676057",
-          "#898178",
-          "#aca49a",
-          "#d0c8be",
-          "#f6ede3"
-        ]
+        "purpose": "Module bodies and the page ground — the warm near-black hold."
       },
       "chrome-raised": {
         "role": "neutral",
         "displayName": "Raised Chrome",
         "canonical": "#2b241a",
         "oklch": "oklch(26.5% 0.021 76.5)",
-        "purpose": "Title bars, toolbars, control plates, the taskbar rail.",
-        "tonalRamp": [
-          "#100a03",
-          "#2b241a",
-          "#484136",
-          "#686054",
-          "#8a8175",
-          "#ada497",
-          "#d1c8bb",
-          "#f7ede0"
-        ]
+        "purpose": "Title bars, toolbars, control plates, the taskbar rail."
       },
       "chrome-sunken": {
         "role": "neutral",
         "displayName": "Sunken Chrome",
         "canonical": "#171209",
         "oklch": "oklch(18.5% 0.019 81.8)",
-        "purpose": "Pressed insets, rail grooves, recessed bays.",
-        "tonalRamp": [
-          "#0f0a04",
-          "#2a241b",
-          "#474137",
-          "#676055",
-          "#888176",
-          "#aba498",
-          "#cfc8bc",
-          "#f5eee1"
-        ]
+        "purpose": "Pressed insets, rail grooves, recessed bays."
       },
       "chrome-edge-hi": {
         "role": "neutral",
         "displayName": "Bevel Light Lip",
         "canonical": "#514433",
         "oklch": "oklch(39.5% 0.032 74.1)",
-        "purpose": "The 1px light edge on every raised or cut surface.",
-        "tonalRamp": [
-          "#130900",
-          "#2e2313",
-          "#4c402f",
-          "#6d5f4d",
-          "#8e806d",
-          "#b2a28f",
-          "#d6c7b3",
-          "#fcecd7"
-        ]
+        "purpose": "The 1px light edge on every raised or cut surface."
       },
       "chrome-edge-lo": {
         "role": "neutral",
         "displayName": "Bevel Dark Lip",
         "canonical": "#0c0906",
         "oklch": "oklch(14.2% 0.009 71.6)",
-        "purpose": "The 1px dark edge and border of every bevel.",
-        "tonalRamp": [
-          "#0e0b07",
-          "#282420",
-          "#45413d",
-          "#65605c",
-          "#86817c",
-          "#a9a49f",
-          "#cdc8c3",
-          "#f2eee8"
-        ]
+        "purpose": "The 1px dark edge and border of every bevel."
       },
       "chrome-ink": {
         "role": "neutral",
         "displayName": "Painted Chrome Ink",
         "canonical": "#e6dcc6",
         "oklch": "oklch(89.7% 0.031 86.5)",
-        "purpose": "Primary chrome text — title bars, controls.",
-        "tonalRamp": [
-          "#110a00",
-          "#2c2413",
-          "#49412f",
-          "#69604d",
-          "#8b816d",
-          "#aea48f",
-          "#d2c8b3",
-          "#f8eed7"
-        ]
+        "purpose": "Primary chrome text — title bars, controls."
       },
       "chrome-ink-dim": {
         "role": "neutral",
         "displayName": "Dim Chrome Ink",
         "canonical": "#a3937a",
         "oklch": "oklch(67.1% 0.040 78.9)",
-        "purpose": "Secondary chrome text — hints, disabled, version chips. Dims, never grays.",
-        "tonalRamp": [
-          "#140800",
-          "#30230c",
-          "#4e4029",
-          "#6e5f47",
-          "#908067",
-          "#b3a389",
-          "#d8c7ac",
-          "#fdecd1"
-        ]
+        "purpose": "Secondary chrome text — hints, disabled, version chips. Dims, never grays."
       },
       "engraved-ink": {
         "role": "neutral",
         "displayName": "Engraved Ink",
         "canonical": "#c7b590",
         "oklch": "oklch(77.9% 0.054 85.0)",
-        "purpose": "Etched legend ink — menu rows, names, toolbar legends.",
-        "tonalRamp": [
-          "#150800",
-          "#312200",
-          "#4f401e",
-          "#6f5f3d",
-          "#91805d",
-          "#b5a37f",
-          "#d9c7a2",
-          "#ffecc6"
-        ]
+        "purpose": "Etched legend ink — menu rows, names, toolbar legends."
       },
       "parchment": {
         "role": "neutral",
         "displayName": "Parchment",
         "canonical": "#ece2c9",
         "oklch": "oklch(91.4% 0.035 88.8)",
-        "purpose": "Content surfaces: catalog labels, notepad sheets, exhibits, cards.",
-        "tonalRamp": [
-          "#110a00",
-          "#2c2410",
-          "#49412c",
-          "#69604b",
-          "#8b826b",
-          "#aea48d",
-          "#d2c8b0",
-          "#f8eed5"
-        ]
+        "purpose": "Content surfaces: catalog labels, notepad sheets, exhibits, cards."
       },
       "parchment-shade": {
         "role": "neutral",
         "displayName": "Parchment Shade",
         "canonical": "#e0d3b4",
         "oklch": "oklch(86.9% 0.044 88.0)",
-        "purpose": "Recessed parchment: card fields, zebra ledger rows, glyph seats.",
-        "tonalRamp": [
-          "#130900",
-          "#2e2409",
-          "#4c4126",
-          "#6c6044",
-          "#8d8165",
-          "#b0a486",
-          "#d5c8a9",
-          "#fbedce"
-        ]
+        "purpose": "Recessed parchment: card fields, zebra ledger rows, glyph seats."
       },
       "parchment-ink": {
         "role": "neutral",
         "displayName": "Parchment Ink",
         "canonical": "#33291c",
         "oklch": "oklch(28.8% 0.027 73.7)",
-        "purpose": "Primary text on parchment.",
-        "tonalRamp": [
-          "#120901",
-          "#2d2316",
-          "#4b4032",
-          "#6b5f51",
-          "#8c8071",
-          "#afa393",
-          "#d4c7b7",
-          "#faecdb"
-        ]
+        "purpose": "Primary text on parchment."
       },
       "parchment-ink-dim": {
         "role": "neutral",
         "displayName": "Dim Parchment Ink",
         "canonical": "#65573f",
         "oklch": "oklch(46.4% 0.041 80.8)",
-        "purpose": "Secondary text on parchment: accessions, hints, italic notes.",
-        "tonalRamp": [
-          "#140900",
-          "#2f230c",
-          "#4d4029",
-          "#6d5f47",
-          "#8f8067",
-          "#b2a389",
-          "#d7c7ac",
-          "#fdecd0"
-        ]
+        "purpose": "Secondary text on parchment: accessions, hints, italic notes."
       }
     },
     "typographyMeta": {
       "label": {
         "displayName": "Engraved Legend",
-        "purpose": "Tracked uppercase Chakra Petch legends cut into chrome plates — title bars, menus, controls, catalog names. 11px floor, tracking band 0.08–0.12em."
+        "purpose": "Tracked uppercase Chakra Petch legends cut into chrome plates — title bars, menus, controls, catalog names. 11px floor, 14px off-ramp ceiling (a full plate's one title engraving excepted), tracking band 0.08–0.12em. On chrome, hierarchy rides ink families (painted/engraved/dim), not size — flat 11–16px painted type is instrument character by law (refinement #4)."
       },
       "content": {
         "displayName": "Reading Serif",
@@ -418,8 +188,8 @@
       },
       {
         "name": "bevel-recessed",
-        "value": "inset 1px 1px 0 rgb(0 0 0 / 60%), inset -1px -1px 0 var(--chrome-edge-hi)",
-        "purpose": "Recessed seat — LED channels, icon plates, menu panels, bays."
+        "value": "inset 1px 1px 0 rgb(0 0 0 / 60%), inset -1px -1px 0 var(--chrome-edge-hi); shallow plate-inset form: inset 1px 1px 0 rgb(0 0 0 / 25%)",
+        "purpose": "Recessed seat — LED channels, icon plates, menu panels, bays. The shallow 25% form seats a title plate or app toolbar inside its module."
       },
       {
         "name": "bevel-pressed",
@@ -428,8 +198,8 @@
       },
       {
         "name": "module-lift",
-        "value": "2px 3px 12px rgb(0 0 0 / 45%)",
-        "purpose": "The one ground shadow under a window module or launcher panel."
+        "value": "2px 3px 12px rgb(0 0 0 / 45%); shallow pinned-plate form: 0 1px 3px rgb(0 0 0 / 40%)",
+        "purpose": "The one ground shadow under a window module or launcher panel; the pinned specimen's glyph plate rides the shallow 1px/40% form (its hover shade is the --hold-shade wash, not a shadow)."
       },
       {
         "name": "display-well",
@@ -438,8 +208,8 @@
       },
       {
         "name": "parchment-relief",
-        "value": "inset 0 1px 0 rgb(255 255 255 / 35%), inset 0 2px 4px rgb(51 41 28 / 12%)",
-        "purpose": "Cards and mats on parchment — warm ink shadows, never black."
+        "value": "inset 0 1px 0 rgb(255 255 255 / 35%), inset 0 1px 0 rgb(255 255 255 / 40%), inset 0 1px 0 rgb(255 255 255 / 45%), inset 0 2px 4px rgb(51 41 28 / 12%)",
+        "purpose": "Cards and mats on parchment — warm ink shadows, never black. The white catch runs 35–45% as-built (35% reliefs; 40–45% where the catch meets an edge); paper sheens ride the --parchment-sheen token (12% white wash)."
       },
       {
         "name": "plate-on-mat",
@@ -448,8 +218,8 @@
       },
       {
         "name": "engraved-cut",
-        "value": "text-shadow 0 1px 0 rgb(0 0 0 / 70%), 0 2px 0 rgb(255 230 176 / 12%)",
-        "purpose": "The engraved legend: dark cut tucked under the stroke, light lip below (reversed on parchment: 0 1px 0 rgb(255 255 255 / 45%))."
+        "value": "0 1px 0 rgb(0 0 0 / 70%), 0 2px 0 rgb(255 230 176 / 12%); on parchment 0 1px 0 rgb(255 255 255 / 40%) or 0 1px 0 rgb(255 255 255 / 45%); on brass 0 1px 0 rgb(255 246 214 / 25%) or 0 1px 0 rgb(255 246 214 / 30%) or 0 1px 0 rgb(255 246 214 / 35%) or the pull's 0 1px 0 rgb(255 230 176 / 25%); on oxide 0 1px 0 rgb(255 220 200 / 20%) or 0 1px 0 rgb(255 220 200 / 25%) or 0 1px 0 rgb(255 220 200 / 32%)",
+        "purpose": "The engraved legend's cut, per substrate (refinement #4, as-built): chrome — dark cut under the stroke, warm lip below; parchment — reversed, 40–45%; brass — warm lip 25–35%, deeper for the principal engraving; oxide — peach lip 20–32% toward the substrate."
       }
     ],
     "motion": [
@@ -533,7 +303,7 @@
       "refersTo": "well-readout",
       "description": "The signature surface: amber lives only here — recessed seat, tube bloom, B612 mono digits, scanlines.",
       "html": "<div class=\"ds-well\"><span class=\"ds-well-digits\">SPC-0047</span><span class=\"ds-scanlines\" aria-hidden=\"true\"></span></div>",
-      "css": ".ds-well { position: relative; overflow: hidden; display: inline-grid; place-items: center; min-width: 96px; height: 28px; padding: 0 12px; font-family: 'B612 Mono', ui-monospace, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; font-size: 13px; letter-spacing: 0.08em; color: var(--phosphor); text-shadow: 0 0 6px var(--phosphor-glow); background: radial-gradient(140% 100% at 50% 30%, rgb(255 179 64 / 6%), transparent 68%), var(--well-ground); border: 1px solid var(--chrome-edge-lo); box-shadow: inset 2px 2px 0 rgb(0 0 0 / 60%), inset -1px -1px 0 var(--chrome-edge-hi); } .ds-well-digits { line-height: 1; } .ds-scanlines { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 24%) 2px 3px); }"
+      "css": ".ds-well { position: relative; overflow: hidden; display: inline-grid; place-items: center; min-width: 96px; height: 28px; padding: 0 12px; font-family: 'B612 Mono', ui-monospace, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; font-size: 13px; letter-spacing: 0.08em; color: var(--phosphor); text-shadow: 0 0 6px var(--phosphor-glow); background: radial-gradient(140% 100% at 50% 30%, rgb(255 179 64 / 6%), transparent 68%), var(--well-ground); border: 1px solid var(--chrome-edge-lo); box-shadow: inset 2px 2px 0 rgb(0 0 0 / 60%), inset -1px -1px 0 var(--chrome-edge-hi); } .ds-well-digits { line-height: 1; } .ds-scanlines { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, transparent 0 2px, var(--well-scan-ink) 2px 3px); }"
     },
     {
       "name": "Engraved legend",
@@ -586,7 +356,7 @@
     "rules": [
       {
         "name": "The Phosphor Wells Rule",
-        "body": "Amber phosphor glows only inside a recessed display well (.well) or a lamp seated in its own drilled recess (status LEDs, radio dots, switch lamps). The well supplies the ground (#120d07), the mono face, the scanlines, and the bloom; nothing outside a well may glow, and the wallpaper’s amber is flat plate ink — printed, never lit. Two sanctioned families exist besides wells: status lamps seated in their own drilled recesses, and the phosphor-persistence shimmer that rims an object while it is actively being dragged (the design brief’s drag signature).",
+        "body": "Amber phosphor glows only inside a recessed display well (.well) or a lamp seated in its own drilled recess (status LEDs, radio dots, switch lamps). The well supplies the ground (#120d07), the mono face, the scanlines, and the bloom; nothing outside a well may glow, and the wallpaper’s amber is flat plate ink — printed, never lit. Two sanctioned families exist besides wells: status lamps seated in their own drilled recesses, and the phosphor-persistence shimmer that rims an object while it is actively being dragged (the design brief’s drag signature). Adjudicated (refinement #4): a browser detector’s “glowing shadow accents” finding on this console is the rule’s own signature — every shipped glow sits in a well, a seated lamp, or the drag shimmer, so findings inside those three families ARE the law working; a glow anywhere else is a true violation.",
         "section": "colors"
       },
       {
@@ -611,7 +381,7 @@
       },
       {
         "name": "The Engraved Legend Law",
-        "body": "Labels are engraved, never embossed: the cut’s dark shadow tucked under the stroke, one light lip below it (text-shadow: 0 1px 0 rgb(0 0 0 / 70%), 0 2px 0 rgb(255 230 176 / 12%)). On parchment the cut reverses (0 1px 0 rgb(255 255 255 / 45%)). Uppercase, tracked; 11px floor — nothing smaller.",
+        "body": "Labels are engraved, never embossed: the cut’s dark shadow tucked under the stroke, one light lip below it (text-shadow: 0 1px 0 rgb(0 0 0 / 70%), 0 2px 0 rgb(255 230 176 / 12%)). On parchment the cut reverses (0 1px 0 rgb(255 255 255 / 40–45%)); on brass the lip warms (rgb(255 246 214 / 25–35%), the pull’s larger cut rgb(255 230 176 / 25%)); on oxide it turns peach (rgb(255 220 200 / 20–32%)). Uppercase, 600, tracked inside the 0.08–0.12em band; 11px floor — nothing smaller; 14px off-ramp ceiling, a full plate’s one title engraving excepted. Adjudicated (refinement #4 — instrument character): console type splits into painted chrome ink (flat silkscreened markings — title bars, controls, chips, hints) and engraved ink (menu rows, names, toolbar legends — carries the cut); on chrome, hierarchy rides ink families, not size, so a “flat type hierarchy” finding on chrome or a text-shadow expectation on painted type is a false positive by law.",
         "section": "typography"
       },
       {

@@ -190,6 +190,7 @@ describe('UI-1 · global browser surfaces + motion hook', () => {
 
   it('scopes the parchment duality (brass ring + light-world overrides)', () => {
     expect(globalCss).toMatch(/\.parchment-surface\s*\{[^}]*--focus-ring:\s*var\(--brass-lo\)/s)
+    // impeccable-disable-next-line design-system-font — the regex NAMES the law's own font stack; not a shipped font-family (refinement #4)
     expect(globalCss).toMatch(/\.parchment-surface\s*\{[^}]*font-family:\s*var\(--font-content\)/s)
   })
 

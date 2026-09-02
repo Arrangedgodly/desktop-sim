@@ -604,7 +604,7 @@
   text-align: center;
   border: 1px dashed var(--brass-lo);
   background:
-    linear-gradient(rgb(255 255 255 / 10%), transparent 40%),
+    linear-gradient(var(--parchment-sheen), transparent 40%),
     var(--parchment);
   box-shadow: inset 0 1px 3px rgb(51 41 28 / 12%);
 }

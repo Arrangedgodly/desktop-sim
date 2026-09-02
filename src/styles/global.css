@@ -126,7 +126,7 @@ textarea {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 24%) 2px 3px);
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, var(--well-scan-ink) 2px 3px);
 }
 
 /* -- primitive: parchment content surface -------------------------------------

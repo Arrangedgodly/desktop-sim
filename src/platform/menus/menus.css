@@ -84,7 +84,7 @@
    only the ink changes. Oxide is warnings/destructive ONLY. */
 .ctx-item[data-destructive='true'] {
   color: var(--oxide-bright);
-  text-shadow: 0 1px 0 rgb(0 0 0 / 75%);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 70%); /* the law's cut — 70% (refinement #4) */
 }
 
 .ctx-item[data-destructive='true']:hover,

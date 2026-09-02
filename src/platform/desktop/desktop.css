@@ -83,7 +83,7 @@
 }
 
 .specimen-icon:hover .specimen-plate {
-  background: rgb(0 0 0 / 28%); /* the card's plate picks up the hold's shadow */
+  background: var(--hold-shade); /* the card's plate picks up the hold's shadow */
 }
 
 /* The glyph plate: a shallow recess the specimen sits in. */

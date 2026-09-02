@@ -31,6 +31,23 @@ colors:
   parchment-ink: "#33291c"
   parchment-ink-dim: "#65573f"
 typography:
+  # scale — the AS-BUILT size ramp, enumerated so tooling reads every stop
+  # the prose documents (refinement #4: the sidecar describes what IS).
+  # 11–14px = the legend law's ramp; 15px body; 16–22px = the phone gate's
+  # own ≥16px touch ramp + a plate's one title engraving; 22.4/28px display.
+  scale:
+    legend-floor: "0.6875rem"
+    legend: "0.75rem"
+    readout: "0.8125rem"
+    legend-xl: "0.875rem"
+    body: "0.9375rem"
+    gate-floor: "1rem"
+    gate-body: "1.0625rem"
+    plate-title: "1.25rem"
+    gate-title: "1.3125rem"
+    gate-name: "1.375rem"
+    display-page: "1.4rem"
+    display: "1.75rem"
   label:
     fontFamily: "'Chakra Petch', ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.75rem"
@@ -170,6 +187,8 @@ A warm, archival palette: near-black console neutrals with an amber-phosphor lit
 
 **The Phosphor Wells Rule.** Amber phosphor glows only inside a recessed display well (`.well`) or a lamp seated in its own drilled recess (status LEDs, radio dots, switch lamps). The well supplies the ground (#120d07), the mono face, the scanlines, and the bloom; nothing outside a well may glow, and the wallpaper's amber is flat plate ink — printed, never lit. Two sanctioned families exist besides wells: status lamps seated in their own drilled recesses, and the phosphor-persistence shimmer that rims an object while it is actively being dragged (the design brief's drag signature).
 
+**Glow is the law, not a tell (adjudicated, refinement #4).** A browser detector reading "glowing shadow accents" on this console is reading the rule's own signature: every glow in the shipped UI sits inside a well, a seated lamp, or the drag shimmer — those findings ARE the law working, not violations. The adjudication runs one way only: a glow finding OUTSIDE those three families is a true violation (the well's text-shadow `0 0 6px rgb(255 179 64 / 50%)` and the seated lamp's `0 0 5–6px` bloom are the sanctioned forms; anything else that blooms is drift).
+
 **The Brass Touchpoints Rule.** Brass appears only where a hand meets hardware: drawer pulls, switch bats and screws, label frames, corner brackets and rack-handle grips, and the focus ring on parchment. Never ornamental, never a large surface except the commissioning nameplate (a nameplate IS a label frame) and the primary brass action button (a button you press is hardware).
 
 **The Oxide Only Destroys Rule.** Oxide red means loss. It colors guarded reset covers, destructive commit rows, Discard actions, and destructive text — nothing else. Destructive surfaces sit on the deep oxide base (#7c2b1c) and wear LIGHT parchment ink (#ece2c9); dark parchment ink on oxide fails contrast. Engagement lights the border, never the surface.
@@ -187,18 +206,23 @@ A warm, archival palette: near-black console neutrals with an amber-phosphor lit
 ### Hierarchy
 
 - **Display** (Lora 600, 1.75rem/1.15): the officer's name on the brass nameplate; exhibit page names (1.4rem/1.2). Serif — a plaque engraving is set in a serif.
+- **Plate title** (Chakra Petch 600 uppercase, tracked, 1.25–1.3125rem): a full-plate surface's ONE principal engraving — the phone gate's title (1.3125rem), the fault plate's head (1.25rem). The only legends permitted above the 14px off-ramp ceiling: a plate's title is its engraving scaled to the plate, one per plate, never chrome furniture. The gate's channel-row labels ride 1rem and its body 1.0625rem, the officer's name 1.375rem — with the title these form the phone gate's own ≥16px touch ramp (Layout: phone gate).
 - **Body** (Lora 400, 0.9375rem/1.8): all reading on parchment — the ledger note, field notes, exhibit descriptions, docent cards. Measure caps at 60–78ch (notepad sheet 78ch; notes 60–72ch).
 - **Marginal note** (Lora italic 400, 0.8125rem/1.5–1.55): hints, placeholders, and awaiting-notices on parchment — always dim parchment ink.
-- **Label** (Chakra Petch 600, 0.75rem uppercase, tracked 0.1em, line-height 1.35 when wrapped): the engraved legend — title bars, menu rows, controls, chips, toolbar legends, catalog names. Secondary legends may drop to the 11px floor (0.6875rem); tracking band 0.08–0.12em, all three stops addressable as tokens (`--track-legend-narrow` for wrapping/secondary legends, `--track-legend`, `--track-legend-wide` for awaiting/provisional shouts); wrapped catalog names clamp to 2–3 ruled lines. The 14px off-ramp (below) is the only size above 12px.
+- **Label** (Chakra Petch 600, 0.75rem uppercase, tracked 0.1em, line-height 1.35 when wrapped): the engraved legend — title bars, menu rows, controls, chips, toolbar legends, catalog names. Secondary legends may drop to the 11px floor (0.6875rem); tracking band 0.08–0.12em, all three stops addressable as tokens (`--track-legend-narrow` for wrapping/secondary legends, `--track-legend`, `--track-legend-wide` for awaiting/provisional shouts); wrapped catalog names clamp to 2–3 ruled lines. Above 12px, a legend rides the 14px off-ramp (below) and nothing else — except a full plate's one title engraving (Plate title, above).
 - **Readout** (B612 Mono 400, 0.8125–0.6875rem, tabular): timecode, accession codes, scale, version, POST lines. Always inside a well; 700 weight for banners.
+
+Every stop above — legend floor through display — is enumerated in the frontmatter `typography.scale` ramp (the machine-readable side of this law, refinement #4), so a size off the ramp is detectable, not debatable.
 
 ### Named Rules
 
 **The Measuring Law.** Every digit, code, and readout rides B612 Mono — Chakra Petch's digits are proportional and never appear in a readout. Tabular alignment is enforced by the well primitive (`font-variant-numeric: tabular-nums`).
 
-**The Engraved Legend Law.** Labels are engraved, never embossed: the cut's dark shadow tucked under the stroke, one light lip below it (`text-shadow: 0 1px 0 rgb(0 0 0 / 70%), 0 2px 0 rgb(255 230 176 / 12%)`). On parchment the cut reverses (`0 1px 0 rgb(255 255 255 / 45%)`). Uppercase, 600, tracked inside the 0.08–0.12em band; 11px floor — nothing smaller.
+**The Engraved Legend Law.** Labels are engraved, never embossed: the cut's dark shadow tucked under the stroke, one light lip below it (`text-shadow: 0 1px 0 rgb(0 0 0 / 70%), 0 2px 0 rgb(255 230 176 / 12%)`). On parchment the cut reverses (`0 1px 0 rgb(255 255 255 / 40–45%)` — 45% for principal engravings, 40% where the paper is thinner: wrapping catalog names, fields). On brass the lip warms (`0 1px 0 rgb(255 246 214 / 25–35%)` — deeper for the principal engraving; the drawer pull's larger cut rides the bevel warm lip, `rgb(255 230 176 / 25%)`); on oxide it turns peach toward the substrate (`0 1px 0 rgb(255 220 200 / 20–32%)` — guard-cover legends and grip ridges). Uppercase, 600, tracked inside the 0.08–0.12em band; 11px floor — nothing smaller.
 
-**The 14px off-ramp (the law's one escape hatch).** The legend ramp is 11–12px. A legend may ride at 14px (0.875rem, token `--size-legend-xl`) — nothing between 12 and 14, nothing above — when 12px genuinely fails it, which happens in exactly two adjudicated cases: **(a) a glyph-mark plate** — a single drawn mark is the plate's whole content and a 12px cut collapses its strokes (the docent's × dismissal); **(b) an arm's-length selection list** — a list the operator reads to act, whose longest label runs past 14 characters, where tracked uppercase loses word-shape at 12px (the module drawer's rows: NAMEPLATE MANIFEST). The off-ramp applies per surface, never per row — one size for every row, chosen by the surface's longest label — and it never buys fit: a long name clamps (ellipsis, ruled lines), it never grows.
+**Painted vs engraved (adjudicated, refinement #4 — instrument character).** Not all chrome type carries the cut: console type splits into PAINTED and ENGRAVED ink, exactly as the palette names them. Painted chrome ink (#e6dcc6) is silkscreened instrument markings — flat by law: title-bar primary text, control-plate labels, version chips, POST skip legends, hints. Engraved ink (#c7b590) is cut into the plate and carries the cut: menu rows, names, toolbar legends, breadcrumbs, LED captions. On console chrome, hierarchy rides INK FAMILIES (painted / engraved / dim), not size — the 11–16px flat band with a small ratio IS the instrument-panel aesthetic; macro contrast lives on parchment, where display serif (21–28px) supplies it inside reading surfaces. A browser detector's "flat type hierarchy" finding on chrome, or a text-shadow expectation on painted chrome type, is a false positive by this law: an instrument panel labels with paint, it does not typeset.
+
+**The 14px off-ramp (the law's one escape hatch).** The legend ramp is 11–12px. A legend may ride at 14px (0.875rem, token `--size-legend-xl`) — nothing between 12 and 14, nothing above on console chrome (the one exception above the ceiling is a full plate's title engraving, a display-scale tier, not an escape hatch) — when 12px genuinely fails it, which happens in exactly two adjudicated cases: **(a) a glyph-mark plate** — a single drawn mark is the plate's whole content and a 12px cut collapses its strokes (the docent's × dismissal); **(b) an arm's-length selection list** — a list the operator reads to act, whose longest label runs past 14 characters, where tracked uppercase loses word-shape at 12px (the module drawer's rows: NAMEPLATE MANIFEST). The off-ramp applies per surface, never per row — one size for every row, chosen by the surface's longest label — and it never buys fit: a long name clamps (ellipsis, ruled lines), it never grows.
 
 **Plate furniture is ink, not type (adjudicated).** Numerals, magnitude keys, and epoch blocks printed inside an authored wallpaper plate are plate ART: they scale with the plate's viewBox, are never focused, never read as chrome, and are exempt from this law's floor (star-chart edge numerals at 10px, the magnitude key at 10.5px). The exemption ends at the plate's frame — text the operator reads as console chrome (swatch labels, the MOUNTED flag) rides the law in full.
 
@@ -223,11 +247,11 @@ Depth is machined, not painted: every surface states its position in the chassis
 ### Shadow Vocabulary
 
 - **Raised plate** (`border 1px #0c0906; inset 1px 1px 0 #514433, inset -1px -1px 0 rgb(0 0 0 / 45%)`): controls, title bars, raised cards — an instrument plate standing proud.
-- **Module lift** (`2px 3px 12px rgb(0 0 0 / 45%)`): the one ground shadow under a window module or launcher panel — the module rides above the console bed.
-- **Recessed seat** (`inset 1px 1px 0 rgb(0 0 0 / 60%), inset -1px -1px 0 #514433`): the inverse cut — LED channels, icon plates, menu panels, bays, grooves.
+- **Module lift** (`2px 3px 12px rgb(0 0 0 / 45%)`): the one ground shadow under a window module or launcher panel — the module rides above the console bed. The pinned specimen's glyph plate rides the shallow form (`0 1px 3px rgb(0 0 0 / 40%)`), and the plate's hover shade is a wash, not a shadow (`--hold-shade`, 28% black over parchment).
+- **Recessed seat** (`inset 1px 1px 0 rgb(0 0 0 / 60%), inset -1px -1px 0 #514433`): the inverse cut — LED channels, icon plates, menu panels, bays, grooves. The shallow form (`inset 1px 1px 0 rgb(0 0 0 / 25%)`) seats a title plate or app toolbar inside its module.
 - **Pressed plate** (`inset 1px 1px 0 rgb(0 0 0 / 55%), inset -1px -1px 0 rgb(255 230 176 / 7%)`): a control held down — `:active` on every chrome control.
 - **Display well** (`inset 2px 2px 0 rgb(0 0 0 / 60%), inset -1px -1px 0 #514433` + `text-shadow 0 0 6px rgb(255 179 64 / 50%)`): the phosphor well — the deepest cut in the world, and the only place ink blooms.
-- **Parchment relief** (`inset 0 1px 0 rgb(255 255 255 / 35%), inset 0 2px 4px rgb(51 41 28 / 10–16%)` + `0 1px 2px rgb(51 41 28 / 12%)`): cards and mats on parchment — shadows are cast in warm INK tones (rgb(51 41 28 / …)), never black.
+- **Parchment relief** (`inset 0 1px 0 rgb(255 255 255 / 35–45%), inset 0 2px 4px rgb(51 41 28 / 10–16%)` + `0 1px 2px rgb(51 41 28 / 12%)`): cards and mats on parchment — shadows are cast in warm INK tones (rgb(51 41 28 / …)), never black; the white catch on the upper lip runs 35–45% as-built (35% reliefs, 40–45% where the catch meets an edge, as chips and ledger heads do), and the paper sheen gradient over mats and drop-targets rides the `--parchment-sheen` token (12% white).
 - **Plate on the mat** (`3px 4px 12px rgb(51 41 28 / 38%)`): an image or exhibit lying on parchment — offset with the light from above; its whole elevation.
 
 ### Named Rules
@@ -271,11 +295,11 @@ Recessed console panels (min 224px, max 300px) pressed into the console — neve
 
 ### Specimen icon (desktop)
 
-A pinned catalog card: an authored kind glyph seated in a 56px recessed plate above a parchment label (engraved name, 11px, up to three ruled lines; B612 accession code beneath) framed in brass-in-shadow. Selection = eight brass corner ticks cut into the plate + the brass frame joining; the glyph ink rises when engaged. Dragging lifts the card above its neighbors under the phosphor shimmer; a drawer receiving the drop engages its brass frame and leans up 3px toward the ghost (the drawer-pull affordance); an invalid drop bounces back with a short in-world shake (0.32s). Inline rename turns the label into a field: parchment-shade surface, brass frame, left-aligned.
+A pinned catalog card: an authored kind glyph seated in a 56px recessed plate above a parchment label (engraved name, 11px, up to three ruled lines; B612 accession code beneath) framed in brass-in-shadow. Selection = eight brass corner ticks cut into the plate + the brass frame joining; the glyph ink rises when engaged; hover shades the plate with the hold's shadow (`--hold-shade`). Dragging lifts the card above its neighbors under the phosphor shimmer; a drawer receiving the drop engages its brass frame and leans up 3px toward the ghost (the drawer-pull affordance); an invalid drop bounces back with a short in-world shake (0.32s). Inline rename turns the label into a field: parchment-shade surface, brass frame, left-aligned.
 
 ### The phosphor well (primitive)
 
-The signature surface — amber lives here and only here: a recessed seat on the deepest ground (#120d07), a faint radial tube bloom at the top, glowing amber ink, the B612 Mono face, tabular numerals, and the scanline overlay (1px of 24% black every 3px, pointer-transparent) clipped inside. Wells type POST lines, timecode, accession codes, vault readouts, and mounted-plate flags.
+The signature surface — amber lives here and only here: a recessed seat on the deepest ground (#120d07), a faint radial tube bloom at the top, glowing amber ink, the B612 Mono face, tabular numerals, and the scanline overlay (1px of `--well-scan-ink` — 24% black — every 3px, pointer-transparent) clipped inside. Wells type POST lines, timecode, accession codes, vault readouts, and mounted-plate flags.
 
 ### Buttons
 
@@ -366,7 +390,7 @@ One beveled console module (max 460px) centered on the hold ground: engraved tit
 - **Don't** use brass decoratively or as a large surface outside the nameplate and primary brass action.
 - **Don't** use oxide for anything but warnings and destructive actions — and never as a fault state (faults are dashed, not oxide).
 - **Don't** round a module, card, menu, or control — corners are sharp; circles are hardware only, and `50%` is the only `border-radius` value the world permits.
-- **Don't** set labels below the 11px floor or above the 14px off-ramp ceiling, outside the 0.08–0.12em tracking band, or at any weight but 600; and never set sentences in the label face.
+- **Don't** set labels below the 11px floor or above the 14px off-ramp ceiling (a full plate's one title engraving excepted — see Plate title under Hierarchy), outside the 0.08–0.12em tracking band, or at any weight but 600; and never set sentences in the label face.
 - **Don't** add transitions to furniture (rail, menus) or animate width/height (layout work breaks the 60fps floor).
 - **Don't** use drop shadows, blur stacks, or ambient glows on flat chrome; no black shadows on parchment.
 - **Don't** use emoji or unicode icon stand-ins — authored stroke glyphs only.

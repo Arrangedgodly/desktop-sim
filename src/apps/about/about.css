@@ -356,7 +356,7 @@
   height: 10px;
   border-radius: 50%;
   background: var(--well-ground);
-  border: 1px solid rgb(0 0 0 / 55%);
+  border: 1px solid var(--chrome-edge-lo); /* lamp seats ride the bevel dark lip like every drilled recess (refinement #4) */
   box-shadow:
     inset 1px 1px 0 rgb(0 0 0 / 60%),
     inset -1px -1px 0 var(--chrome-edge-hi);

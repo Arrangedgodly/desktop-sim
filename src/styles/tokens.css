@@ -54,6 +54,14 @@
   --oxide-deep: #7c2b1c; /* oxide bevel shadow */
   --oxide-bright: #e06a4f; /* destructive TEXT on dark chrome */
 
+  /* -- effect inks (refinement #4: as-built washes the prose documents — the
+        alpha strays the detector flagged, promoted to named tokens so the
+        single-definition-site law holds; black/white bases stay OUT of the
+        palette proper: a translucent wash is an effect, not a surface) ----- */
+  --well-scan-ink: rgb(0 0 0 / 24%); /* the well's scanline bar (1px every 3px) */
+  --hold-shade: rgb(0 0 0 / 28%); /* a specimen plate picking up the hold's shadow on hover */
+  --parchment-sheen: rgb(255 255 255 / 12%); /* the paper/mat catch-light wash on parchment */
+
   /* -- focus ring (in-world; see global.css :focus-visible) ----------------- */
   --focus-ring: var(--phosphor); /* amber on the console … */
   /* … and brass-lo on parchment via .parchment-surface (global.css) */

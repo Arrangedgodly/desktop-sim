@@ -173,7 +173,7 @@
   padding: 18px; /* = viewer-model MAT_PADDING */
   overflow: hidden; /* a zoomed plate spills past the mat's edges, it never scrolls them away */
   background:
-    linear-gradient(rgb(255 255 255 / 12%), transparent 38%),
+    linear-gradient(var(--parchment-sheen), transparent 38%),
     var(--parchment-shade); /* the mat's bevel catch-light, recessed under the window frame */
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 35%),
