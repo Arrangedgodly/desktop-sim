@@ -1,0 +1,467 @@
+/* ----------------------------------------------------------------------------
+   Field Notes styles — batch 2, brief 6 (The Survey Archive). App-owned,
+   app-scoped (.field-notes-*), consuming src/styles/tokens.css + global.css
+   primitives — no custom properties defined here.
+
+   World law this sheet obeys (DESIGN.md):
+   · THE DUALITY, reading side — dark console chrome toolbar over the
+     PARCHMENT reading surface: Lora (never the label face, never mono for
+     prose) at the body scale with 1.8 leading and the 60ch field-notes
+     measure (DESIGN.md's own number); headings ride the ramp's display stops.
+   · the lit amber accent lives ONLY in the global well primitive (the
+     toolbar's accession readout rides the platform's `.well` class; this
+     sheet declares no glow of its own).
+   · brass ONLY at hardware touchpoints — the desk's Open catalog action (a
+     button you press is hardware) and the parchment-side focus ring.
+   · the warning red appears nowhere — nothing here can be lost.
+   · one authored moment: the sheet settles onto the desk when a specimen
+     opens (transform+opacity only; the global reduced-motion kill-switch
+     collapses it to its visible end-state).
+   · digits ride B612 Mono — the accession readout and every ordered-list
+     marker (the Measuring Law, applied to typeset numerals).
+---------------------------------------------------------------------------- */
+
+.field-notes {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* -- toolbar (console chrome) ------------------------------------------------ */
+
+.field-notes-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  box-sizing: border-box; /* min-height is the WHOLE plate (explorer's law) */
+  min-height: 36px;
+  padding: 5px 8px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The engraved specimen label — this room READS; the label is cut, not a field. */
+.field-notes-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The accession readout: digits ride B612 inside the global well primitive. */
+.field-notes-accession {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  font-size: var(--size-legend);
+  white-space: nowrap;
+}
+
+/* The Catalog plate — a text-bearing chrome control (the notepad's Save law). */
+.field-notes-catalog-btn {
+  flex: 0 0 auto;
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.field-notes-catalog-btn:hover {
+  background: var(--chrome-ground);
+}
+
+.field-notes-catalog-btn:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.field-notes-catalog-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* -- content (THE parchment reading surface) ---------------------------------
+   Inherits ground/ink/serif/caret/scrollbar from .parchment-surface; scrolls
+   in itself. The sheet is the reading measure: Lora at the body scale, exact
+   1.8 leading, 60ch — DESIGN.md's field-notes number. */
+
+.field-notes-content {
+  position: relative; /* anchors the catalog panel */
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 20px 30px;
+}
+
+.field-notes-sheet {
+  width: 100%;
+  max-width: 60ch; /* the field-notes measure (DESIGN.md: notepad 78, notes 60) */
+  margin-inline: auto;
+  align-self: flex-start;
+  font-size: 0.9375rem; /* body — the content ramp's own stop */
+  line-height: 1.8; /* generous leading, the reading rhythm */
+  animation: field-notes-settle var(--dur-beat) var(--ease-console);
+}
+
+/* The ONE authored moment: the sheet settles onto the desk, already visible
+   (≥35% opacity start — the law), rising 6px to rest. */
+@keyframes field-notes-settle {
+  from {
+    opacity: 0.4;
+    transform: translateY(6px);
+  }
+}
+
+.field-notes-sheet:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass frame on parchment */
+  outline-offset: 6px;
+}
+
+/* More room above a heading than below it (the craft floor's spacing law). */
+.field-notes-sheet > :first-child {
+  margin-top: 0;
+}
+
+.field-notes-heading {
+  margin-bottom: 0.45em;
+  font-weight: 600;
+  color: var(--parchment-ink);
+}
+
+.field-notes-heading--1 {
+  margin-top: 1.9em;
+  font-size: 1.4rem; /* display-page — the exhibit page-name stop */
+  line-height: 1.2;
+}
+
+.field-notes-heading--2 {
+  margin-top: 1.7em;
+  font-size: 1.25rem; /* the plate-title stop */
+  line-height: 1.3;
+}
+
+.field-notes-heading--3 {
+  margin-top: 1.5em;
+  font-size: 1.0625rem; /* the gate-body stop */
+  line-height: 1.4;
+}
+
+.field-notes-p {
+  margin: 0 0 1em;
+}
+
+.field-notes-strong {
+  font-weight: 700;
+}
+
+.field-notes-em {
+  font-style: italic;
+}
+
+/* A code span: the mono face's sanctioned prose seat — data, not costume. */
+.field-notes-code {
+  padding: 1px 4px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem; /* readout */
+  line-height: 1;
+  color: var(--parchment-ink);
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 18%);
+}
+
+/* External links: print-honest — same ink, a ruled underline; engagement
+   darkens the rule. The beam on focus is the parchment brass frame. */
+.field-notes-link {
+  color: var(--parchment-ink);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--parchment-ink-dim);
+}
+
+.field-notes-link:hover {
+  text-decoration-color: var(--parchment-ink);
+}
+
+.field-notes-link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.field-notes-list {
+  margin: 0 0 1em;
+  padding-inline-start: 1.7em;
+}
+
+.field-notes-li {
+  margin: 0.3em 0;
+}
+
+.field-notes-li > .field-notes-list {
+  margin: 0.3em 0 0.15em;
+}
+
+/* Unordered markers: the archive's dash rule, dim ink. */
+.field-notes-list:not(.field-notes-list--ordered) {
+  list-style-type: '—';
+}
+
+.field-notes-list:not(.field-notes-list--ordered) li::marker {
+  color: var(--parchment-ink-dim);
+}
+
+/* Ordered markers: EVERY digit rides B612 (the Measuring Law). */
+.field-notes-list--ordered li::marker {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--parchment-ink-dim);
+}
+
+/* A quotation: recessed parchment — shade ground, hairline ink frame, light
+   catch on the upper lip (the parchment relief law). Shadows in warm ink. */
+.field-notes-quote {
+  margin: 0 0 1em;
+  padding: 10px 16px;
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 22%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 35%);
+}
+
+.field-notes-quote > :last-child {
+  margin-bottom: 0;
+}
+
+.field-notes-quote .field-notes-p {
+  margin-bottom: 0.6em;
+}
+
+/* A rule between entries: one hairline of the parchment's own ink. */
+.field-notes-hr {
+  margin: 1.6em 0;
+  border: none;
+  border-top: 1px solid rgb(51 41 28 / 25%);
+}
+
+/* -- the reading desk (nothing open) ------------------------------------------
+   The honest empty state, set as the marginal note: Lora italic, dim ink. */
+
+.field-notes-desk {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: auto;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.field-notes-desk-glyph {
+  color: var(--parchment-ink-dim);
+}
+
+.field-notes-desk-line {
+  max-width: 44ch;
+  margin: 0;
+  font-family: var(--font-content);
+  font-size: 0.8125rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--parchment-ink-dim);
+}
+
+/* Open catalog — the desk's one action is BRASS (a button you press is
+   hardware; the primary brass action). */
+.field-notes-desk-open {
+  min-height: 30px;
+  margin-top: 6px;
+  padding: 4px 16px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ground); /* dark-on-brass ink */
+  text-shadow: 0 1px 0 rgb(255 246 214 / 25%);
+  background: var(--brass);
+  border: 1px solid var(--brass-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--brass-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 40%);
+  cursor: pointer;
+}
+
+.field-notes-desk-open:hover {
+  background: var(--brass-hi); /* hover lifts it 1px on its setting */
+}
+
+.field-notes-desk-open:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 40%),
+    inset -1px -1px 0 var(--brass-hi);
+}
+
+.field-notes-desk-open:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass frame on parchment */
+  outline-offset: 2px;
+}
+
+/* -- the catalog panel (the paint picker's engraved ledger, verbatim law) ----- */
+
+.field-notes-picker {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: min(340px, calc(100% - 28px));
+  max-height: 70%;
+  background: var(--chrome-sunken);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    2px 3px 12px rgb(0 0 0 / 45%);
+  color: var(--chrome-ink);
+}
+
+.field-notes-picker-head {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 7px 10px 5px;
+  border-bottom: 1px solid var(--chrome-edge-lo);
+}
+
+.field-notes-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.field-notes-picker-row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 6px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.field-notes-picker-row:hover,
+.field-notes-picker-row:focus-visible {
+  background: var(--chrome-raised); /* the press: the row sinks into the panel */
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 55%);
+}
+
+.field-notes-picker-accession {
+  font-family: var(--font-mono); /* accession codes are readouts — B612 */
+  font-size: var(--size-legend);
+  color: var(--chrome-ink-dim);
+}
+
+.field-notes-picker-row:hover .field-notes-picker-accession,
+.field-notes-picker-row:focus-visible .field-notes-picker-accession {
+  color: var(--chrome-ink);
+}
+
+.field-notes-picker-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+}
+
+.field-notes-picker-empty {
+  margin: 0;
+  padding: 10px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  color: var(--chrome-ink-dim);
+}
+
+/* -- the removed-specimen notice -----------------------------------------------
+   The node was decommissioned elsewhere; the room holds no copy. */
+
+.field-notes-removed {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+  margin: auto;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.field-notes-removed-title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 45%); /* the cut, reversed on parchment */
+}
+
+.field-notes-removed-hint {
+  max-width: 34ch;
+  margin: 0 0 10px;
+  font-family: var(--font-content);
+  font-size: 0.8125rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--parchment-ink-dim);
+}
+
+.field-notes-removed-back {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.field-notes-removed-back:hover {
+  background: var(--chrome-ground);
+}
+
+.field-notes-removed-back:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass frame on parchment */
+  outline-offset: 1px;
+}
