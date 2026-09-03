@@ -1,0 +1,381 @@
+/* ----------------------------------------------------------------------------
+   Vitals styles — federated batch 2 (The Survey Archive). App-owned,
+   app-scoped (.vitals-*), consuming src/styles/tokens.css + the global
+   primitives (.well, .scanlines, .engraved) — no custom properties defined
+   here, NO RAW HEX anywhere (the repo's grep-tested token law).
+
+   World law this sheet obeys (design-brief.md + DESIGN.md):
+   · READOUTS LIVE IN WELLS — every chart, count, and estimate is phosphor
+     ink on the well ground (the .well primitive supplies the ground, the
+     B612 face, tabular digits, the bloom); nothing outside a well glows;
+   · monochrome amber discipline inside wells — brightness distinguishes
+     signal (phosphor / phosphor-bright / phosphor-dim), never hue; oxide
+     never enters a well;
+   · the plates are ENGRAVED chrome (raised instrument plates, 1px bevel
+     lips); "NOT TELEMETRIED" wears the dashed brass-in-shadow provisional
+     frame (dashed means provisional — never decorative);
+   · brass ONLY at hardware touchpoints — the dashed NA frame is
+     brass-in-shadow, the same seat parchment fields use;
+   · digits ride B612 Mono (the Measuring Law); legends are engraved
+     Chakra Petch caps on the 11px floor; notes are painted dim hints;
+   · MOTION-MINIMAL BY DESIGN — this sheet declares ZERO animations and
+     ZERO transitions: every update is a stepped swap at sample time (the
+     brief's own law), so reduced-motion changes nothing.
+   · sharp corners everywhere (the Machined Edge Rule).
+---------------------------------------------------------------------------- */
+
+.vitals {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--chrome-ground);
+}
+
+/* -- toolbar (console chrome) ----------------------------------------------- */
+
+.vitals-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 5px 10px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.vitals-rates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vitals-rates-label {
+  margin-right: 2px;
+  white-space: nowrap;
+}
+
+/* The sample-rate selector: text-bearing control plates; the engaged stop
+   reads pressed-in with LIT legend ink on the sunken plate (the engaged
+   toggle law). Digits ride the mono face. */
+.vitals-rate {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend-narrow);
+  line-height: 1.35;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.vitals-rate:hover {
+  background: var(--chrome-ground);
+}
+
+.vitals-rate:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.vitals-rate[aria-checked='true'] {
+  color: var(--phosphor); /* lit legend ink — flat, the bloom stays in wells */
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.vitals-toolbar-note {
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim); /* painted hint ink — flat by law */
+}
+
+/* -- the plate grid ---------------------------------------------------------- */
+
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+  padding: 10px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: start;
+}
+
+/* One engraved instrument plate: raised chrome, 1px lips, one soft shadow. */
+.vitals-plate {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+  padding: 8px 9px 9px;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%),
+    2px 3px 12px rgb(0 0 0 / 45%);
+}
+
+.vitals-plate-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 22px;
+}
+
+.vitals-plate-title {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The plate's principal readout (current value): a small well chip, B612. */
+.vitals-readout {
+  margin-left: auto;
+  padding: 2px 8px;
+  font-size: 0.8125rem; /* the readout stop — 13px of B612 */
+  white-space: nowrap;
+}
+
+/* The chart well: the .well primitive's seat; the svg fills it. */
+.vitals-plate-well {
+  padding: 6px 4px 4px 6px;
+}
+
+.vitals-await {
+  margin: 14px 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend-narrow);
+  color: var(--phosphor-dim);
+}
+
+.vitals-plate-note {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim); /* painted hint ink — flat, never engraved */
+}
+
+/* -- the trace chart (SVG, all ink from tokens) ------------------------------ */
+
+.vitals-trace {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.vitals-trace-grid,
+.vitals-trace-axis,
+.vitals-ladder-rule {
+  stroke: var(--well-scan-ink); /* the scan raster's own ink — ruled, recessive */
+  stroke-width: 1;
+}
+
+.vitals-trace-tick,
+.vitals-trace-await {
+  fill: var(--phosphor-dim);
+  font-family: var(--font-mono);
+  font-size: 11px; /* viewBox units — ~1:1 at the default plate width */
+}
+
+.vitals-trace-await {
+  text-anchor: middle;
+  letter-spacing: 0.08em;
+}
+
+.vitals-trace-envelope {
+  stroke: var(--phosphor-dim); /* aged amber — the honest min..max envelope */
+  stroke-width: 1;
+}
+
+.vitals-trace-event {
+  stroke: var(--phosphor-bright); /* a marked long task — the hot beam */
+  stroke-width: 1;
+}
+
+.vitals-trace-line {
+  fill: none;
+  stroke: var(--phosphor);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+/* -- the boot ladder (SVG) ----------------------------------------------------- */
+
+.vitals-ladder {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.vitals-ladder-t0 {
+  fill: var(--phosphor-dim);
+  font-family: var(--font-mono);
+  font-size: 10px; /* chart furniture — the offset column */
+}
+
+.vitals-ladder-name {
+  fill: var(--phosphor-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.vitals-ladder-name--now {
+  fill: var(--phosphor-bright); /* the replay playhead — the hot beam */
+}
+
+.vitals-ladder-rule--lit {
+  stroke: var(--phosphor-dim);
+}
+
+.vitals-ladder-bar {
+  stroke: var(--phosphor);
+  stroke-width: 4;
+}
+
+.vitals-ladder-bar--now {
+  stroke: var(--phosphor-bright);
+}
+
+/* -- fact readouts (the wells' B612 ledger rows) ------------------------------- */
+
+.vitals-facts {
+  margin: 0;
+  padding: 2px 4px 4px;
+}
+
+.vitals-fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--well-scan-ink); /* ruled ledger row */
+}
+
+.vitals-fact:last-child {
+  border-bottom: none;
+}
+
+.vitals-fact dt {
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend-narrow);
+  color: var(--phosphor-dim); /* aged amber — the well's secondary beam */
+  white-space: nowrap;
+}
+
+.vitals-fact dd {
+  margin: 0;
+  font-size: 0.8125rem; /* the readout stop — 13px of B612 */
+  color: var(--phosphor);
+  text-align: right;
+}
+
+/* -- the storage gauge (inside its well) --------------------------------------- */
+
+.vitals-storage-bar {
+  box-sizing: border-box;
+  height: 8px;
+  margin: 6px 4px 4px;
+  background: var(--well-scan-ink);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 60%); /* a drilled recess seat */
+}
+
+.vitals-storage-fill {
+  display: block;
+  height: 100%;
+  background: var(--phosphor); /* lit ink inside the well — bloom sanctioned */
+  box-shadow: 0 0 6px var(--phosphor-glow);
+}
+
+/* -- the honest unavailable plate ------------------------------------------------ */
+
+/* Dashed brass-in-shadow frame: provisional by law (an untelemetried seam
+   is an undeveloped plate, never a fault — faults are dashed, not oxide). */
+.vitals-plate--na {
+  gap: 8px;
+}
+
+.vitals-na {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-height: 120px;
+  padding: 12px;
+  text-align: center;
+  border: 1px dashed var(--brass-lo);
+}
+
+.vitals-na-title {
+  margin: 0;
+}
+
+.vitals-na-note {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+}
+
+/* -- the replay control (text-bearing chrome plate) ------------------------------- */
+
+.vitals-replay {
+  margin-left: auto;
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.vitals-replay:hover {
+  background: var(--chrome-ground);
+}
+
+.vitals-replay:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
