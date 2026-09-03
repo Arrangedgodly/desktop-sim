@@ -1,0 +1,456 @@
+/* ----------------------------------------------------------------------------
+   Chart Plate styles — batch 2, brief 9 (The Survey Archive). App-owned,
+   app-scoped (.chart-plate-*), consuming src/styles/tokens.css + global
+   primitives — no custom properties defined here, NO RAW HEX anywhere (the
+   repo's grep-tested token law).
+
+   World law this sheet obeys (design-brief.md + DESIGN.md):
+   · THE DUALITY, engraving side — console-chrome toolbars over the PARCHMENT
+     BENCH; the plate itself is an authored artifact (ink on parchment or
+     FLAT amber ink on the dark plate — printed, never lit: there is NO glow
+     anywhere in this app's SVG, and the sheet adds none around it);
+   · phosphor lives only in the toolbar's recessed readout wells (and its
+     one sanctioned flare INSIDE the well — the stamp press, the module's
+     single authored moment);
+   · brass ONLY at hardware touchpoints — the Save action (a button you
+     press) and the parchment-side focus ring (.parchment-surface override);
+   · oxide nowhere — this module destroys nothing;
+   · digits ride B612 Mono (the Measuring Law) — the readout wells and the
+     value fields; legends are engraved Chakra Petch caps; notes are Lora;
+   · sharp corners everywhere (the Machined Edge Rule — no lamps, so no
+     radius at all in this sheet); zero transitions (a machine at rest).
+---------------------------------------------------------------------------- */
+
+.chart-plate {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* -- toolbars (console chrome) ----------------------------------------------- */
+
+.chart-plate-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 5px 8px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.chart-plate-toolbar--studio {
+  gap: 16px;
+  overflow-x: auto; /* narrow windows scroll the studio row, never wrap it */
+}
+
+.chart-plate-spacer {
+  flex: 1 1 auto;
+}
+
+/* The engraved module identity (static: the engraver has no document name). */
+.chart-plate-title {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* The save-flow's seat: the name offered inline, a field on the chrome. */
+.chart-plate-name-field {
+  flex: 0 1 220px;
+  min-width: 0;
+  padding: 3px 6px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  text-align: left;
+  line-height: 1.35;
+  color: var(--chrome-ink);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 70%);
+  background: var(--chrome-sunken);
+  border: 1px solid var(--brass);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 55%);
+  caret-color: var(--phosphor);
+}
+
+.chart-plate-name-field::selection {
+  background: rgb(255 179 64 / 32%); /* the console's amber wash */
+}
+
+.chart-plate-name-field:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 0;
+}
+
+@keyframes chart-plate-name-reject {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -6px 0;
+  }
+  55% {
+    translate: 5px 0;
+  }
+  80% {
+    translate: -3px 0;
+  }
+}
+
+.chart-plate-name-field[data-rename-rejected='true'] {
+  animation: chart-plate-name-reject 0.32s var(--ease-console);
+}
+
+/* The readouts — digits ride B612 in recessed wells (the .well primitive). */
+.chart-plate-readout {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  font-size: var(--size-legend);
+  white-space: nowrap;
+}
+
+/* The stamp press — the module's ONE authored moment: a plate is filed and
+   the accession well flares INSIDE ITS SEAT (the fresh-line precedent —
+   hot ink for a beat, then it settles). The glow never leaves the well. */
+@keyframes chart-plate-flare {
+  0%,
+  100% {
+    color: var(--phosphor);
+    text-shadow: 0 0 6px var(--phosphor-glow);
+  }
+  35% {
+    color: var(--phosphor-bright);
+    text-shadow: 0 0 10px var(--phosphor-glow);
+  }
+}
+
+.chart-plate-accession[data-flare='true'] {
+  animation: chart-plate-flare 0.7s var(--ease-console);
+}
+
+/* -- control plates (26×22 min hardware, text-bearing where labeled) --------- */
+
+.chart-plate-save,
+.chart-plate-add,
+.chart-plate-remove {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.chart-plate-save:hover:not(:disabled),
+.chart-plate-add:hover:not(:disabled),
+.chart-plate-remove:hover:not(:disabled) {
+  background: var(--chrome-ground);
+}
+
+.chart-plate-save:active:not(:disabled),
+.chart-plate-add:active:not(:disabled),
+.chart-plate-remove:active:not(:disabled) {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.chart-plate-save:disabled,
+.chart-plate-add:disabled {
+  color: var(--chrome-ink-dim);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.chart-plate-save:focus-visible,
+.chart-plate-add:focus-visible,
+.chart-plate-remove:focus-visible,
+.chart-plate-toggle:focus-visible,
+.chart-plate-name-field:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.chart-plate-save {
+  color: var(--chrome-ground);
+  background: var(--brass); /* the primary brass action — hardware you press */
+}
+
+.chart-plate-save:hover:not(:disabled) {
+  background: var(--brass-hi);
+}
+
+.chart-plate-save:disabled {
+  color: var(--chrome-ink-dim);
+  background: var(--chrome-raised);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  opacity: 0.5;
+}
+
+.chart-plate-remove {
+  min-width: 26px;
+  padding: 2px 8px;
+  font-family: var(--font-mono); /* × is a readout glyph */
+}
+
+/* The engaged toggle: pressed INTO the plate with LIT legend ink (the
+   platform's density-toggle precedent) — lit color, never a glow. */
+.chart-plate-toggle {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.chart-plate-toggle:hover {
+  background: var(--chrome-ground);
+}
+
+.chart-plate-toggle[data-active='true'] {
+  color: var(--phosphor);
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.chart-plate-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.chart-plate-group-legend {
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+}
+
+/* -- content (THE parchment bench) -----------------------------------------------
+   The engraver's bench: the data ledger on the left, the plate being cut on
+   the right, both on parchment. The ledger scrolls inside itself. */
+
+.chart-plate-content {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.chart-plate-ledger {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 292px;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 12px 12px 12px 14px;
+  border-right: 1px solid rgb(51 41 28 / 22%); /* a hairline ink seam */
+  overflow-y: auto;
+}
+
+.chart-plate-ledger-head {
+  flex: 0 0 auto;
+  margin: 0 0 8px;
+  font-size: var(--size-legend-lg);
+}
+
+.chart-plate-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+
+.chart-plate-row {
+  display: grid;
+  grid-template-columns: 1fr 76px 26px;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Fields on parchment: recessed paper seats with a hairline ink frame;
+   focus rides the parchment surface's brass ring (.parchment-surface). */
+.chart-plate-field {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 3px 7px;
+  text-align: left;
+  line-height: 1.4;
+  color: var(--parchment-ink);
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 22%);
+  box-shadow: inset 0 1px 2px rgb(51 41 28 / 12%);
+  caret-color: var(--brass-lo);
+}
+
+.chart-plate-field::selection {
+  background: rgb(255 255 255 / 32%); /* the paper's wash over shade */
+}
+
+.chart-plate-field:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass frame on parchment */
+  outline-offset: 0;
+}
+
+.chart-plate-field::placeholder {
+  color: var(--parchment-ink-dim);
+  opacity: 0.7;
+}
+
+.chart-plate-field--label {
+  font-family: var(--font-content); /* authoring rides the reading voice */
+  font-size: var(--size-legend-lg);
+}
+
+.chart-plate-field--value {
+  font-family: var(--font-mono); /* digits ride B612 — the Measuring Law */
+  font-size: var(--size-legend-lg);
+  text-align: right;
+}
+
+/* An unmeasured entry is PROVISIONAL: the dashed brass-in-shadow frame
+   (dashed means provisional — the world's law), never oxide. */
+.chart-plate-field--value[data-provisional='true'] {
+  border: 1px dashed var(--brass-lo);
+}
+
+.chart-plate-add {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+.chart-plate-ledger-note {
+  flex: 0 0 auto;
+  margin: 10px 0 0;
+  font-family: var(--font-content); /* a marginal note, in the reading voice */
+  font-size: 0.8125rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--parchment-ink-dim);
+}
+
+/* -- the plate on its mat -------------------------------------------------------- */
+
+.chart-plate-bench {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 12px;
+}
+
+.chart-plate-platewrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin: auto;
+}
+
+.chart-plate-plate {
+  position: relative; /* anchors the empty-state notice */
+  width: min(100%, 640px);
+  aspect-ratio: 640 / 400;
+  background: var(--parchment); /* behind the SVG's own ground rect */
+  border: 1px solid rgb(51 41 28 / 22%);
+  box-shadow: 3px 4px 12px rgb(51 41 28 / 38%); /* a plate lying on the mat */
+}
+
+.chart-plate-plate[data-ground='plate'] {
+  background: var(--chrome-sunken);
+}
+
+.chart-plate-plate > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.chart-plate-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink-dim);
+}
+
+.chart-plate-plate[data-ground='plate'] .chart-plate-empty {
+  color: var(--phosphor-dim);
+}
+
+.chart-plate-plate-note {
+  flex: 0 0 auto;
+  margin: 0;
+  font-family: var(--font-content); /* a marginal note, in the reading voice */
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--parchment-ink-dim);
+}
+
+/* Narrow benches stack the ledger above the plate (windows read their own
+   width; the minimum module is 320px). */
+@media (max-width: 560px) {
+  .chart-plate-content {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .chart-plate-ledger {
+    flex: 0 0 auto;
+    border-right: none;
+    border-bottom: 1px solid rgb(51 41 28 / 22%);
+    overflow-y: visible;
+  }
+}
+
+/* -- assistive mirror of the accession flare (the flare is decorative) ---------- */
+
+.chart-plate-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
