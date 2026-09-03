@@ -1,0 +1,368 @@
+/* ----------------------------------------------------------------------------
+   Type Cabinet styles (batch 2, The Survey Archive). App-owned, app-scoped
+   (.typecabinet-*), consuming src/styles/tokens.css + global.css primitives —
+   no custom properties defined here, zero raw hex.
+
+   World law this sheet obeys (DESIGN.md):
+   · THE SPECIMEN BOOK — a console-chrome toolbar of engraved drawer tabs over
+     a PARCHMENT SHEET carrying the specimen content (the brief's duality).
+   · phosphor ONLY inside recessed wells — the toolbar's drawer-position
+     readout and the mono face's digit row ride the global .well primitive;
+     this sheet never names a phosphor custom property at all.
+   · brass ONLY at hardware touchpoints — the small pull on each drawer tab
+     (a tab front is a drawer front; its pull is the hand's point of contact).
+   · oxide nowhere — nothing is destroyed in a specimen book.
+   · one authored moment — the drawer's sheet SETTLES onto the parchment when
+     the drawer turns (opacity+translate only, from a visible 35% default;
+     the global reduced-motion floor collapses it to the settled state).
+---------------------------------------------------------------------------- */
+
+.typecabinet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--chrome-ground);
+}
+
+/* -- toolbar (console chrome): the three drawer fronts ------------------------ */
+
+.typecabinet-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 0 0 auto;
+  box-sizing: border-box; /* min-height is the WHOLE plate (explorer's law) */
+  min-height: 36px;
+  padding: 5px 8px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.typecabinet-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* A drawer front: a raised chrome plate carrying its engraved name over a
+   small brass pull. The ENGAGED drawer reads pressed into the console (the
+   inverse cut) with its ink raised to paint — the fleet's toggle law. */
+.typecabinet-tab {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-height: 26px;
+  padding: 3px 12px 4px;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-console);
+}
+
+.typecabinet-tab:hover {
+  background: var(--chrome-ground);
+}
+
+.typecabinet-tab[aria-selected='true'] {
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.typecabinet-tab[aria-selected='true'] .typecabinet-tab-name {
+  color: var(--chrome-ink); /* the ink rises to paint when the drawer is open */
+}
+
+.typecabinet-tab:focus-visible {
+  outline: 2px solid var(--focus-ring); /* amber beam on chrome */
+  outline-offset: 1px;
+}
+
+/* The pull: brass hardware on the drawer front — the tab's one touchpoint. */
+.typecabinet-tab-pull {
+  width: 12px;
+  height: 3px;
+  background: var(--brass-lo);
+  box-shadow: inset 0 1px 0 rgb(0 0 0 / 45%);
+  transition: background-color var(--dur-fast) var(--ease-console);
+}
+
+.typecabinet-tab:hover .typecabinet-tab-pull,
+.typecabinet-tab[aria-selected='true'] .typecabinet-tab-pull {
+  background: var(--brass);
+}
+
+/* The drawer position — a readout, so it rides B612 in a well (the cut-off
+   tail of the toolbar; aria-hidden, the sr mirror below carries the words). */
+.typecabinet-readout {
+  flex: 0 0 auto;
+  min-width: 6ch;
+  padding: 3px 8px;
+  font-size: var(--size-legend);
+  text-align: center;
+}
+
+/* -- the sheet (the archive's reading side) -------------------------------------
+   Inherits bg/ink/serif/caret/scrollbar/focus-ring from .parchment-surface. */
+
+.typecabinet-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 20px 22px;
+}
+
+.typecabinet-scroll:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass frame on parchment */
+  outline-offset: -2px;
+}
+
+/* The drawer's sheet: the module's ONE authored moment — it settles onto the
+   parchment when the drawer turns (keyed remount, opacity + translate only). */
+.typecabinet-sheet {
+  display: grid;
+  gap: 16px;
+  max-width: 42rem;
+  margin: 0 auto;
+  animation: typecabinet-settle 240ms var(--ease-console) backwards;
+}
+
+@keyframes typecabinet-settle {
+  from {
+    opacity: 0.35; /* visible default — the tube is already lit, never blank */
+    transform: translateY(4px);
+  }
+}
+
+.typecabinet-sheet-inner {
+  display: grid;
+  gap: 16px;
+}
+
+/* -- the face, set in itself ---------------------------------------------------- */
+
+.typecabinet-head {
+  display: grid;
+  gap: 6px;
+}
+
+.typecabinet-name {
+  margin: 0;
+  font-size: 2.125rem;
+  line-height: 1.15;
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+  color: var(--parchment-ink);
+}
+
+.typecabinet-role {
+  font-size: var(--size-legend-lg);
+  overflow-wrap: anywhere;
+}
+
+/* -- the role card: the laws in plain words ---------------------------------------
+   The ledger-note recipe — recessed parchment card, ruled-off legend band. */
+
+.typecabinet-rolecard {
+  display: grid;
+  gap: 8px;
+  padding: 11px 14px 12px;
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 25%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 35%),
+    inset 0 2px 4px rgb(51 41 28 / 10%);
+}
+
+.typecabinet-roleband {
+  margin: 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgb(51 41 28 / 18%);
+  font-size: var(--size-legend-lg);
+}
+
+.typecabinet-rolenote {
+  margin: 0;
+  max-width: 72ch;
+  font-family: var(--font-content);
+  font-size: 0.9375rem;
+  line-height: 1.8; /* generous leading — the reading law */
+  color: var(--parchment-ink);
+}
+
+/* The cited laws — marginal notes in the archive's voice. */
+.typecabinet-laws {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.typecabinet-law {
+  max-width: 66ch;
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--parchment-ink-dim);
+}
+
+.typecabinet-law::before {
+  content: '— ';
+}
+
+/* -- the specimen sections --------------------------------------------------------
+   Every row: a B612 size/weight/value label (the Measuring Law) beside the
+   specimen line, which sets itself in the face on show via inline data. */
+
+.typecabinet-section {
+  display: grid;
+  gap: 2px;
+}
+
+.typecabinet-legend {
+  margin: 0 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgb(51 41 28 / 18%);
+  font-size: var(--size-legend-lg);
+}
+
+.typecabinet-row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr auto;
+  column-gap: 12px;
+  row-gap: 2px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid rgb(51 41 28 / 10%);
+}
+
+.typecabinet-size {
+  font-family: var(--font-mono); /* every number on the sheet rides B612 */
+  font-size: var(--size-legend);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--track-legend-narrow);
+  white-space: nowrap;
+  color: var(--parchment-ink-dim);
+}
+
+.typecabinet-sample {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--parchment-ink);
+}
+
+.typecabinet-sample--weight {
+  font-size: 1.5rem;
+}
+
+.typecabinet-note {
+  grid-column: 2;
+  max-width: 60ch;
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--parchment-ink-dim);
+}
+
+.typecabinet-section > .typecabinet-note {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+}
+
+/* The rides mark: a small engraved chip where the face rides the band; the
+   honest italic refusal where it does not. */
+.typecabinet-rides {
+  grid-column: 3;
+  align-self: center;
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend-narrow);
+  white-space: nowrap;
+}
+
+.typecabinet-rides--off {
+  font-family: var(--font-content);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--parchment-ink-dim);
+}
+
+/* -- glyphs + pangrams ------------------------------------------------------------- */
+
+.typecabinet-alphabet {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+  color: var(--parchment-ink);
+}
+
+.typecabinet-pangrams {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.typecabinet-pangrams li {
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  color: var(--parchment-ink);
+}
+
+/* -- the digits (the measuring law, demonstrated) -----------------------------------
+   Seating is the law made visible: the counting face's row rides a real
+   phosphor well (the .well class supplies ground, mono face, tabular figures);
+   the barred face's row prints on parchment — a card, never a well. */
+
+.typecabinet-digits {
+  padding: 10px 14px;
+  font-size: 1.375rem;
+  letter-spacing: var(--track-legend-narrow);
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.typecabinet-digits--barred {
+  color: var(--parchment-ink);
+  font-variant-numeric: tabular-nums; /* even the refusal aligns politely */
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 22%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 35%),
+    inset 0 2px 4px rgb(51 41 28 / 10%);
+}
+
+/* -- assistive mirror (the toolbar readout itself is decorative) ------------------- */
+
+.typecabinet-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
