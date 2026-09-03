@@ -29,28 +29,63 @@ import { apps } from './index'
  *
  * FEDERATED FLEET (session 2): `paint` joined the closing run the same way,
  * between the terminal and the console. Same intent, same laws.
+ *
+ * FEDERATED FLEET (batch 2): ten more federated apps joined — `cursor`,
+ * `chart-plate`, `specimen-survey` (the fleet's first multi-instance app),
+ * `vivarium`, `relay`, `field-notes`, `reliquary`, `type-cabinet`,
+ * `archive-backup`, `vitals` — none declaring file types, so routing is
+ * untouched and every position is free. Same intent, same laws: no demo,
+ * reserved ⊆ fleet, every mount retryableLazy, order pinned — notepad still
+ * opens the launcher, the console still closes it, and the batch-2 order
+ * runs utility (cursor behind the terminal) → studio (engraver + dig +
+ * tank around the painter) → reading (relay, field-notes, reliquary,
+ * type-cabinet between the atlas and the nameplate) → closing (nameplate,
+ * vault, vitals panel, console).
  */
 
 describe('TH-2 · the shipped app fleet', () => {
-  it('registers the reserved platform apps plus the catalog terminal and plate painter, in the stable order', () => {
+  it('registers the reserved platform apps plus the ten federated apps, in the stable order', () => {
     expect(apps.map((app) => app.id)).toEqual([
       'notepad',
       'image-viewer',
       'explorer',
-      'about',
       'browser',
       'terminal',
+      'cursor',
       'paint',
+      'chart-plate',
+      'specimen-survey',
+      'vivarium',
+      'relay',
+      'field-notes',
+      'reliquary',
+      'type-cabinet',
+      'about',
+      'archive-backup',
+      'vitals',
       'settings',
     ])
-    // Every reserved id still ships — no squatters, no gaps. The terminal and
-    // the painter are the two legitimate non-reserved ids (federated apps,
-    // registered the standard way; the reserved set itself is untouched).
+    // Every reserved id still ships — no squatters, no gaps. The twelve
+    // non-reserved ids are federated apps, registered the standard way; the
+    // reserved set itself is untouched.
     const fleetIds = apps.map((a) => a.id)
     for (const reserved of RESERVED_APP_IDS) {
       expect(fleetIds, reserved).toContain(reserved)
     }
-    expect(fleetIds.filter((id) => !RESERVED_APP_IDS.includes(id))).toEqual(['terminal', 'paint'])
+    expect(fleetIds.filter((id) => !RESERVED_APP_IDS.includes(id))).toEqual([
+      'terminal',
+      'cursor',
+      'paint',
+      'chart-plate',
+      'specimen-survey',
+      'vivarium',
+      'relay',
+      'field-notes',
+      'reliquary',
+      'type-cabinet',
+      'archive-backup',
+      'vitals',
+    ])
   })
 
   it('does NOT ship the demo module — it is a test-only fixture now', () => {

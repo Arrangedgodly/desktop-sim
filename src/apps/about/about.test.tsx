@@ -43,7 +43,7 @@ beforeEach(() => {
   useFSStore.setState(initialFS, true) // boots holding the SEEDED catalog
   useWMStore.setState(initialWM, true)
   resetAppRegistry()
-  registerApps(apps) // the REAL startup registration (now six modules)
+  registerApps(apps) // the REAL startup registration (the full 18-module fleet)
   cleanup()
 })
 
@@ -126,19 +126,32 @@ describe('AP-5 · registration manifest', () => {
     expect(ids.indexOf('notepad')).toBe(0) // launcher's first item (taskbar floor)
     expect(ids.indexOf('settings')).toBe(ids.length - 1) // launcher's last item
     // AP-6 UNFREEZE: the browser field atlas registered BEHIND the nameplate
-    // and BEFORE the console (its sanctioned slot), so the nameplate now
-    // rides directly ahead of the ATLAS, no longer of the console.
-    expect(ids.indexOf('about')).toBe(ids.indexOf('browser') - 1)
+    // and BEFORE the console (its sanctioned slot), so the nameplate then
+    // rode directly ahead of the ATLAS, no longer of the console.
     // FEDERATED UNFREEZE (session 1): the catalog terminal joined the closing
     // run between the atlas and the console (its sanctioned slot) — the ends
     // (notepad first, settings last) stay stable, and the atlas no longer
     // rides directly ahead of the console.
     // FEDERATED UNFREEZE (session 2): the plate painter joined the closing
-    // run between the terminal and the console — same law, same ends; the
-    // terminal no longer rides directly ahead of the console.
-    expect(ids.indexOf('paint')).toBe(ids.indexOf('settings') - 1)
-    expect(ids.indexOf('terminal')).toBe(ids.indexOf('paint') - 1)
+    // run between the terminal and the console — same law, same ends.
+    // FEDERATED UNFREEZE (batch 2): ten more federated apps joined. The
+    // atlas now leads the utility/studio run (browser directly ahead of the
+    // terminal, the cursor between the terminal and the painter); the four
+    // batch-2 reading/display pieces (relay, field-notes, reliquary,
+    // type-cabinet) ride between the ATLAS and the NAMEPLATE; and the
+    // nameplate now opens the closing run proper — directly ahead of the
+    // vault, which is directly ahead of the vitals panel, which is directly
+    // ahead of the console. The ends never moved.
     expect(ids.indexOf('browser')).toBe(ids.indexOf('terminal') - 1)
+    expect(ids.indexOf('terminal')).toBe(ids.indexOf('cursor') - 1)
+    expect(ids.indexOf('cursor')).toBe(ids.indexOf('paint') - 1)
+    for (const id of ['relay', 'field-notes', 'reliquary', 'type-cabinet']) {
+      expect(ids.indexOf(id), id).toBeGreaterThan(ids.indexOf('browser'))
+      expect(ids.indexOf(id), id).toBeLessThan(ids.indexOf('about'))
+    }
+    expect(ids.indexOf('about')).toBe(ids.indexOf('archive-backup') - 1)
+    expect(ids.indexOf('archive-backup')).toBe(ids.indexOf('vitals') - 1)
+    expect(ids.indexOf('vitals')).toBe(ids.indexOf('settings') - 1)
   })
 })
 

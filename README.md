@@ -37,17 +37,49 @@ The repo keeps five gates (see [docs/TESTING.md](docs/TESTING.md) for what each 
 
 **Desktop.** Specimen icons sit on an archive-plate wallpaper (star chart by default; an anatomical plate, a phytograph print, and a survey sheet ship too). Drag specimens anywhere on the grid, drop them into drawers to file them, right-click (or press `Menu`) for the ground and specimen menus — new drawers, new specimens, rename, delete. Along the bottom runs the drawer-rail taskbar: open windows as LEDs, a live timecode, and the module pull that launches every app.
 
-**The eight apps.**
+**The eighteen modules.** The drawer pull launches the whole fleet; the tour below follows the drawer's own order.
+
+*The daily run*
 
 | App | What it is |
 | --- | --- |
 | **Specimen Notepad** | a parchment-sheet text editor — autosaves into the archive, guards unsaved changes on close |
-| **Catalog Terminal** | a phosphor-well shell over the real archive — `ls`, `cd`, `cat`, `mkdir`, `rm`, and the signature `accession` catalog walk; session and history persist |
-| **Plate Painter** | the specimen-plate studio — ink on parchment, save accessions your plate into the archive, reopen it, export a PNG |
 | **Plate Viewer** | the image reader — fit ↔ 1:1, 25–400% zoom, drag to pan, engraved captions |
 | **Catalog Explorer** | the file browser — drawers and specimens, breadcrumbs, card or ledger views, full file operations |
 | **Field Atlas** | the project index — curated plates with field notes and links out to live sites and repositories |
+
+*The console*
+
+| App | What it is |
+| --- | --- |
+| **Catalog Terminal** | a phosphor-well shell over the real archive — `ls`, `cd`, `cat`, `mkdir`, `rm`, and the signature `accession` catalog walk; session and history persist |
+| **Cursor** | the brass calculating machine — type a line, `Enter` prints it on the tape; precedence is honest, division by zero is refused in words |
+
+*The studio*
+
+| App | What it is |
+| --- | --- |
+| **Plate Painter** | the specimen-plate studio — ink on parchment, save accessions your plate into the archive, reopen it, export a PNG |
+| **Chart Plate** | the chart engraver — rows of data become hatched bars and ruled lines on a plate you can accession like any specimen |
+| **Specimen Survey** | the excavation dig — reveal plots, pin what looks buried, clear the field without disturbing a specimen (the first app that opens more than one window) |
+| **Hold Vivarium** | a living tank on the hold's wall — drop a nutrient and the schools react; throw the brass switch to hold the water still |
+
+*The reading room*
+
+| App | What it is |
+| --- | --- |
+| **Survey Relay** | the correspondence wire — letters arrive as the expedition wears on; read them, file them into the archive |
+| **Field Notes** | the reading room — your markdown field notes from the catalog, typeset like pages of the expedition report |
+| **Reliquary** | the vitrine case — three procedural specimens under glass in real 3D; orbit them, zoom the brass lever |
+| **Type Cabinet** | the type specimen book — the console's three faces at every shipped weight and size, with the laws they ride by |
+
+*The officer's plate*
+
+| App | What it is |
+| --- | --- |
 | **Nameplate Manifest** | the officer's plaque — name, bio, and contact channels (the portfolio's real content) |
+| **Archive Backup** | the vault — export the whole living archive to a file, restore it behind a two-step guard |
+| **Console Vitals** | the machine's own instrument panel — live memory, storage, frame traces, and a replay of the boot ladder |
 | **Console Settings** | wallpaper plates, UI sounds (synthesized, muted by default), reduced-motion, storage vault readout, and the guarded archive reset |
 
 ## It remembers everything

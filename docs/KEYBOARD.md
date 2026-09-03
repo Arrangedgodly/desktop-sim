@@ -122,6 +122,14 @@ guarded step (Delete) steps back on Esc before closing.
 | Explorer | arrows walk the specimen listbox, Enter opens |
 | Catalog terminal | `Enter` commits the command line, `↑` / `↓` walk command history, `Tab` completes sibling names, `Esc` clears the current line (the terminal's first claim on Esc) |
 | Plate painter | `Ctrl/Cmd+S` accessions (name offered on first save), `B` / `E` / `F` pick brush/eraser/fill, `[` / `]` step the brush size, `Ctrl/Cmd+Z` undo (20-stroke ring), `Esc` disarms a confirmed Clear, closes the picker, or guards un-filed plate work (Keep painting / Discard) before closing |
+| Cursor | `Enter` prints (evaluates), `Esc` clears the line and stands down the armed Clear |
+| Chart Plate | `Enter` walks the ledger rhythm (label → value → next line), `Ctrl/Cmd+S` cuts the plate |
+| Specimen Survey | arrows walk plots (roving tabindex, edges stop), `Enter` / `Space` reveal, `F` pins, `Home` / `End` jump; right-click pins |
+| Hold Vivarium | `Enter` / `Space` drops a nutrient (the tank's tap surface carries the key seat) |
+| Survey Relay | arrows walk the correspondence ledger (roving rows, wrapping), `Home` / `End` jump, `Enter` opens the focused letter; no app Esc claim (nothing to intercept) |
+| Field Notes | `Enter` opens the focused catalog row, arrows walk the ledger, `Esc` closes the catalog, `Backspace` returns from a specimen to the ledger |
+| Reliquary | arrows orbit the case, `+` / `−` zoom — the vitrine canvas and the engraved-plate fallback share the same floor |
+| Archive Backup | `Esc` disarms an armed restore (the guard-strip law); every other action is a plate button |
 
 ## Laws
 

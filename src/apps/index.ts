@@ -5,7 +5,17 @@ import { viewerApp } from './image-viewer'
 import { aboutApp } from './about'
 import { browserApp } from './browser'
 import { terminalApp } from './terminal'
+import { cursorApp } from './cursor'
 import { paintApp } from './paint'
+import { chartPlateApp } from './chart-plate'
+import { specimenSurveyApp } from './specimen-survey'
+import { vivariumApp } from './vivarium'
+import { relayApp } from './relay'
+import { fieldNotesApp } from './field-notes'
+import { reliquaryApp } from './reliquary'
+import { typeCabinetApp } from './type-cabinet'
+import { archiveBackupApp } from './archive-backup'
+import { vitalsApp } from './vitals'
 import { settingsApp } from './settings'
 
 /**
@@ -53,14 +63,43 @@ import { settingsApp } from './settings'
  * image route); opening plates into the painter happens through its own
  * picker or an explicit file launch. It rides between the terminal and the
  * console — the opening run (notepad) and the closing run (console) stay put.
+ *
+ * FEDERATED FLEET (batch 2 — ten apps, ten isolated sessions): cursor/
+ * (the brass calculating machine), chart-plate/ (the chart engraver),
+ * specimen-survey/ (the excavation dig — the fleet's first multi-instance
+ * app), vivarium/ (the hold tank), relay/ (the correspondence wire),
+ * field-notes/ (the reading room), reliquary/ (the vitrine case),
+ * type-cabinet/ (the type specimen book), archive-backup/ (the vault), and
+ * vitals/ (the console's own instrument panel). All ten declare NO file
+ * types — routing is untouched (notepad owns text, the viewer owns image,
+ * the explorer owns folder), so every new position is free by the same law.
+ * The pinned order keeps the two load-bearing ends — notepad opens the
+ * launcher, settings closes it — and runs studio → reading → closing:
+ * the cursor rides directly behind the terminal (the console utility run),
+ * the chart engraver and the survey dig flank the painter's studio, the
+ * tank follows the studio, the four reading-room/display pieces (relay,
+ * field-notes, reliquary, type-cabinet) ride between the atlas and the
+ * nameplate, and the vault + vitals panel join the nameplate in the closing
+ * run directly ahead of the console (the console stays LAST — the settings
+ * floor pins it as the launcher's final item).
  */
 export const apps: readonly AppManifest[] = [
   notepadApp,
   viewerApp,
   explorerApp,
-  aboutApp,
   browserApp,
   terminalApp,
+  cursorApp,
   paintApp,
+  chartPlateApp,
+  specimenSurveyApp,
+  vivariumApp,
+  relayApp,
+  fieldNotesApp,
+  reliquaryApp,
+  typeCabinetApp,
+  aboutApp,
+  archiveBackupApp,
+  vitalsApp,
   settingsApp,
 ]
