@@ -1,0 +1,402 @@
+/* ----------------------------------------------------------------------------
+   Reliquary styles (batch 2, worker 8, The Survey Archive). App-owned,
+   app-scoped (.reliquary-*), consuming src/styles/tokens.css + global
+   primitives (.well, .scanlines, .engraved, .parchment-surface) — no custom
+   properties defined here, NO RAW HEX anywhere (the repo's grep-tested law).
+
+   World law this sheet obeys (design-brief.md + DESIGN.md):
+   · THE CASE IS A WELL — the vitrine is a recessed display well (deepest
+     ground, scanlines, amber-lit content); phosphor NEVER leaves it. The
+     brass bezel around the glass is a sanctioned hardware touchpoint (a
+     frame a hand polishes), and the zoom lever's brass bat likewise;
+   · parchment is the reading surface — the specimen cards and the label
+     card live on the archive's light side, Lora-set;
+   · digits ride B612 Mono (the Measuring Law): the camera readout (in its
+     well) and the accession codes;
+   · ONE authored moment: the tube re-warming when a specimen takes the
+     stage (reliquary-warm) — exponential ease-out from a visible default,
+     collapsed to its end state under reduced motion by the global hook;
+   · sharp corners everywhere (the Machined Edge Rule — no border-radius
+     exists in this sheet at all); no transitions (furniture swaps state).
+---------------------------------------------------------------------------- */
+
+.reliquary {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* -- toolbar (console chrome) ----------------------------------------------- */
+
+.reliquary-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 5px 8px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.reliquary-name {
+  flex: 0 0 auto;
+}
+
+/* The degrade notice — an engraved caption, one step dimmer than the name. */
+.reliquary-mode {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend-narrow);
+  color: var(--chrome-ink-dim);
+}
+
+/* The camera readout: machine output, B612 in its recessed well. */
+.reliquary-readout {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 3px 9px;
+  font-size: var(--size-legend);
+  white-space: nowrap;
+}
+
+/* -- content: the bench and the catalog (parchment) --------------------------- */
+
+.reliquary-content {
+  display: flex;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 12px;
+}
+
+.reliquary-bench {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* -- the case: chrome bezel + brass reveal + THE well -------------------------
+   The bezel mounts the glass; the brass hairline between bezel and well is
+   the hardware a visitor's hand would touch. The warm-up overlay (the one
+   authored moment) is phosphor INSIDE the case — the well family. */
+
+.reliquary-caseframe {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 4px;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+}
+
+.reliquary-case {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  border: 1px solid var(--brass-lo); /* the brass reveal — a frame is hardware */
+}
+
+.reliquary-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none; /* the pointer orbits; the page never scrolls under the glass */
+  cursor: grab;
+}
+
+.reliquary-case[data-dragging='true'] .reliquary-canvas {
+  cursor: grabbing;
+}
+
+.reliquary-canvas:focus-visible,
+.reliquary-plate:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass ring: the focus is on the light side */
+  outline-offset: -2px;
+}
+
+/* The ONE authored moment: the tube warms to its new specimen. */
+@keyframes reliquary-warm {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.reliquary-caseframe[data-fresh='true']::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(140% 100% at 50% 30%, var(--phosphor-dim), transparent 70%);
+  animation: reliquary-warm 0.26s var(--ease-console) forwards;
+}
+
+/* -- the honest degrade: the engraved catalog plate ---------------------------
+   Parchment plate lying in the unlit case — ink silhouette + stipple, the
+   same pure projection the tube would have rendered. */
+
+.reliquary-plate {
+  width: min(88%, 400px);
+  height: min(86%, 340px);
+  padding: 10px;
+  box-sizing: border-box;
+  background: var(--parchment);
+  border: 1px solid rgb(51 41 28 / 25%);
+  box-shadow: 3px 4px 12px rgb(51 41 28 / 38%); /* a plate lying on the mat */
+}
+
+.reliquary-plate-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--parchment-ink);
+}
+
+.reliquary-plate-ink {
+  fill: var(--parchment-ink-dim); /* the stipple field */
+}
+
+.reliquary-plate-hull {
+  fill: var(--parchment-shade);
+  stroke: var(--parchment-ink);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* -- the case foot: the zoom lever + the bench hint --------------------------- */
+
+.reliquary-casefoot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.reliquary-zoom-legend {
+  flex: 0 0 auto;
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend-narrow);
+  color: var(--parchment-ink-dim);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+}
+
+/* The zoom lever: a sunken groove with a brass bat — hardware you slide. */
+.reliquary-zoom {
+  flex: 0 1 180px;
+  width: 120px;
+  min-width: 96px;
+  height: 20px;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.reliquary-zoom::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 25%);
+  box-shadow: inset 0 1px 2px rgb(51 41 28 / 20%);
+}
+
+.reliquary-zoom::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 18px;
+  margin-top: -8px;
+  background: var(--brass);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--brass-hi),
+    inset -1px -1px 0 var(--brass-lo);
+}
+
+.reliquary-zoom::-moz-range-track {
+  height: 4px;
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 25%);
+  box-shadow: inset 0 1px 2px rgb(51 41 28 / 20%);
+}
+
+.reliquary-zoom::-moz-range-thumb {
+  width: 10px;
+  height: 18px;
+  background: var(--brass);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--brass-hi),
+    inset -1px -1px 0 var(--brass-lo);
+}
+
+.reliquary-zoom:focus-visible {
+  outline: 2px solid var(--focus-ring); /* brass frame on parchment */
+  outline-offset: 2px;
+}
+
+.reliquary-hint {
+  flex: 1 1 12ch;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-content); /* a marginal note, in the reading voice */
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--parchment-ink-dim);
+}
+
+/* -- the catalog: specimen cards + the label card ------------------------------ */
+
+.reliquary-catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 218px;
+  min-height: 0;
+}
+
+.reliquary-catalog-head {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.reliquary-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+/* A specimen card: recessed parchment, hairline ink frame, light catch. */
+.reliquary-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 8px;
+  text-align: left;
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 22%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 35%),
+    inset 0 2px 4px rgb(51 41 28 / 10%);
+  cursor: pointer;
+}
+
+.reliquary-card:hover {
+  translate: 0 -1px; /* the card lifts a hair under the hand */
+}
+
+/* The seated specimen wears the rack-handle grasp: the brass frame. */
+.reliquary-card[data-selected='true'] {
+  border-color: var(--brass);
+  box-shadow:
+    inset 0 0 0 1px var(--brass-hi),
+    0 0 0 1px var(--brass-lo),
+    inset 0 1px 0 rgb(255 255 255 / 35%);
+}
+
+.reliquary-card:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.reliquary-card-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+}
+
+.reliquary-card-accession {
+  flex: 0 0 auto;
+  font-family: var(--font-mono); /* accession codes are readouts — B612 */
+  font-size: var(--size-legend);
+  color: var(--parchment-ink-dim);
+}
+
+/* The label card: the archive's own voice for the seated specimen. */
+.reliquary-label {
+  display: grid;
+  gap: 4px;
+  flex: 0 0 auto;
+  margin-top: auto; /* the label sits at the catalog's foot, like a placard */
+  padding: 9px 10px 11px;
+  background: var(--parchment);
+  border: 1px solid rgb(51 41 28 / 22%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 40%),
+    0 1px 2px rgb(51 41 28 / 12%);
+}
+
+.reliquary-label-accession {
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  color: var(--parchment-ink-dim);
+}
+
+.reliquary-label-name {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 45%);
+}
+
+.reliquary-label-note {
+  margin: 0;
+  font-family: var(--font-content); /* the reading voice, generous leading */
+  font-size: 0.8125rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--parchment-ink-dim);
+}
+
+/* -- assistive mirror of the case state ---------------------------------------- */
+
+.reliquary-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
