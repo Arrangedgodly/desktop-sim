@@ -1,0 +1,407 @@
+/* ----------------------------------------------------------------------------
+   Relay styles — batch 2, brief 3 (The Survey Archive). App-owned,
+   app-scoped (.relay-*), consuming src/styles/tokens.css + the global
+   primitives — no custom properties defined here, NO RAW HEX anywhere (the
+   repo's grep-tested token law; alpha washes for bevels/effects ride the
+   fleet's rgb() literal convention, see global.css).
+
+   World law this sheet obeys (design-brief.md + DESIGN.md):
+   · THE DUALITY — engraved chrome ledger (the machine's mail tray) beside a
+     PARCHMENT letter sheet (correspondence is reading material: the
+     archive's light side, Lora at reading leading, 60-72ch measure);
+   · amber phosphor ONLY inside the recessed readout well (.well supplies
+     ground, mono face, tabular digits, bloom, scanlines) and the SEATED
+     lamps (the toolbar arrival lamp, the ledger row lamps — each in its own
+     drilled recess); nothing else glows;
+   · brass ONLY at the hardware touchpoint — the FILE TO THE ARCHIVE action
+     (a button you press is hardware; the brass action law) and the parchment
+     focus ring (.parchment-surface swaps --focus-ring itself);
+   · NO OXIDE anywhere — nothing can be lost in the relay; oxide is warnings
+     and destructive only, and this module honestly has neither (its absence
+     is asserted by the css law test);
+   · B612 Mono for every digit and readout (the Measuring Law) — the watch
+     clock, mail count, next-post countdown, office codes and stamps; the
+     label face cuts only engraved legends;
+   · ONE authored motion moment — a fresh letter's row SETTLES into the
+     ledger (console ease, from visible); arrival is otherwise a lamp change;
+     reduced-motion collapses the settle via global.css's kill-switch;
+   · sharp corners (the Machined Edge Rule) — the only border-radius in this
+     sheet is the lamps' 50% (hardware circles, seated in drilled recesses).
+---------------------------------------------------------------------------- */
+
+.relay {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--chrome-ground);
+}
+
+/* -- the toolbar (console chrome) -------------------------------------------- */
+
+.relay-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 10px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%); /* the shallow seat an app toolbar rides in */
+}
+
+.relay-name {
+  flex: 0 0 auto;
+}
+
+/* the painted sub-legend — silkscreened, flat by law (no cut) */
+.relay-sub {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend); /* the 11px floor */
+  font-weight: 600;
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The instrument readout — one well, three B612 segments (watch clock, mail
+   count, next post). Instrument readouts SNAP between values; no tween. */
+.relay-readout {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  font-size: 0.75rem; /* 12px of B612, tracked like the timecode well */
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.relay-readout [data-relay-next] {
+  color: var(--phosphor-dim); /* aged amber — the well's secondary hand */
+}
+
+/* The arrival lamp — a dim amber LED seated in its own drilled recess; lit
+   while unread post waits. Lamps swap state instantly (furniture law). */
+.relay-lamp {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%; /* hardware circle — the world's only legal radius */
+  border: 1px solid var(--chrome-edge-lo);
+  background: var(--chrome-sunken);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 60%);
+}
+
+.relay-lamp[data-lit='true'] {
+  background: var(--phosphor-dim); /* the arrival lamp is deliberately DIM */
+  box-shadow: 0 0 5px var(--phosphor-glow); /* the seated lamp's sanctioned bloom */
+}
+
+/* -- the body: ledger (chrome) beside sheet (parchment) ---------------------- */
+
+.relay-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* The ledger — the machine's mail tray: a recessed console bay (list chrome
+   is engraved, per the brief; rows are cut into the panel). */
+.relay-ledger {
+  flex: 0 0 236px;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi); /* the recessed seat */
+  scrollbar-color: var(--brass-lo) var(--chrome-sunken);
+}
+
+.relay-awaiting {
+  margin: 10px 6px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend-wide); /* an awaiting shout rides the wide band */
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+}
+
+.relay-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A ledger row: an engraved plate pressing into the tray; hover presses it a
+   step further (bevels swap, never colors alone). Zero transitions. */
+.relay-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px 7px;
+  text-align: left;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.relay-row:hover,
+.relay-row:focus-visible {
+  background: var(--chrome-ground);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.relay-row[aria-current='true'] {
+  color: var(--chrome-ink); /* the open letter's row raises its ink */
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+/* The read-lamp state — unread rows carry a lit lamp (drilled recess, its
+   own seat); read rows go dark. The row lamp snaps with arrival/reading. */
+.relay-row-lamp {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  margin-top: 3px;
+  border-radius: 50%; /* hardware circle */
+  border: 1px solid var(--chrome-edge-lo);
+  background: var(--chrome-sunken);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 60%);
+}
+
+.relay-row[data-unread='true'] .relay-row-lamp {
+  background: var(--phosphor);
+  box-shadow: 0 0 5px var(--phosphor-glow); /* the seated lamp's sanctioned bloom */
+}
+
+/* read rows dim to the tray's own ink */
+.relay-row[data-unread='false'] .relay-row-subject {
+  color: var(--chrome-ink-dim);
+}
+
+.relay-row-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* the subject — the row's engraved name (wraps to ruled lines, clamped) */
+.relay-row-subject {
+  font-size: var(--size-legend); /* 11px — a wrapping secondary legend */
+  letter-spacing: var(--track-legend-narrow);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* the office code and stamp — a B612 readout line (digits ride the mono face) */
+.relay-row-code {
+  font-family: var(--font-mono);
+  font-size: var(--size-legend); /* 11px of B612 */
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  color: var(--chrome-ink-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* the FILED stamp — a chrome chip (dim ink, bevel-light border) */
+.relay-row-filed {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  color: var(--chrome-ink-dim);
+  border: 1px solid var(--chrome-edge-hi);
+}
+
+/* THE authored moment — the fresh row settles into the tray from visible
+   (35%), console ease. Reduced-motion collapses it to the settled row via
+   global.css's kill-switch; arrival is otherwise only the lamp change. */
+.relay-row[data-fresh='true'] {
+  animation: relay-arrive var(--dur-beat) var(--ease-console) both;
+}
+
+@keyframes relay-arrive {
+  from {
+    opacity: 0.35;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* -- the letter sheet (parchment — the reading surface) ----------------------- */
+
+.relay-sheet {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 18px 22px 20px;
+}
+
+/* the quiet-state marginal note (Lora italic, dim ink — the parchment law) */
+.relay-marginal {
+  max-width: 60ch;
+  margin: 14px 2px;
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--parchment-ink-dim);
+}
+
+.relay-letter {
+  max-width: 66ch; /* the reading measure (60-72ch) */
+}
+
+.relay-letter-head {
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgb(51 41 28 / 25%); /* hairline rule of its own ink */
+}
+
+/* provenance line — codes and stamps ride B612 (the Measuring Law) */
+.relay-letter-code {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--parchment-ink-dim);
+}
+
+/* the subject — the letter's principal engraving on parchment (ruled larger) */
+.relay-letter-subject {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.4;
+  letter-spacing: var(--track-legend-narrow);
+}
+
+.relay-letter-body {
+  padding-top: 12px;
+}
+
+/* the letter's prose — Lora at the reading rhythm (the Serif Reads Law) */
+.relay-letter-body p {
+  margin: 0 0 1em;
+  line-height: 1.8;
+  color: var(--parchment-ink);
+}
+
+.relay-letter-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid rgb(51 41 28 / 25%);
+}
+
+/* The FILED chip — a pressed paper stamp on parchment (hairline ink frame,
+   light inner lip, engraved 11px label). */
+.relay-filed-chip {
+  padding: 2px 8px 3px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment-ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+  background: var(--parchment-shade);
+  border: 1px solid rgb(51 41 28 / 25%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 35%);
+}
+
+/* The brass action — the module's one hardware touchpoint: filing a letter
+   is pressing the archive's brass plate. Catch-light lip above, dark bevel
+   at the foot; hover lifts it 1px on its setting (control feedback only). */
+.relay-file {
+  min-height: 30px;
+  padding: 4px 16px;
+  background: var(--brass);
+  color: var(--chrome-ground); /* dark-on-brass engraving ink */
+  border: 1px solid var(--brass-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--brass-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgb(255 246 214 / 30%); /* on brass the cut's lip warms */
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-console); /* control feedback */
+}
+
+.relay-file:hover {
+  background: var(--brass-hi);
+  transform: translateY(-1px);
+}
+
+.relay-file:active {
+  background: var(--brass-lo);
+  transform: none;
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+/* the filing refusal — the catalog's own words, a marginal note (never a
+   browser dialog); oxide is NOT spent here: a refused file is procedure */
+.relay-refuse {
+  flex: 1 1 100%;
+  margin: 0;
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--parchment-ink-dim);
+}
+
+/* assistive-tech output only */
+.relay-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
