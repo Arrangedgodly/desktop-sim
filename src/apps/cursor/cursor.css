@@ -1,0 +1,267 @@
+/* ----------------------------------------------------------------------------
+   Cursor styles — batch 2, brief 4 (The Survey Archive). App-owned,
+   app-scoped (.cursor-*), consuming src/styles/tokens.css + the global
+   primitives — no custom properties defined here, NO RAW HEX anywhere (the
+   repo's grep-tested token law; alpha washes for bevels/effects ride the
+   fleet's rgb() literal convention, see global.css).
+
+   World law this sheet obeys (design-brief.md + DESIGN.md):
+   · THE DUALITY — console-chrome machine head over a PARCHMENT ledger tape
+     (the tape is reading material: the archive's light side);
+   · amber phosphor ONLY in the recessed entry well (.well supplies ground,
+     mono face, tabular digits, bloom, scanlines); nothing else glows;
+   · brass ONLY at the hardware touchpoint — the "=" key (a button you press
+     is hardware; the brass action law) and the parchment focus ring;
+   · oxide ONLY on warnings/destructive — the refusal line's ink and the
+     armed Clear (deep oxide base, LIGHT parchment ink, border lights on
+     engagement); oxide-on-parchment refusal ink measures 4.9:1 (AA);
+   · B612 Mono for every digit and readout (the Measuring Law) — the well
+     line and every tape row; the label face cuts only chrome legends;
+   · ONE authored motion moment — the tape feed (the fresh line settles up
+     out of the slot, from visible, console ease); the caret is the browser's
+     own, themed hot amber; reduced-motion collapses the feed to its
+     end-state via global.css's kill-switch;
+   · sharp corners (the Machined Edge Rule) — nothing rounds here.
+---------------------------------------------------------------------------- */
+
+.cursor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--chrome-ground);
+}
+
+/* -- the machine head (toolbar + entry bay) --------------------------------- */
+
+.cursor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 10px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%); /* the shallow seat an app toolbar rides in */
+}
+
+.cursor-name {
+  flex: 0 0 auto;
+}
+
+/* the painted sub-legend — hints are silkscreened, flat by law (no cut) */
+.cursor-sub {
+  margin-right: auto; /* the guarded Clear owns the far right */
+  font-family: var(--font-label);
+  font-size: var(--size-legend); /* the 11px floor */
+  font-weight: 600;
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The guarded Clear — a text-bearing control plate; armed, it becomes the
+   destructive commit (deep oxide base, light parchment ink — the law). */
+.cursor-clear {
+  flex: 0 0 auto;
+  min-height: 22px;
+  padding: 2px 12px;
+  background: var(--chrome-raised);
+  color: var(--chrome-ink);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.cursor-clear:hover {
+  background: var(--chrome-ground); /* a plate darkens a step, never a color swap alone */
+}
+
+.cursor-clear:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.cursor-clear[data-armed='true'] {
+  background: var(--oxide-deep);
+  color: var(--parchment); /* light ink on the deep oxide base (the law) */
+  border-color: var(--oxide);
+}
+
+.cursor-clear[data-armed='true']:hover {
+  border-color: var(--oxide-bright); /* engagement lights the border, never the surface */
+}
+
+/* -- the entry bay: the well's input line + the brass key ------------------- */
+
+.cursor-bay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  padding: 10px;
+  background: var(--chrome-ground);
+}
+
+/* The machine's face — one recessed phosphor well (the primitive supplies
+   ground, bloom, mono, tabular digits); scanlines overlay inside it. */
+.cursor-well {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 5px 10px;
+  font-size: 0.8125rem; /* the readout stop — 13px of B612 */
+  line-height: 1.6;
+}
+
+.cursor-prompt {
+  flex: 0 0 auto;
+  color: var(--phosphor-bright); /* the entry runs hot */
+  white-space: pre;
+}
+
+.cursor-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--phosphor);
+  caret-color: var(--phosphor-bright); /* the browser's caret, themed hot */
+}
+
+.cursor-input:focus-visible {
+  outline: 2px solid var(--focus-ring); /* the amber beam, inside the well */
+  outline-offset: -2px;
+}
+
+/* The brass "=" — the machine's one hardware touchpoint (the primary brass
+   action: a button you press is hardware). Catch-light lip above, dark bevel
+   at the foot; hover lifts it 1px on its setting. */
+.cursor-enter {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 4px 16px;
+  background: var(--brass);
+  color: var(--chrome-ground); /* dark-on-brass engraving ink */
+  border: 1px solid var(--brass-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--brass-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  font-family: var(--font-mono); /* module control glyphs ride the mono face */
+  font-size: var(--size-legend-xl);
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgb(255 246 214 / 30%); /* on brass the cut's lip warms */
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-console); /* control feedback */
+}
+
+.cursor-enter:hover {
+  background: var(--brass-hi);
+  transform: translateY(-1px);
+}
+
+.cursor-enter:active {
+  background: var(--brass-lo);
+  transform: none;
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+/* -- the ledger tape (parchment — the archive's reading side) --------------- */
+
+.cursor-tape {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 12px 10px;
+  font-variant-numeric: tabular-nums; /* the Measuring Law, on every printed digit */
+}
+
+.cursor-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0 4px;
+  border-bottom: 1px solid rgb(51 41 28 / 22%); /* the hairline rule of its own ink */
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+.cursor-row:last-child {
+  border-bottom: none;
+}
+
+/* the expression as typed — the tape's dim marginal hand */
+.cursor-expr {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: anywhere; /* long lines fold, they never widen the tape */
+  color: var(--parchment-ink-dim);
+}
+
+/* the printed answer — the tape's strong hand, right-ruled */
+.cursor-line {
+  flex: 0 0 auto;
+  max-width: 60%;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--parchment-ink);
+  font-weight: 700;
+}
+
+/* a refusal line — the machine's warning ink (oxide on parchment, 4.9:1 AA);
+   the expression stays a dim echo above it */
+.cursor-row[data-refused='true'] .cursor-line {
+  color: var(--oxide);
+}
+
+/* THE authored moment — the tape feed: the fresh line settles up out of the
+   slot from visible (35%), console ease. Reduced-motion collapses it to the
+   settled end-state via global.css's kill-switch — never to blank. */
+.cursor-row[data-fresh='true'] {
+  animation: cursor-feed var(--dur-beat) var(--ease-console) both;
+}
+
+@keyframes cursor-feed {
+  from {
+    opacity: 0.35;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* the empty tape — a marginal note on parchment (Lora italic, dim ink) */
+.cursor-empty {
+  margin: 14px 2px;
+  font-family: var(--font-content);
+  font-style: italic;
+  font-size: 0.8125rem;
+  color: var(--parchment-ink-dim);
+}
