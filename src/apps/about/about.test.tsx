@@ -297,10 +297,13 @@ describe('AP-5 · placeholder mode (a recruiter never sees template debris)', ()
     expect(document.querySelector('[data-about-handle]')).toBeNull()
   })
 
-  it('the MOUNTED surface reads the ambient seams (placeholder until the pack lands)', () => {
+  it('the MOUNTED surface reads the ambient seams (filled: the officer’s own record)', () => {
+    // REFINEMENT #1 UNFREEZE: content/author.json ships filled, so the
+    // ambient mount renders Graydon Wasil’s manifest — stand-ins are gone.
     render(<AboutSurface />)
-    expect(document.querySelector('[data-about-name]')!.textContent).toBe(STANDIN_NAME)
-    expect(document.querySelector('[data-about-awaiting]')).not.toBeNull()
+    expect(document.querySelector('[data-about-name]')!.textContent).toBe('Graydon Wasil')
+    expect(document.querySelector('[data-about-awaiting]')).toBeNull()
+    expect(document.querySelectorAll('[data-about-link]')).toHaveLength(3)
   })
 })
 
@@ -377,10 +380,11 @@ describe('AP-5 · THIS CONSOLE colophon', () => {
     expect(keys.textContent).toContain('F6')
     expect(keys.textContent).toContain('ENTER')
     expect(keys.textContent).toContain('ESC')
-    // The map cites its papers — the full map lives in the repo docs.
-    expect(document.querySelector('[data-about-keys-doc]')!.textContent).toContain(
-      'docs/KEYBOARD.md',
-    )
+    // P3 N2 (refinement #1): NO repo-path citation — docs/ is not shipped in
+    // dist/, so the colophon never points somewhere a hosted visitor can't
+    // follow; the CONSOLE KEYS block stands alone in-world.
+    expect(document.querySelector('[data-about-keys-doc]')).toBeNull()
+    expect(keys.textContent).not.toContain('KEYBOARD.md')
   })
 
   it("typesets by the archive's laws (source-scan: jsdom applies no CSS)", () => {
@@ -425,7 +429,9 @@ describe('AP-5 · model helpers (pure)', () => {
     const specimen = nameplateSpecimen(seedFSState().nodes)!
     expect(commissioning(specimen)).toEqual({
       accession: 'MOD-0001',
-      stamp: 'LOG/2087-03-14 09:37Z',
+      // 5 seeded exhibits push the nameplate's accession minute to t14 → 09:40Z
+      // (the seed's fixed one-minute-per-accession clock, deterministic).
+      stamp: 'LOG/2087-03-14 09:40Z',
     })
     expect(commissioning(null)).toEqual({ accession: null, stamp: 'LOG/—' })
   })

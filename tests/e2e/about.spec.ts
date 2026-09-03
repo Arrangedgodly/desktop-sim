@@ -8,22 +8,16 @@ import { expect, test, type Page } from '@playwright/test'
  * rendered; links safe"):
  * 1. Double-clicking the seeded nameplate reference opens the manifest
  *    window — the IM-5 routing that soft-failed until this app registered.
- * 2. Placeholder mode is visitor-safe: in-world stand-ins render, and NO
- *    template debris ([REPLACE VIA CONTENT PACK (MF-3)] markers) exists
- *    anywhere in the served DOM — a recruiter never sees the fill-in form.
+ * 2. The FILLED pack (refinement #1: Graydon Wasil's content/author.json)
+ *    renders every field on the plate — and NO template debris
+ *    ([REPLACE VIA CONTENT PACK (MF-3)] markers) exists anywhere in the
+ *    served DOM.
  * 3. The commissioning stamp cites the archive's record (the nameplate
  *    specimen's accession + mission-epoch timestamp).
  * 4. Singleton: opening through the launcher while the window lives raises
  *    the ONE window instead of duplicating it.
- * 5. The colophon names the console, its version, and its build truth.
- *
- * HONEST LIMIT — link safety attributes: the pack on this repo is the
- * placeholder pack (no links until the fill task lands content/author.json),
- * so the served DOM has no channel anchors to attribute-check. The anchors'
- * target=_blank + rel=noopener noreferrer are unit-proven against a fixture
- * pack in src/apps/about/about.test.tsx — the same rendering path a filled
- * pack drives; MF-3's fill task will light the real rows. Here we prove the
- * in-world empty state instead (no channels, no fake URLs).
+ * 5. The colophon names the console, its version, and its build truth — and
+ *    carries NO repo-path citation (P3 N2: docs/ is not shipped in dist/).
  */
 
 /** Skip the POST (any key) and wait out the desktop hand-off. */
@@ -47,19 +41,22 @@ async function openNameplate(page: Page) {
   return win
 }
 
-test('double-click the nameplate: the manifest opens, stand-ins render, zero template debris', async ({
+test('double-click the nameplate: the manifest opens, the officer’s record renders, zero template debris', async ({
   page,
 }) => {
   await toDesktop(page)
   await retireDocent(page)
   await openNameplate(page)
 
-  // Placeholder mode renders the in-world stand-ins, never the markers.
-  await expect(page.locator('[data-about-name]')).toHaveText('Unassigned Officer')
+  // The filled pack renders the officer's own record (refinement #1).
+  await expect(page.locator('[data-about-name]')).toHaveText('Graydon Wasil')
+  await expect(page.locator('[data-about-handle]')).toHaveText('@arrangedgodly')
   await expect(page.locator('[data-about-tagline]')).toHaveText(
-    'Manifest pending — the officer’s record is not yet on file.',
+    "Software for the things I can't stop thinking about",
   )
-  await expect(page.locator('[data-about-awaiting]')).toContainText('AWAITING OFFICER MANIFEST')
+  await expect(page.locator('[data-about-bio]')).toContainText('senior online banker')
+  await expect(page.locator('[data-about-missionlog]')).toContainText('LOG/2087')
+  await expect(page.locator('[data-about-awaiting]')).toHaveCount(0)
 
   // The whole served document carries no fill-in-form debris.
   const debris = await page.evaluate(() => {
@@ -72,10 +69,20 @@ test('double-click the nameplate: the manifest opens, stand-ins render, zero tem
   expect(debris.markers).toBe(false)
   expect(debris.brackets).toBe(false)
 
-  // No channels riveted (the placeholder pack lists none — honestly, no fake
-  // URLs), and no channel anchors exist to click.
-  await expect(page.locator('[data-about-empty]')).toContainText('No channels riveted')
-  await expect(page.locator('[data-about-link]')).toHaveCount(0)
+  // All three channels riveted as REAL safe anchors (the pack's links).
+  const links = page.locator('[data-about-link]')
+  await expect(links).toHaveCount(3)
+  await expect(links.nth(0)).toHaveAttribute('href', 'mailto:hello@graydonwasil.com')
+  await expect(links.nth(1)).toHaveAttribute('href', 'https://graydonwasil.com')
+  await expect(links.nth(2)).toHaveAttribute('href', 'https://github.com/arrangedgodly')
+  for (let i = 0; i < 3; i += 1) {
+    await expect(links.nth(i)).toHaveAttribute('target', '_blank')
+    await expect(links.nth(i)).toHaveAttribute('rel', 'noopener noreferrer')
+  }
+  await expect(page.locator('[data-about-empty]')).toHaveCount(0)
+
+  // The engraved chips: 12 skills + 5 interests, verbatim from the pack.
+  await expect(page.locator('[data-about-chip]')).toHaveCount(17)
 })
 
 test('the commissioning stamp cites the archive record; the colophon names the console', async ({
@@ -85,10 +92,11 @@ test('the commissioning stamp cites the archive record; the colophon names the c
   await retireDocent(page)
   await openNameplate(page)
 
-  // The seeded nameplate specimen: MOD-0001, accessioned 2087-03-14 09:37Z
-  // (the seed's fixed mission clock — deterministic, in-mission).
+  // The seeded nameplate specimen: MOD-0001, accessioned 2087-03-14 09:40Z
+  // (the seed's fixed mission clock — the filled pack's five exhibits push
+  // the nameplate's accession minute; deterministic, in-mission).
   await expect(page.locator('[data-about-stamp-code]')).toHaveText('MOD-0001')
-  await expect(page.locator('[data-about-stamp-log]')).toHaveText('LOG/2087-03-14 09:37Z')
+  await expect(page.locator('[data-about-stamp-log]')).toHaveText('LOG/2087-03-14 09:40Z')
 
   // THIS CONSOLE: name + version + build truth + the exhibit sentence. (The
   // legend is authored 'This Console'; the sheet's text-transform engraves
@@ -101,7 +109,9 @@ test('the commissioning stamp cites the archive record; the colophon names the c
   await expect(page.locator('[data-about-colophon-note]')).toContainText('the portfolio')
 
   // CONSOLE KEYS (refinement #5 onboard): the DD-1 map condensed in-world —
-  // keycaps in the mono face, actions engraved, the repo map cited.
+  // keycaps in the mono face, actions engraved. P3 N2 (refinement #1): NO
+  // repo-path citation — docs/ never ships in dist/, so the block stands
+  // alone rather than pointing somewhere a hosted visitor cannot follow.
   const keysBlock = page.locator('[data-about-keys]')
   await expect(keysBlock).toBeVisible()
   await expect(keysBlock).toContainText('Console Keys')
@@ -109,7 +119,8 @@ test('the commissioning stamp cites the archive record; the colophon names the c
   await expect(keysBlock).toContainText('travel the zones')
   await expect(keysBlock).toContainText('ENTER')
   await expect(keysBlock).toContainText('ESC')
-  await expect(page.locator('[data-about-keys-doc]')).toContainText('docs/KEYBOARD.md')
+  await expect(page.locator('[data-about-keys-doc]')).toHaveCount(0)
+  await expect(keysBlock).not.toContainText('KEYBOARD.md')
 })
 
 test('singleton: the launcher re-open raises the ONE manifest window', async ({ page }) => {

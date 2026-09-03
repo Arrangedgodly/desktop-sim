@@ -85,7 +85,7 @@ describe('DesktopSurface · specimen grid renders from the FS root', () => {
     }
     expect(screen.getByText('Projects')).toBeDefined()
     expect(screen.getByText('DRW-0001')).toBeDefined()
-    expect(screen.getByText('SPC-0005')).toBeDefined() // the charter specimen
+    expect(screen.getByText('SPC-0008')).toBeDefined() // the charter specimen (5 exhibits seeded ahead of it)
     expect(screen.getByText('MOD-0001')).toBeDefined() // the nameplate module ref
   })
 
@@ -96,7 +96,7 @@ describe('DesktopSurface · specimen grid renders from the FS root', () => {
     expect(screen.getByRole('button', { name: 'Field Notes, DRW-0002, drawer' })).toBeDefined()
     expect(screen.getByRole('button', { name: 'Archive, DRW-0003, drawer' })).toBeDefined()
     expect(
-      screen.getByRole('button', { name: 'accession-charter.txt, SPC-0005, specimen' }),
+      screen.getByRole('button', { name: 'accession-charter.txt, SPC-0008, specimen' }),
     ).toBeDefined()
     expect(
       screen.getByRole('button', { name: 'Science Officer Nameplate, MOD-0001, module' }),

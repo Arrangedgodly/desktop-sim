@@ -116,7 +116,7 @@ describe('UI-5 · ground menu', () => {
     const created = Object.values(useFSStore.getState().fs.nodes).find(
       (n) => n.name === 'New Specimen',
     )
-    expect(created).toMatchObject({ kind: 'text', content: '', parentId: 'root', accession: 'SPC-0006' })
+    expect(created).toMatchObject({ kind: 'text', content: '', parentId: 'root', accession: 'SPC-0009' })
     expect(icon(created!.id)).not.toBeNull()
   })
 
@@ -145,8 +145,8 @@ describe('UI-5 · ground menu', () => {
     contextMenuGround()
     fireEvent.click(menuItem('arrange'))
 
-    // Catalog order: DRW-0001..3 then MOD-0001 (nameplate) then SPC-0005
-    // (charter) — column-major: the nameplate drops to (0,3), charter (0,4).
+    // Catalog order: DRW-0001..3 then MOD-0001 (nameplate) then SPC-0008
+    // (charter — the filled pack's five exhibits ride inside Projects) — column-major: the nameplate drops to (0,3), charter (0,4).
     const positions = useFSStore.getState().fs.iconPositions
     expect(positions['projects']).toEqual({ x: 0, y: 0 })
     expect(positions['field-notes']).toEqual({ x: 0, y: 1 })

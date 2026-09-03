@@ -67,14 +67,26 @@ describe('seed · structure', () => {
   })
 })
 
-describe('seed · placeholder marking (MF-3 contract)', () => {
-  it('every text specimen carries a REPLACE marker', () => {
-    const texts = Object.values(seedFSState().nodes).filter(
-      (node) => node.kind === 'text',
-    ) as Extract<FSNode, { kind: 'text' }>[]
-    expect(texts.length).toBeGreaterThanOrEqual(4)
-    for (const text of texts) {
-      expect(text.content).toMatch(/REPLACE VIA CONTENT PACK/)
+describe('seed · exhibit honesty (MF-3 contract, refinement #1 fill)', () => {
+  it('pack-derived exhibits carry the officer’s real words — zero placeholder markers', () => {
+    // The repo ships a FILLED content/author.json, so the seeded exhibits are
+    // real catalogue entries (name/line/tech/channels/story verbatim from the
+    // pack) and never the fill-in form.
+    const pack = getContent()
+    for (const project of pack.projects) {
+      const node = findNode(seedFSState(), project.id) as Extract<FSNode, { kind: 'text' }>
+      expect(node.content, project.id).not.toContain('REPLACE VIA CONTENT PACK')
+      expect(node.content).toContain(project.name)
+      expect(node.content).toContain(project.description)
+    }
+  })
+
+  it('the OS’s own furniture specimens still carry their REPLACE markers', () => {
+    // The charter / field log / decommissioned notes are the archive's own
+    // standing copy, authored for the officer to overwrite — markers stay.
+    for (const id of ['charter', 'field-log', 'decommissioned']) {
+      const node = findNode(seedFSState(), id) as Extract<FSNode, { kind: 'text' }>
+      expect(node.content, id).toMatch(/REPLACE VIA CONTENT PACK/)
     }
   })
 

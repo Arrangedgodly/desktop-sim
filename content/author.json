@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "author": {
+    "name": "Graydon Wasil",
+    "handle": "@arrangedgodly",
+    "tagline": "Software for the things I can't stop thinking about",
+    "bio": "I build software for the things I'm already into — lyrics, records, die-cast cars, video games. I take an ordinary week's obsessions and build the tool each one was missing, then put it on the internet and keep it running. By day I'm a senior online banker, where I learned that software people trust is software that's boring in exactly the right places.",
+    "links": [
+      {
+        "label": "Email",
+        "url": "mailto:hello@graydonwasil.com"
+      },
+      {
+        "label": "Website",
+        "url": "https://graydonwasil.com"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/arrangedgodly"
+      }
+    ],
+    "skills": ["JavaScript", "React", "TypeScript", "CSS", "SQL", "REST", "Auth", "Max for Live", "Web Audio", "Game loops", "Node", "TailwindCSS"],
+    "interests": ["Lyrics & records", "Die-cast collecting", "Video games", "Sourdough", "Enter the Gungeon 2"],
+    "missionLog": "LOG/2087 — OFFICER ACCESSIONS HIS OWN ARCHIVE: THE TOOLS THE HOBBIES WERE MISSING, ALL CATALOGUED."
+  },
+  "projects": [
+    {
+      "id": "exhibit-01",
+      "name": "Rhymepage",
+      "description": "Write the verse, sync it to the track, run it back as a teleprompter.",
+      "tech": ["Web app", "Audio", "React"],
+      "liveUrl": "https://graydonwasil.com",
+      "repoUrl": "https://github.com/arrangedgodly/rhymepage",
+      "screenshotPath": "rhymepage.png",
+      "story": "The lyric tool that didn't exist: write against the track, sync by ear, and run it back teleprompter-style. Currently being improved — it's the project that never leaves the bench."
+    },
+    {
+      "id": "exhibit-02",
+      "name": "Collectible Cars DB",
+      "description": "Every Mattel Pixar Cars casting in one place: own it, want it, rate it.",
+      "tech": ["Web app", "Data", "SQL"],
+      "liveUrl": "https://graydonwasil.com",
+      "repoUrl": "https://github.com/arrangedgodly/cars",
+      "screenshotPath": "collectible-cars.png",
+      "story": "A collection that outgrew a notes app became a database for every Mattel Pixar Cars casting — own it, want it, rate it. The spreadsheet that got out of hand, fully domesticated."
+    },
+    {
+      "id": "exhibit-03",
+      "name": "Arranged Godly",
+      "description": "Music, the Max for Live devices I wrote for myself, and my first finished game.",
+      "tech": ["Audio", "Games", "Max for Live"],
+      "liveUrl": "https://arrangedgodly.com",
+      "repoUrl": "",
+      "screenshotPath": "arranged-godly.png",
+      "story": "The home shelf: my music, the Max for Live devices built because a specific delay didn't exist, and a first finished game. The origin point of the handle."
+    },
+    {
+      "id": "exhibit-04",
+      "name": "VOXCHAIN",
+      "description": "Build a vocal chain, audition it live, and keep the signal under control.",
+      "tech": ["Web app", "Audio", "Web Audio"],
+      "liveUrl": "https://voxchain.arrangedgodly.com",
+      "repoUrl": "",
+      "screenshotPath": "voxchain.png",
+      "story": "A vocal-chain builder you can audition live — stack the chain, hear it immediately, keep the signal under control. Studio discipline as a web app."
+    },
+    {
+      "id": "exhibit-05",
+      "name": "The Experiments Shelf",
+      "description": "Fourteen small interactive builds, made quickly and curiously with AI-assisted tools.",
+      "tech": ["Generative", "Browser tools", "Audio toys"],
+      "liveUrl": "https://graydonwasil.com",
+      "repoUrl": "https://github.com/arrangedgodly/thread-art",
+      "screenshotPath": "thread-art.png",
+      "story": "Thread Art, Biome Generator, Loom, Traffic, Terrarium, Blind Test, How Votes Flow, The Disappearing Draft, Reading Pacer, bc-codes, The Register, the Interlocking Gear Animator, the Digital Harmonograph, and a Message Board — a shelf of quick, curious builds. Thread Art (an image become a field of woven thread) is the highlighted specimen."
+    }
+  ]
+}

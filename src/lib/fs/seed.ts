@@ -24,7 +24,7 @@
  * concern.
  */
 
-import { getContent, type ProjectEntry } from '../content'
+import { getContent, getContentSource, type ProjectEntry } from '../content'
 import { createNode, emptyFSState, setIconPosition } from './ops'
 import { CURRENT_SCHEMA_VERSION, type FSEnvelope } from './schema'
 import type { FSState } from './types'
@@ -47,9 +47,29 @@ function placeholderPlate(label: string): string {
 
 const REPLACE_ME = '[PLACEHOLDER SPECIMEN — REPLACE VIA CONTENT PACK (MF-3)]'
 
-/** Compose a seeded exhibit specimen's body from its content-pack entry. */
+/**
+ * Compose a seeded exhibit specimen's body from its content-pack entry.
+ * Two honest states, keyed to the loader's source:
+ * - FILLED PACK: a real catalogue sheet — the officer's own words verbatim
+ *   (name, line, tech, channels, field story). Zero placeholder markers: a
+ *   filled archive must not read as a form (refinement #1's fill law).
+ * - PLACEHOLDER PACK: the marked stub, banner first (MF-1's contract).
+ */
 function exhibitBody(project: ProjectEntry, index: number): string {
   const orNone = (value: string): string => (value.length > 0 ? value : 'none listed')
+  if (getContentSource() === 'pack') {
+    const story = project.story.length > 0 ? `\n\nFIELD NOTES\n  ${project.story}\n` : '\n'
+    return `EXHIBIT ${String(index + 1).padStart(2, '0')} — catalogue entry.
+
+  ${project.name} — ${project.description}
+
+  apparatus: ${project.tech.join(', ')}
+  live: ${orNone(project.liveUrl)}
+  repository: ${orNone(project.repoUrl)}
+${story}
+Catalogued from the author content pack; the Field Atlas carries this
+exhibit's plate (screenshot + external channels) in the browser module.`
+  }
   return `${REPLACE_ME}
 
 EXHIBIT ${String(index + 1).padStart(2, '0')} — catalog stub (content-pack slot "${project.id}").

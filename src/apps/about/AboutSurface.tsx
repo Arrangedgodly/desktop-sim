@@ -58,7 +58,6 @@ import {
   CONSOLE_KEYS,
   EXTERNAL_LINK_REL,
   EXTERNAL_LINK_TARGET,
-  KEYS_DOC_REF,
   commissioning,
   linkDomain,
   manifestView,
@@ -214,8 +213,10 @@ export function NameplateManifest({
         </p>
         {/* CONSOLE KEYS (refinement #5 `onboard`): the DD-1 map condensed to
             its operating legend — keys ride B612 (a keycap is a readout),
-            actions engrave at legend scale; the full map stays in the repo
-            docs, cited one line below. */}
+            actions engrave at legend scale. The block stands alone in-world
+            (P3 N2, refinement #1): the full map lives in the repo docs, but
+            the colophon no longer cites that path — docs/ is not shipped in
+            dist/, so a hosted visitor could never follow it. */}
         <section className="about-keys" data-about-keys aria-labelledby="about-keys-legend">
           <p className="about-keys-legend engraved" id="about-keys-legend">
             Console Keys
@@ -231,9 +232,6 @@ export function NameplateManifest({
               </li>
             ))}
           </ul>
-          <p className="about-keys-doc" data-about-keys-doc>
-            full map · {KEYS_DOC_REF}
-          </p>
         </section>
         <p className="about-colophon-note" data-about-colophon-note>
           {COLOPHON_NOTE}

@@ -51,7 +51,7 @@ test('after boot the desktop shows the seeded catalog as specimen icons', async 
   ).toBeVisible()
   await expect(page.getByRole('button', { name: 'Archive, DRW-0003, drawer' })).toBeVisible()
   await expect(
-    page.getByRole('button', { name: 'accession-charter.txt, SPC-0005, specimen' }),
+    page.getByRole('button', { name: 'accession-charter.txt, SPC-0008, specimen' }),
   ).toBeVisible()
   await expect(
     page.getByRole('button', { name: 'Science Officer Nameplate, MOD-0001, module' }),
@@ -120,6 +120,80 @@ test('the × on a docent card dismisses the hints too', async ({ page }) => {
   await expect(page.locator('[data-docent]')).toHaveCount(0)
 })
 
+/* ------------------ P3 N1 (refinement #1) · the docent's spacing ------------ */
+
+/**
+ * The closing critique's finding: four stacked cards crowded the left icon
+ * column and the plate's corner furniture. The fix staggers the specimen
+ * cards down the open field and docks the rail annotation at the RIGHT
+ * margin. These DOM-rect gates hold the fix at the two smallest sanctioned
+ * desktop viewports: no card may intersect an icon or another card, every
+ * card stays inside the viewport, and the rail annotation lives in the
+ * right half (clear of the left-hand walk and the star-chart's lower-left
+ * epoch block).
+ */
+for (const viewport of [
+  { width: 1280, height: 720 },
+  { width: 1024, height: 768 },
+]) {
+  test(`docent cards never crowd the field at ${viewport.width}×${viewport.height}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport)
+    await toDesktop(page)
+
+    await expect(page.locator('[data-docent]')).toBeVisible()
+    const rects = await page.evaluate(() => {
+      const box = (el: Element) => {
+        const r = el.getBoundingClientRect()
+        return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }
+      }
+      const cards = [...document.querySelectorAll('.docent-card')].map(box)
+      const icons = [...document.querySelectorAll('.icon-field [data-specimen-id]')].map(box)
+      const rail = document.querySelector('[data-docent-hint="rail"]')
+      return {
+        cards,
+        icons,
+        railRight: rail ? box(rail).right : null,
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+      }
+    })
+
+    // Four annotations ship; every one stays fully inside the viewport.
+    expect(rects.cards).toHaveLength(4)
+    for (const card of rects.cards) {
+      expect(card.left).toBeGreaterThanOrEqual(0)
+      expect(card.top).toBeGreaterThanOrEqual(0)
+      expect(card.right).toBeLessThanOrEqual(rects.innerWidth)
+      expect(card.bottom).toBeLessThanOrEqual(rects.innerHeight)
+    }
+
+    // No card ever intersects a specimen icon (the crowding finding's gate).
+    const intersects = (
+      a: { left: number; top: number; right: number; bottom: number },
+      b: { left: number; top: number; right: number; bottom: number },
+    ): boolean => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
+    for (const card of rects.cards) {
+      for (const icon of rects.icons) {
+        expect(intersects(card, icon)).toBe(false)
+      }
+    }
+
+    // The cards keep their own territory too — no card-on-card overlap.
+    for (let i = 0; i < rects.cards.length; i += 1) {
+      for (let j = i + 1; j < rects.cards.length; j += 1) {
+        expect(intersects(rects.cards[i]!, rects.cards[j]!)).toBe(false)
+      }
+    }
+
+    // The rail annotation docks in the RIGHT half — out of the left-hand
+    // walk, clear of the plate's lower-left corner furniture.
+    expect(rects.railRight).not.toBeNull()
+    expect(rects.railRight!).toBeGreaterThan(rects.innerWidth / 2)
+  })
+}
+
 /* ------------------------------ UI-5 · context menus ---------------------- */
 
 test('right-click ground → New Drawer accessions into the FS and renders as an icon', async ({
@@ -161,14 +235,14 @@ test('right-click icon → Rename edits in place; the label persists after reloa
   await field.press('Enter')
 
   await expect(
-    page.getByRole('button', { name: 'field-manual.txt, SPC-0005, specimen' }),
+    page.getByRole('button', { name: 'field-manual.txt, SPC-0008, specimen' }),
   ).toBeVisible()
 
   await page.waitForTimeout(700)
   await page.reload()
   await expect(page.locator('[data-desktop-stage]')).toBeVisible({ timeout: 10_000 })
   await expect(
-    page.getByRole('button', { name: 'field-manual.txt, SPC-0005, specimen' }),
+    page.getByRole('button', { name: 'field-manual.txt, SPC-0008, specimen' }),
   ).toBeVisible()
 })
 

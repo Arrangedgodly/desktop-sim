@@ -214,20 +214,30 @@ describe('UI-7 · the card against a fixture pack', () => {
   })
 })
 
-/* -------------------------- the placeholder card ---------------------------- */
+/* ---------------------- the card against the REAL pack ---------------------- */
 
-describe('UI-7 · the card against the REAL placeholder pack', () => {
-  it('the ambient mount serves the stand-in officer and the awaiting notice', () => {
+describe('UI-7 · the card against the REAL filled pack', () => {
+  it('the ambient mount serves the officer’s own name and brass channel rows', () => {
+    // REFINEMENT #1 UNFREEZE: content/author.json ships filled (Graydon
+    // Wasil) — the card is the nameplate's hardware, portrait-first.
     const { container } = render(<NoticeCard />)
-    expect(container.querySelector('[data-notice-name]')?.textContent).toBe('Unassigned Officer')
-    expect(container.querySelector('[data-notice-awaiting]')?.textContent).toContain(
-      'AWAITING OFFICER MANIFEST',
-    )
-    expect(container.querySelector('[data-notice-empty]')?.textContent).toContain(
-      'No channels riveted',
-    )
+    expect(container.querySelector('[data-notice-name]')?.textContent).toBe('Graydon Wasil')
+    expect(container.querySelector('[data-notice-awaiting]')).toBeNull()
+    expect(container.querySelector('[data-notice-empty]')).toBeNull()
+    const anchors = [...container.querySelectorAll('a[data-notice-link]')]
+    expect(anchors.map((a) => a.getAttribute('href'))).toEqual([
+      'mailto:hello@graydonwasil.com',
+      'https://graydonwasil.com',
+      'https://github.com/arrangedgodly',
+    ])
+    for (const anchor of anchors) {
+      expect(anchor.getAttribute('target')).toBe('_blank')
+      expect(anchor.getAttribute('rel')).toBe('noopener noreferrer')
+    }
   })
+})
 
+describe('UI-7 · placeholder mode (pure fixture): zero anchors, zero debris', () => {
   it('placeholder mode renders ZERO anchors — no fake links, no marker debris', () => {
     const { container } = mountPlaceholder()
     expect(container.querySelectorAll('a')).toHaveLength(0)

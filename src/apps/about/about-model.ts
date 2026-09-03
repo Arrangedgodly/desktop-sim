@@ -181,8 +181,10 @@ export interface ConsoleKey {
  * The DD-1 map CONDENSED to the colophon (refinement #5 `onboard`): the
  * machine's operating legend, silkscreened where the machine speaks last.
  * Truth source is docs/KEYBOARD.md — every row here is that map's own wording
- * compressed, nothing invented; the full map (per-app floors included) stays
- * in the repo docs, pointed at by KEYS_DOC_REF.
+ * compressed, nothing invented. The full map stays in the repo docs, UNCITED
+ * by the colophon (P3 N2, refinement #1): docs/ is not shipped in dist/, so
+ * an in-app path citation could never resolve for a hosted visitor — the
+ * CONSOLE KEYS block stands alone in-world.
  */
 export const CONSOLE_KEYS: readonly ConsoleKey[] = Object.freeze([
   { keys: 'F6 / SHIFT+F6', does: 'travel the zones · hold, rail, window', full: true },
@@ -192,6 +194,3 @@ export const CONSOLE_KEYS: readonly ConsoleKey[] = Object.freeze([
   { keys: 'ALT+ESC', does: 'walk the window stack' },
   { keys: 'MENU / SHIFT+F10', does: 'the hold’s menus', full: true },
 ])
-
-/** Where the complete map lives (the colophon cites its own papers). */
-export const KEYS_DOC_REF = 'docs/KEYBOARD.md'

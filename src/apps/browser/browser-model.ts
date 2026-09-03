@@ -183,14 +183,26 @@ export function plateReadout(index: number, count: number): string {
 /* ---------------------------- screenshot join ------------------------------- */
 
 /**
- * Normalize a pack screenshot path onto the glob's key shape: strip a leading
- * `/` or `./` so both `content/screenshots/x.png` and the absolute-looking
- * `/content/screenshots/x.png` resolve to the same embedded asset.
+ * The archive's screenshot directory — where the fill task drops exhibit
+ * plates and where the surface's glob keys them.
+ */
+const SCREENSHOT_DIR = 'content/screenshots'
+
+/**
+ * Normalize a pack screenshot path onto the glob's key shape. Two spellings
+ * resolve to the same embedded asset: repo-relative paths
+ * (`content/screenshots/x.png`, with or without a leading `/` or `./`) and
+ * BARE FILENAMES (`x.png`) — the fill's natural shorthand, resolved against
+ * the screenshot directory the way the template's example points. A path
+ * that carries its own directory is respected verbatim after the prefix
+ * strip; anything unmapped still degrades to '' (the PLATE NOT DEVELOPED
+ * frame), never a broken image.
  */
 export function normalizeScreenshotPath(path: string): string {
   let out = path.trim()
   while (out.startsWith('./')) out = out.slice(2)
   if (out.startsWith('/')) out = out.slice(1)
+  if (out.length > 0 && !out.includes('/')) out = `${SCREENSHOT_DIR}/${out}`
   return out
 }
 

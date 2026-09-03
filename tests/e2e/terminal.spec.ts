@@ -147,8 +147,8 @@ test('accession walks the live catalog with the seed\'s real accession codes', a
   await expect(log(page)).toContainText('accession-charter.txt')
 
   // One specimen's full label record, by code.
-  await run(page, 'accession SPC-0005')
-  await expect(log(page)).toContainText('SPC-0005 · accession-charter.txt')
+  await run(page, 'accession SPC-0008')
+  await expect(log(page)).toContainText('SPC-0008 · accession-charter.txt')
   await expect(log(page)).toContainText('filed under')
   await expect(log(page)).toContainText('entries')
 })

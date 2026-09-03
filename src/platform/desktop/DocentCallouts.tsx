@@ -18,6 +18,13 @@
  * chords (F6 / Enter / Esc). It rides the same first-visit gate, the same × ,
  * the same settle; only its anchor differs (the rail, furniture that never
  * leaves), so it is docked above the rail by CSS rather than slot math.
+ *
+ * Refinement #1 (filled-state polish, P3 N1): the four cards no longer stack
+ * into one column beside the icon field. The three specimen cards STAGGER —
+ * each row's card steps right down the open field, marginal annotations
+ * walking down the page — and the rail annotation docks at the RIGHT margin,
+ * clear of the star-chart plate's lower-left epoch furniture. Same laws:
+ * first-visit only, dismissal persists, reduced-motion static.
  */
 
 import type { GridPosition } from '../../lib/fs'
@@ -47,12 +54,19 @@ const HINTS: readonly DocentHintSpec[] = [
 ]
 
 /**
+ * How far each successive row's card steps right (P3 N1): enough that two
+ * cards can never read as one stacked column, small enough that the walk
+ * stays inside the left half of even a 1024px field.
+ */
+const STAGGER_STEP = 72
+
+/**
  * The console's own annotation (refinement #5): the keyboard is the machine's,
  * so its card points at the RAIL — the console's furniture — instead of a
  * specimen, and is seated above the rail (CSS bottom anchoring, no slot math).
  * Key tokens ride the mono face inside the docent's serif sentence: a keycap
  * is a readout (the measuring law), and the three chords it names are the
- * ones the map cannot leave unknown. The full condensed map lives in the
+ * ones the map cannot leave unknown. The condensed map also lives in the
  * About colophon (CONSOLE KEYS); the complete law in docs/KEYBOARD.md.
  */
 const RAIL_HINT_GAP = 24 /** Clearance between the card and the rail it annotates. */
@@ -77,7 +91,12 @@ export function DocentCallouts({ slots, onDismiss }: DocentCalloutsProps) {
     (max, hint) => Math.max(max, DESKTOP_GRID.originX + (hint.slot.x + 1) * DESKTOP_GRID.cellW),
     0,
   )
-  const cardLeft = fieldRight + 20
+  // P3 N1's stagger: rows walk the cards down the field (row 0 nearest the
+  // icons, each later row one step further right) — the sorted distinct rows
+  // of the live anchors, ranked. First-visit anchors are the seed's three
+  // distinct rows, but the rank math stays honest whatever the field holds.
+  const rows = [...new Set(placed.map((hint) => hint.slot.y))].sort((a, b) => a - b)
+  const cardLeft = (slot: GridPosition): number => fieldRight + 20 + rows.indexOf(slot.y) * STAGGER_STEP
   const cardTop = (slot: GridPosition) =>
     DESKTOP_GRID.originY + slot.y * DESKTOP_GRID.cellH + 24
 
@@ -90,7 +109,7 @@ export function DocentCallouts({ slots, onDismiss }: DocentCalloutsProps) {
             <line
               key={hint.anchorId}
               className="docent-leader"
-              x1={cardLeft - 3}
+              x1={cardLeft(hint.slot) - 3}
               y1={cardTop(hint.slot) + 28}
               // The tip stops just off the glyph plate's shoulder — pointing
               // AT the specimen, never striking through the drawn glyph.
@@ -101,13 +120,13 @@ export function DocentCallouts({ slots, onDismiss }: DocentCalloutsProps) {
         })}
       </svg>
       {/* The rail annotation's leader: a short vertical drop from the card's
-          foot to the rail's top edge (CSS-seated above the rail, so no slot
-          math — the rail is furniture, not a specimen). */}
+          foot to the rail's top edge (CSS-seated above the rail at the RIGHT
+          margin — the rail is furniture, not slot math; the right dock keeps
+          the plate's lower-left corner furniture unobstructed, P3 N1). */}
       <svg
         className="docent-leaders docent-leaders--rail"
         aria-hidden="true"
         focusable="false"
-        style={{ left: cardLeft + 12 }}
       >
         <line className="docent-leader" x1={12} y1={0} x2={12} y2={RAIL_HINT_GAP} />
       </svg>
@@ -118,7 +137,7 @@ export function DocentCallouts({ slots, onDismiss }: DocentCalloutsProps) {
           role="note"
           data-docent-hint={hint.anchorId}
           style={{
-            left: cardLeft,
+            left: cardLeft(hint.slot),
             top: cardTop(hint.slot),
             animationDelay: `${index * 90}ms`,
           }}
@@ -138,7 +157,7 @@ export function DocentCallouts({ slots, onDismiss }: DocentCalloutsProps) {
         className="docent-card docent-card--rail parchment-surface"
         role="note"
         data-docent-hint="rail"
-        style={{ left: cardLeft, animationDelay: `${placed.length * 90}ms` }}
+        style={{ animationDelay: `${placed.length * 90}ms` }}
       >
         <p className="docent-text">
           This console answers the keyboard — <kbd className="docent-key">F6</kbd> travels ·{' '}

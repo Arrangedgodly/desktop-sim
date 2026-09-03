@@ -537,7 +537,7 @@ test('screen-reader smoke: the roles and names an AT would announce', async ({ p
   const charterIcon = page.locator('[data-specimen-id="charter"]')
   await expect(charterIcon).toHaveAttribute(
     'aria-label',
-    'accession-charter.txt, SPC-0005, specimen',
+    'accession-charter.txt, SPC-0008, specimen',
   )
 
   // Windows: dialog pattern with a resolvable labelledby title.

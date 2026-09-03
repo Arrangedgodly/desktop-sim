@@ -550,13 +550,3 @@
   color: var(--chrome-ink-dim);
   overflow-wrap: anywhere;
 }
-
-/* The pointer to the complete map — a B612 reference line, dim like the
-   version chip (a citation, not a control). */
-.about-keys-doc {
-  margin: 1px 0 0;
-  font-family: var(--font-mono);
-  font-size: var(--size-legend);
-  letter-spacing: 0.08em;
-  color: var(--chrome-ink-dim);
-}

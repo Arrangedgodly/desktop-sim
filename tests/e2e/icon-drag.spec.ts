@@ -166,7 +166,7 @@ test('double-clicking the about module reference opens the nameplate (AP-5), des
 
   await expect(page.locator('.wm-window[data-app-id="about"]')).toBeVisible()
   await expect(page.locator('.wm-window')).toHaveCount(1)
-  await expect(page.locator('[data-about-name]')).toHaveText('Unassigned Officer')
+  await expect(page.locator('[data-about-name]')).toHaveText('Graydon Wasil')
   await expect(page.locator('[data-desktop-stage]')).toBeVisible()
 
   const projects = page.locator('[data-specimen-id="projects"]')

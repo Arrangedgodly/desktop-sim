@@ -232,7 +232,7 @@ describe('AP-2 · the specimen-label editor surface', () => {
 
     const name = document.querySelector('[data-notepad-name]')!
     expect(name.textContent).toBe('accession-charter.txt')
-    expect(document.querySelector('.notepad-accession')!.textContent).toBe('SPC-0005')
+    expect(document.querySelector('.notepad-accession')!.textContent).toBe('SPC-0008')
     expect(sheet().value).toBe(textNode('charter').content)
     expect(lamp().getAttribute('data-lit')).toBe('false') // clean at open
     expect(document.querySelector('[data-notepad-strip]')).toBeNull()

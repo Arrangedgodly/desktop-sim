@@ -24,10 +24,10 @@ import { startPreviewServer, type PreviewServer } from './e2e-helpers'
  *         inside the explorer; notepad edits persist; a full-session state
  *         dump survives reload byte-for-byte (IDB envelope compared).
  *   AC-5  every MVP app opens and performs its function; About + Browser
- *         proven against the fixture pack in the HE-2 prove-then-revert
- *         build pass (one-time, log-documented) — the durable gates here pin
- *         the honest placeholder truth (stand-ins, zero debris, disabled
- *         external actions with reasons, zero iframes).
+ *         read the FILLED content pack (refinement #1: Graydon Wasil's
+ *         content/author.json) — real name, real channels as safe anchors,
+ *         the five exhibits with embedded screenshots, zero iframes, zero
+ *         fill-in debris.
  *   AC-6  phone notice card replaces the desktop at 390×844.
  *   AC-7  keyboard journey = the DD-1 keyboard.spec suite (referenced as
  *         evidence; re-run green inside the same suite execution).
@@ -38,7 +38,7 @@ import { startPreviewServer, type PreviewServer } from './e2e-helpers'
  *
  * Visual evidence lands in .impeccable/review/ (real Playwright screenshots):
  * desktop.png, windows-open.png, fs-session.png, about-nameplate.png,
- * atlas-placeholder.png, notice-390.png.
+ * atlas-plate.png, notice-390.png.
  */
 
 let preview: PreviewServer | null = null
@@ -683,7 +683,7 @@ test('AC-4 filesystem: context-menu create/rename/delete on desktop AND in explo
 
 /* =============================== AC-5 · apps ============================= */
 
-test('AC-5 apps: all six MVP apps open and perform their function (placeholder pack: honest stand-ins)', async ({
+test('AC-5 apps: all six MVP apps open and perform their function (filled pack: real content)', async ({
   page,
 }) => {
   test.slow()
@@ -737,27 +737,34 @@ test('AC-5 apps: all six MVP apps open and perform their function (placeholder p
   await settings.locator('[data-settings-plate="star-chart"]').click()
   await expect(page.locator('[data-wallpaper]')).toHaveAttribute('data-wallpaper', 'star-chart')
 
-  // ABOUT — the nameplate manifest: placeholder law (stand-ins, no anchors,
-  // zero fill-in debris) until the content pack lands.
+  // ABOUT — the nameplate manifest: the filled pack's record (the officer's
+  // own name + channels, zero fill-in debris).
   await page.getByRole('button', { name: 'Module drawer — launch a module' }).click()
   await page.getByRole('menuitem', { name: 'Nameplate Manifest' }).click()
   const about = page.locator('.wm-window[data-app-id="about"]')
-  await expect(about.locator('[data-about-name]')).toHaveText('Unassigned Officer')
-  await expect(about.locator('[data-about-link]')).toHaveCount(0) // no fake links
+  await expect(about.locator('[data-about-name]')).toHaveText('Graydon Wasil')
+  await expect(about.locator('[data-about-link]')).toHaveCount(3)
   await about.screenshot({ path: join(REVIEW_DIR, 'about-nameplate.png') })
 
-  // BROWSER — the field atlas: curated stand-in cards, zero iframes, external
-  // actions honestly disabled with reasons (no URLs in the placeholder pack).
+  // BROWSER — the field atlas: the five real exhibits, embedded screenshots,
+  // zero iframes; Rhymepage carries BOTH external channels as anchors.
   await page.getByRole('button', { name: 'Module drawer — launch a module' }).click()
   await page.getByRole('menuitem', { name: 'Field Atlas' }).click()
   const atlas = page.locator('.wm-window[data-app-id="browser"]')
-  await expect(atlas.locator('[data-browser-card]')).toHaveCount(2)
+  await expect(atlas.locator('[data-browser-card]')).toHaveCount(5)
+  await expect(atlas.locator('.browser-card-image')).toHaveCount(5)
   await expect(atlas.locator('iframe')).toHaveCount(0)
   await atlas.locator('[data-browser-card]').first().click()
   await expect(atlas.locator('[data-browser-page]')).toBeVisible()
-  await expect(atlas.locator('[data-browser-live]')).toBeDisabled()
-  await expect(atlas.locator('[data-browser-repo]')).toBeDisabled()
-  await atlas.screenshot({ path: join(REVIEW_DIR, 'atlas-placeholder.png') })
+  await expect(atlas.locator('[data-browser-live]')).toHaveAttribute(
+    'href',
+    'https://graydonwasil.com',
+  )
+  await expect(atlas.locator('[data-browser-repo]')).toHaveAttribute(
+    'href',
+    'https://github.com/arrangedgodly/rhymepage',
+  )
+  await atlas.screenshot({ path: join(REVIEW_DIR, 'atlas-plate.png') })
   await expect(atlas.locator('iframe')).toHaveCount(0)
 
   // Every app of the six ran in this one session; five remain live (the
@@ -784,8 +791,14 @@ test('AC-6 phone: at 390×844 the notice card replaces the desktop — no broken
   await expect(page.locator('[data-desktop-stage]')).toHaveCount(0)
   await expect(page.locator('.wm-window')).toHaveCount(0)
   await expect(page.locator('[data-taskbar]')).toHaveCount(0)
-  // Placeholder honesty: no fabricated links.
-  await expect(page.locator('[data-notice-link]')).toHaveCount(0)
+  // The filled pack's channels ride as real safe anchors (refinement #1).
+  await expect(page.locator('[data-notice-name]')).toHaveText('Graydon Wasil')
+  const noticeLinks = page.locator('[data-notice-link]')
+  await expect(noticeLinks).toHaveCount(3)
+  for (let i = 0; i < 3; i += 1) {
+    await expect(noticeLinks.nth(i)).toHaveAttribute('target', '_blank')
+    await expect(noticeLinks.nth(i)).toHaveAttribute('rel', 'noopener noreferrer')
+  }
   // No horizontal scroll at the phone width.
   const overflow = await page.evaluate(() => {
     const el = document.scrollingElement ?? document.documentElement

@@ -59,7 +59,7 @@ test('double-click a drawer opens the explorer at that drawer; one window per dr
 
   // Children in catalog (accession) order: the plate series leads the specimens.
   const options = page.locator('[data-explorer-listbox] [data-explorer-option]')
-  await expect(options).toHaveCount(3) // 2 exhibit specimens + reference plate
+  await expect(options).toHaveCount(6) // 5 exhibit specimens + reference plate
   await expect(options.first()).toHaveAttribute('data-kind', 'image')
 
   // Ledger density: readout columns, same order.
@@ -101,7 +101,7 @@ test('navigate into a subfolder by double-click; jump by crumb; back returns', a
   // Crumb jump: straight back to Projects.
   await page.locator('[data-explorer-crumb="projects"]').click()
   await expect(page.locator('[data-explorer-crumb]')).toHaveCount(2)
-  await expect(page.locator('[data-explorer-listbox] [data-explorer-option]')).toHaveCount(4)
+  await expect(page.locator('[data-explorer-listbox] [data-explorer-option]')).toHaveCount(7)
 
   // Back walks the history into the fresh drawer again.
   await page.locator('[data-explorer-back]').click()
@@ -158,6 +158,6 @@ test('the about module reference opens the nameplate manifest (AP-5 registered i
   // manifest for real — same unfreeze class as the drawers at AP-1.
   await expect(page.locator('.wm-window[data-app-id="about"]')).toBeVisible()
   await expect(page.locator('.wm-window')).toHaveCount(2) // this drawer + the manifest
-  await expect(page.locator('[data-about-name]')).toHaveText('Unassigned Officer')
+  await expect(page.locator('[data-about-name]')).toHaveText('Graydon Wasil')
   await expect(page.locator('[data-explorer-crumb="root"]')).toBeVisible() // the drawer carries on
 })

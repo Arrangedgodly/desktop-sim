@@ -193,8 +193,16 @@ describe('AP-1 · drawer contents', () => {
     mountSurface()
 
     expect(crumbs()).toEqual(['root', 'projects'])
-    // listChildren's law: PLT-0001 sorts before SPC-0001/0002 (series, serial).
-    expect(optionIds()).toEqual(['reference-plate', 'exhibit-01', 'exhibit-02'])
+    // listChildren's law: PLT-0001 sorts before SPC-0001..0005 (series, serial)
+    // — the filled pack seeds all five exhibits in the drawer.
+    expect(optionIds()).toEqual([
+      'reference-plate',
+      'exhibit-01',
+      'exhibit-02',
+      'exhibit-03',
+      'exhibit-04',
+      'exhibit-05',
+    ])
     expect(document.querySelector('.explorer-accession')!.textContent).toBe('DRW-0001')
   })
 
@@ -209,15 +217,18 @@ describe('AP-1 · drawer contents', () => {
     fireEvent.click(document.querySelector('[data-explorer-view="list"]')!)
 
     const rows = [...document.querySelectorAll('.explorer-row')]
-    expect(rows).toHaveLength(3)
+    expect(rows).toHaveLength(6)
     // Accession column rides the mono digits; order is the catalog's.
     expect(rows.map((row) => row.querySelector('.explorer-row-accession')!.textContent)).toEqual([
       'PLT-0001',
       'SPC-0001',
       'SPC-0002',
+      'SPC-0003',
+      'SPC-0004',
+      'SPC-0005',
     ])
     expect(rows[0]!.querySelector('.explorer-row-kind')!.textContent).toBe('plate')
-    expect(rows[0]!.querySelector('.explorer-row-stamp')!.textContent).toBe('2087-03-14 09:32')
+    expect(rows[0]!.querySelector('.explorer-row-stamp')!.textContent).toBe('2087-03-14 09:35')
   })
 
   it('an empty drawer shows the in-world empty state, not a listbox', () => {
@@ -273,7 +284,15 @@ describe('AP-1 · breadcrumb + back/up navigation', () => {
     fireEvent.click(document.querySelector('[data-explorer-crumb="projects"]')!)
     expect(crumbs()).toEqual(['root', 'projects'])
     // Catalog order sorts by series: the fresh DRW drawer leads the listing.
-    expect(optionIds()).toEqual(['sub', 'reference-plate', 'exhibit-01', 'exhibit-02'])
+    expect(optionIds()).toEqual([
+      'sub',
+      'reference-plate',
+      'exhibit-01',
+      'exhibit-02',
+      'exhibit-03',
+      'exhibit-04',
+      'exhibit-05',
+    ])
   })
 
   it('back returns through history; up climbs one drawer; both disable at their ends', () => {
@@ -503,16 +522,18 @@ describe('AP-1 · selection + listbox keyboard floor', () => {
 
     fireEvent.keyDown(listbox, { key: 'ArrowDown' })
     expect(document.activeElement).toBe(option('exhibit-02'))
-    fireEvent.keyDown(listbox, { key: 'ArrowDown' }) // wraps to the top
-    expect(document.activeElement).toBe(option('reference-plate'))
-    fireEvent.keyDown(listbox, { key: 'ArrowUp' }) // wraps back to the bottom
-    expect(document.activeElement).toBe(option('exhibit-02'))
     fireEvent.keyDown(listbox, { key: 'Home' })
     expect(document.activeElement).toBe(option('reference-plate'))
     fireEvent.keyDown(listbox, { key: 'End' })
-    expect(document.activeElement).toBe(option('exhibit-02'))
+    expect(document.activeElement).toBe(option('exhibit-05'))
+    fireEvent.keyDown(listbox, { key: 'ArrowDown' }) // wraps to the top
+    expect(document.activeElement).toBe(option('reference-plate'))
+    fireEvent.keyDown(listbox, { key: 'ArrowUp' }) // wraps back to the bottom
+    expect(document.activeElement).toBe(option('exhibit-05'))
+    fireEvent.keyDown(listbox, { key: 'Home' })
+    expect(document.activeElement).toBe(option('reference-plate'))
     // Horizontal arrows ride the same floor for the card grid.
-    fireEvent.keyDown(listbox, { key: 'ArrowLeft' })
+    fireEvent.keyDown(listbox, { key: 'ArrowRight' })
     expect(document.activeElement).toBe(option('exhibit-01'))
     // Arrow keys never leave the listbox while a rename field is focused.
     const input = (() => {
@@ -630,11 +651,23 @@ describe('AP-1 · model helpers (pure)', () => {
 describe('HU-2 (c) · empty folders beyond the static case', () => {
   it('deleting the LAST child of a viewed drawer swaps the listing for the empty state live', () => {
     mountSurface(fileLaunch('projects'))
-    expect(optionIds()).toEqual(['reference-plate', 'exhibit-01', 'exhibit-02'])
+    expect(optionIds()).toEqual([
+      'reference-plate',
+      'exhibit-01',
+      'exhibit-02',
+      'exhibit-03',
+      'exhibit-04',
+      'exhibit-05',
+    ])
 
     act(() => {
+      // The filled pack's drawer: drain every child through the real op.
       const { fs, commit } = useFSStore.getState()
-      commit(deleteNode(deleteNode(deleteNode(fs, 'reference-plate'), 'exhibit-01'), 'exhibit-02'))
+      let drained = fs
+      for (const id of ['reference-plate', 'exhibit-01', 'exhibit-02', 'exhibit-03', 'exhibit-04', 'exhibit-05']) {
+        drained = deleteNode(drained, id)
+      }
+      commit(drained)
     })
 
     const empty = document.querySelector('[data-explorer-empty]')

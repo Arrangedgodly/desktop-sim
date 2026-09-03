@@ -21,6 +21,7 @@ import { apps } from '../index'
 import { browserApp } from './index'
 import { BrowserIcon } from './BrowserIcon'
 import BrowserSurface, { FieldAtlas } from './BrowserSurface'
+import type { CatalogSheet } from './browser-model'
 import {
   EMPTY_TITLE,
   NO_LIVE_REASON,
@@ -104,8 +105,14 @@ const SHOTS: Readonly<Record<string, string>> = {
   'content/screenshots/atlas.png': '/assets/atlas-BmXx2.webp',
 }
 
-/** The seeded sheet — exhibit-01/02 have specimens; exhibit-03 does not. */
+/** The seeded sheet — the FILLED pack's five exhibits all have specimens. */
 const SHEET = seedFSState()
+
+/** A sheet with exhibit-03 deleted elsewhere (the honest-gap fixture). */
+const GAP_SHEET: CatalogSheet = {
+  rootId: SHEET.rootId,
+  nodes: Object.fromEntries(Object.entries(SHEET.nodes).filter(([id]) => id !== 'exhibit-03')),
+}
 
 /** The atlas document against the fixture pack (the filled-pack path). */
 function mountFixture(): ReturnType<typeof render> {
@@ -289,10 +296,13 @@ describe('AP-6 · placeholder mode (a recruiter never sees template debris)', ()
     expect(document.querySelector('[data-browser-undeveloped]')).not.toBeNull()
   })
 
-  it('the MOUNTED surface reads the ambient seams (placeholder until the pack lands)', () => {
+  it('the MOUNTED surface reads the ambient seams (filled: the officer’s five exhibits)', () => {
+    // REFINEMENT #1 UNFREEZE: content/author.json ships filled — the ambient
+    // atlas renders the real catalogue, stand-ins gone.
     render(<BrowserSurface windowId="w-browser" launch={{ source: 'launcher' }} />)
-    expect(document.querySelectorAll('[data-browser-card]')).toHaveLength(2)
-    expect(document.querySelector('[data-browser-awaiting]')).not.toBeNull()
+    expect(document.querySelectorAll('[data-browser-card]')).toHaveLength(5)
+    expect(document.querySelector('[data-browser-awaiting]')).toBeNull()
+    expect(document.querySelector('[data-browser-readout]')!.textContent).toBe('5 PLATES')
   })
 })
 
@@ -347,7 +357,10 @@ describe('AP-6 · card → plate page → back, with wrapping pages', () => {
   })
 
   it('an unjoined slot degrades to UNFILED — never a stale accession', () => {
-    mountFixture()
+    // REFINEMENT #1 UNFREEZE: the filled pack seeds all five exhibits, so the
+    // gap is manufactured honestly — the specimen deleted elsewhere — exactly
+    // the state the UNFILED fallback exists for.
+    render(<FieldAtlas view={atlasView(FIXTURE_PACK, false)} sheet={GAP_SHEET} shots={SHOTS} />)
     fireEvent.click(document.querySelectorAll('[data-browser-card]')[2]!)
 
     expect(document.querySelector('[data-browser-accession]')!.textContent).toBe(
@@ -597,10 +610,15 @@ describe('AP-6 · model helpers (pure)', () => {
     expect(screenshotSrc('./content/screenshots/atlas.png', SHOTS)).toBe(
       '/assets/atlas-BmXx2.webp',
     )
+    // REFINEMENT #1: the fill's natural shorthand — a BARE FILENAME names a
+    // file in the archive's screenshot directory (the shipped pack uses it).
+    expect(screenshotSrc('atlas.png', SHOTS)).toBe('/assets/atlas-BmXx2.webp')
     expect(screenshotSrc('content/screenshots/missing.png', SHOTS)).toBe('')
+    expect(screenshotSrc('missing.png', SHOTS)).toBe('')
     expect(screenshotSrc('', SHOTS)).toBe('')
     expect(normalizeScreenshotPath('/content/x.png')).toBe('content/x.png')
     expect(normalizeScreenshotPath('./content/x.png')).toBe('content/x.png')
+    expect(normalizeScreenshotPath('x.png')).toBe('content/screenshots/x.png')
   })
 
   it('linkHost: hostname verbatim, junk is total', () => {

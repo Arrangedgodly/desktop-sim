@@ -18,14 +18,11 @@ import { expect, test, type Page } from '@playwright/test'
  * 5. The gate swaps cleanly BOTH ways across the 1024px floor (1023 is a
  *    phone, 1024 is a desktop — the boundary itself, in a real engine).
  *
- * HONEST LIMIT — link rows: the pack on this repo is the placeholder pack
- * (no links until the fill task lands content/author.json), so the served
- * DOM has no channel anchors to click or measure. The anchors'
- * target=_blank + rel=noopener noreferrer and the ≥44px touch targets are
- * unit-proven in src/platform/notice/notice.test.tsx against a fixture pack
- * plus the sheet's min-height source-scan — the same rendering path a filled
- * pack drives. Here we prove the honest placeholder state instead (no
- * channels, no fake URLs, the dashed AWAITING notice).
+ * REFINEMENT #1 UNFREEZE: the pack on this repo is FILLED (Graydon Wasil's
+ * content/author.json), so the card serves the officer's own name and three
+ * brass channel rows as REAL safe anchors — target=_blank +
+ * rel=noopener noreferrer, live-asserted here (the placeholder-era honest
+ * limit is retired).
  */
 
 /** Patch-count: every AudioContext the page EVER constructs (settings.spec precedent). */
@@ -77,7 +74,8 @@ test('phone portrait 390×844: the notice card replaces the desktop, nothing mou
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
 
-  // The card is the page: title, POST-style well, stand-in officer, awaiting notice.
+  // The card is the page: title, POST-style well, the officer's own record,
+  // brass channel rows (the filled pack — refinement #1).
   const card = page.locator('[data-notice-card]')
   await expect(card).toBeVisible()
   await expect(page.locator('h1[data-notice-title]')).toHaveText('Limited Bandwidth Console')
@@ -86,12 +84,26 @@ test('phone portrait 390×844: the notice card replaces the desktop, nothing mou
   await expect(page.locator('[data-notice-message]')).toContainText(
     'This console requires a larger viewport',
   )
-  await expect(page.locator('[data-notice-name]')).toHaveText('Unassigned Officer')
-  await expect(page.locator('[data-notice-awaiting]')).toContainText('AWAITING OFFICER MANIFEST')
-  await expect(page.locator('[data-notice-empty]')).toContainText('No channels riveted')
+  await expect(page.locator('[data-notice-name]')).toHaveText('Graydon Wasil')
+  await expect(page.locator('[data-notice-awaiting]')).toHaveCount(0)
 
-  // Placeholder honesty: no anchors (no fake links), no fill-in-form debris.
-  await expect(page.locator('[data-notice-link]')).toHaveCount(0)
+  // The three channels are real safe anchors with verbatim hosts.
+  const links = page.locator('[data-notice-link]')
+  await expect(links).toHaveCount(3)
+  await expect(links.nth(0)).toHaveAttribute('href', 'mailto:hello@graydonwasil.com')
+  await expect(links.nth(1)).toHaveAttribute('href', 'https://graydonwasil.com')
+  await expect(links.nth(2)).toHaveAttribute('href', 'https://github.com/arrangedgodly')
+  for (let i = 0; i < 3; i += 1) {
+    await expect(links.nth(i)).toHaveAttribute('target', '_blank')
+    await expect(links.nth(i)).toHaveAttribute('rel', 'noopener noreferrer')
+  }
+  await expect(page.locator('[data-notice-domain]')).toHaveText([
+    'hello@graydonwasil.com',
+    'graydonwasil.com',
+    'github.com',
+  ])
+
+  // Filled honesty: no fill-in-form debris anywhere.
   const debris = await page.evaluate(() => {
     const text = document.documentElement.innerText
     return {

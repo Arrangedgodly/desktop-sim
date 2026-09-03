@@ -9,12 +9,12 @@ non-visual pass lives in `tests/e2e/keyboard.spec.ts`).
 This file is the full law, but the console no longer keeps it repo-only:
 
 - **First visit** — the docent's fourth annotation card (docked above the
-  drawer rail, leader line down to the rail) names the three essential chords:
-  *F6 travels · Enter opens · Esc closes*. First visit only; any interaction
-  or the card's × retires it (persisted).
+  drawer rail at the right margin, leader line down to the rail) names the
+  three essential chords: *F6 travels · Enter opens · Esc closes*. First visit
+  only; any interaction or the card's × retires it (persisted).
 - **About manifest** — the dark-chrome colophon carries **CONSOLE KEYS**, the
   map below condensed to its operating legend (keycaps in B612, actions
-  engraved), and cites this file for the full map.
+  engraved). The block stands alone in-world; this file is the repo-side law.
 
 Both surfaces are fixtures of the world, not help chrome: the docent card is a
 parchment annotation like its siblings, and the colophon block rides the

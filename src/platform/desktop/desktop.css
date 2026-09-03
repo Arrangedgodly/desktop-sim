@@ -426,17 +426,22 @@
    figure) instead of hanging beside a specimen: it annotates the console
    itself, and its leader drops from the card's foot to the rail's top edge.
    Both offsets are CSS-seated so the card tracks the rail whatever the
-   viewport — the rail is furniture, never slot math. */
+   viewport — the rail is furniture, never slot math. Refinement #1 (P3 N1):
+   the dock sits at the RIGHT margin, clear of the star-chart plate's
+   lower-left epoch furniture and out of the staggered left-hand walk. */
 
 .docent-card--rail {
   bottom: calc(44px + 24px); /* rail height + the leader's clearance */
   top: auto;
+  left: auto;
+  right: 24px; /* the right-hand dock — furniture margin, never slot math */
 }
 
 .docent-leaders--rail {
   position: absolute;
   inset: auto; /* un-seat the full-stage frame (.docent-leaders) first */
   bottom: 44px; /* seated on the rail's top edge */
+  right: 34px; /* the drop rides ~10px inside the right-docked card's foot */
   width: 24px;
   height: 24px;
 }
