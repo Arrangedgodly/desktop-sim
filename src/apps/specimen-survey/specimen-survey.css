@@ -1,0 +1,372 @@
+/* ----------------------------------------------------------------------------
+   Specimen Survey styles — batch 2, brief 5 (The Survey Archive). App-owned,
+   app-scoped (.survey-*), consuming src/styles/tokens.css + global.css
+   primitives — no custom properties defined here, NO RAW HEX anywhere (the
+   repo's grep-tested token law).
+
+   World law this sheet obeys (design-brief.md + DESIGN.md + the brief's own
+   adjudications):
+   · THE DIG SITE IS A WELL — the whole grid lives inside one recessed
+     phosphor well (.well supplies the deepest ground, the mono face, the
+     tabular digits, the bloom); amber states distinguish plot states by
+     BRIGHTNESS LEVELS ONLY (phosphor-dim / phosphor / phosphor-bright),
+     never by hue — monochrome amber discipline;
+   · brass ONLY at hardware touchpoints — the brass PINS (a pin is hardware
+     the operator places) and the New Survey action (a button you press);
+   · oxide ONLY where something is lost — the DISTURBED plot and the loss
+     status (the brief's explicit "oxide flash", rendered as a STATIC state:
+     no explosion animation exists, so reduced-motion is identical BY
+     CONSTRUCTION). The terminal's "oxide never enters a well" discipline
+     yields here to the brief's explicit call — this is the one oxide
+     surface inside a well, and it means loss;
+   · digits ride B612 Mono (the Measuring Law) — the numerals and readouts;
+     legends are engraved Chakra Petch caps;
+   · ONE authored moment: the well WARMS UP on mount (35% → lit, the POST's
+     own tube vocabulary — it never starts blank). Everything else — plot
+     reveals, pins, end states — SNAPS between states; there are zero
+     transitions in this sheet;
+   · sharp corners everywhere (the Machined Edge Rule) — nothing rounds.
+---------------------------------------------------------------------------- */
+
+.survey {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--chrome-ground);
+  color: var(--chrome-ink);
+}
+
+/* -- toolbar (console chrome) ---------------------------------------------- */
+
+.survey-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  box-sizing: border-box; /* min-height is the WHOLE plate (explorer's law) */
+  min-height: 36px;
+  padding: 5px 8px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The engraved preset selector — three control plates, one per deal. */
+.survey-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.survey-preset {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.survey-preset:hover {
+  background: var(--chrome-ground);
+}
+
+.survey-preset:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+/* The dealt preset: pressed INTO the plate with LIT legend ink (the
+   platform's engaged-toggle precedent) — lit color, never a glow. */
+.survey-preset[aria-pressed='true'] {
+  color: var(--phosphor);
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.survey-preset:focus-visible {
+  outline: 2px solid var(--focus-ring); /* the amber beam on chrome */
+  outline-offset: 1px;
+}
+
+/* New Survey — the primary brass action (hardware you press). */
+.survey-new {
+  flex: 0 0 auto;
+  min-height: 30px;
+  margin-left: auto;
+  padding: 4px 16px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ground);
+  background: var(--brass);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--brass-hi),
+    inset -1px -1px 0 var(--brass-lo);
+  cursor: pointer;
+}
+
+.survey-new:hover {
+  background: var(--brass-hi);
+}
+
+.survey-new:active {
+  box-shadow:
+    inset 1px 1px 0 var(--brass-lo),
+    inset -1px -1px 0 var(--brass-hi);
+}
+
+.survey-new:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* -- the readout rail ---------------------------------------------------------
+   Engraved legends beside B612 well chips (digits ride the well primitive's
+   mono + tabular discipline); the status word closes the rail. */
+
+.survey-rail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  min-height: 34px;
+  padding: 4px 10px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.survey-readout-label {
+  flex: 0 0 auto;
+  margin-left: 6px;
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+  text-shadow:
+    0 1px 0 rgb(0 0 0 / 70%),
+    0 2px 0 rgb(255 230 176 / 12%);
+}
+
+.survey-readout-label:first-child {
+  margin-left: 0;
+}
+
+.survey-readout {
+  flex: 0 0 auto;
+  min-width: 4ch;
+  padding: 2px 8px;
+  text-align: center;
+  font-size: var(--size-legend-lg);
+}
+
+.survey-readout[data-survey-readout='elapsed'] {
+  min-width: 6ch; /* 00:00 holds its seat — a readout never reflows */
+}
+
+/* The dig's state — a word on the chrome; loss alone wears oxide-bright
+   (5.2:1 on ground), the win runs hot amber. */
+.survey-status {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 70%);
+}
+
+.survey-status[data-status='cleared'] {
+  color: var(--phosphor-bright);
+}
+
+.survey-status[data-status='disturbed'] {
+  color: var(--oxide-bright);
+}
+
+/* -- the dig site (THE well) ----------------------------------------------------
+   One deep phosphor well fills the module; the field centers in it. Plots:
+   sealed = raised soil (a step above the well floor + bevel), excavated =
+   flat at the screen, numerals in amber brightness levels, pins in brass. */
+
+.survey-well {
+  position: relative; /* anchors the scanline overlay */
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto; /* a small window still reaches every plot */
+  animation: survey-well-warm var(--dur-beat) var(--ease-console);
+}
+
+/* The ONE authored moment: the tube warms from 35% — already lit, never
+   blank (the POST's own vocabulary; the global reduced-motion kill-switch
+   collapses it to the lit end-state). */
+@keyframes survey-well-warm {
+  from {
+    opacity: 0.35;
+  }
+}
+
+.survey-grid {
+  display: grid;
+  gap: 2px;
+  margin: auto; /* the field centers in the pit */
+  padding: 10px;
+}
+
+/* ARIA rows fold into the visual grid (cells ARE the grid items). */
+.survey-row {
+  display: contents;
+}
+
+.survey-plot {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  font-family: var(--font-mono); /* the numerals ride the mono face (Measuring Law) */
+  font-size: 0.8125rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: var(--chrome-sunken); /* sealed soil: a step above the well floor */
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+  color: var(--phosphor);
+  cursor: pointer;
+}
+
+.survey-plot:hover {
+  background: var(--chrome-ground); /* brushed soil lifts one step */
+}
+
+.survey-plot:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.survey-plot:focus-visible {
+  outline: 2px solid var(--focus-ring); /* the beam, inside the well */
+  outline-offset: -2px;
+}
+
+/* An ended dig freezes the field: the plots read, the hand is off. */
+.survey[data-ended] .survey-plot {
+  cursor: default;
+}
+
+/* Excavated: flat at the screen — the soil is gone, only the reading
+   remains. No bevel, the well floor itself. */
+.survey-plot[data-state='clear'],
+.survey-plot[data-state='numbered'] {
+  background: var(--well-ground);
+  border-color: var(--well-ground);
+  box-shadow: none;
+  cursor: default;
+}
+
+/* Proximity numerals in amber LEVELS — brightness carries the count. */
+.survey-plot[data-state='numbered'][data-prox='1'],
+.survey-plot[data-state='numbered'][data-prox='2'] {
+  color: var(--phosphor-dim); /* aged amber — sparse company */
+}
+
+.survey-plot[data-state='numbered'][data-prox='3'],
+.survey-plot[data-state='numbered'][data-prox='4'] {
+  color: var(--phosphor); /* lit amber — company */
+}
+
+.survey-plot[data-state='numbered'][data-prox='5'],
+.survey-plot[data-state='numbered'][data-prox='6'],
+.survey-plot[data-state='numbered'][data-prox='7'],
+.survey-plot[data-state='numbered'][data-prox='8'] {
+  color: var(--phosphor-bright); /* hot amber — crowded ground */
+}
+
+/* The brass pin — hardware the operator places; the catch-light rides the
+   head, the point finds the soil. */
+.survey-pin {
+  display: block;
+  width: 70%;
+  height: 70%;
+  fill: var(--brass);
+  stroke: var(--brass-lo);
+  stroke-width: 0.5;
+}
+
+.survey-pin-eye {
+  fill: var(--well-ground); /* the pin's drilled eye reads the well floor */
+  stroke: none;
+}
+
+/* A specimen lying open after a loss — the quiet burst (oxide ink on the
+   well floor, a warning mark, not the event itself). */
+.survey-specimen {
+  display: block;
+  width: 62%;
+  height: 62%;
+  fill: none;
+  stroke: var(--oxide-bright);
+}
+
+/* THE disturbed plot — the oxide flash as a STATIC state: the deep oxide
+   base wearing light parchment ink (the oxide law), border carrying the
+   engagement. No animation exists; reduced-motion is identical by
+   construction. */
+.survey-plot[data-state='disturbed'] {
+  background: var(--oxide-deep);
+  border-color: var(--oxide);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 220 200 / 14%),
+    inset -1px -1px 0 rgb(0 0 0 / 40%);
+  cursor: default;
+}
+
+.survey-specimen--disturbed {
+  stroke: var(--parchment); /* light ink on the deep oxide base (the law) */
+}
+
+/* -- assistive mirror of the dig's state (the well is a picture) ------------- */
+
+.survey-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
