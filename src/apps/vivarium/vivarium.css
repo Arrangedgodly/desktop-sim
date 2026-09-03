@@ -1,0 +1,252 @@
+/* ----------------------------------------------------------------------------
+   Vivarium styles (batch 2, brief 1) — app-owned, app-scoped (.vivarium-*),
+   consuming src/styles/tokens.css + global primitives (.well, .scanlines,
+   .engraved). NO custom properties defined here, NO RAW HEX anywhere (the
+   repo's grep-tested token law).
+
+   World law this sheet obeys (design-brief.md + DESIGN.md):
+   · THE TANK IS THE WELL — the canvas sits inside one deep phosphor well
+     (.well + .scanline overlay); amber (canvas ink, resolved from tokens at
+     draw time) never leaves it; the sheet itself carries NO glow;
+   · brass ONLY at hardware touchpoints — the PAUSE bat (a switch you throw)
+     is this module's one brass piece;
+   · oxide — absent: nothing here can be lost;
+   · digits ride B612 Mono (the Measuring Law — the census readouts); legends
+     are engraved Chakra Petch caps;
+   · ONE transition: the switch bat's throw (120ms control feedback, transform
+     only). The tank's motion lives in the canvas, not the chrome — the sheet
+     has no other transitions and no animations;
+   · sharp corners everywhere (the Machined Edge Rule) — the only circle is
+     the switch's drilled state lamp (50%).
+---------------------------------------------------------------------------- */
+
+.vivarium {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* -- the census bar (console chrome) --------------------------------------- */
+
+.vivarium-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  row-gap: 5px;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 5px 8px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  color: var(--chrome-ink);
+  font-family: var(--font-label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.vivarium-legend {
+  flex: 0 0 auto;
+}
+
+/* The census readouts — digits ride B612 inside wells (the Measuring Law). */
+.vivarium-readout {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  font-size: var(--size-legend-lg);
+  white-space: nowrap;
+}
+
+/* HELD — the pause state's flag, dim phosphor in its own well. */
+.vivarium-hold {
+  flex: 0 0 auto;
+  padding: 3px 8px;
+  font-size: var(--size-legend);
+  letter-spacing: var(--track-legend-wide);
+  color: var(--phosphor-dim);
+  white-space: nowrap;
+}
+
+.vivarium-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+}
+
+/* -- the STEP control (reduced motion only) — a text-bearing control plate -- */
+
+.vivarium-step {
+  flex: 0 0 auto;
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.vivarium-step:hover {
+  background: var(--chrome-ground);
+}
+
+.vivarium-step:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+/* -- the PAUSE hardware switch (the module's one brass touchpoint) ---------- */
+
+.vivarium-switch {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  padding: 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.vivarium-switch:disabled {
+  cursor: default;
+}
+
+.vivarium-switch-caption {
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+}
+
+.vivarium-switch:disabled .vivarium-switch-caption {
+  opacity: 0.5;
+}
+
+/* The housing: a raised instrument plate carrying the recessed slot. */
+.vivarium-switch-housing {
+  position: relative;
+  display: block;
+  width: 46px;
+  height: 22px;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+}
+
+.vivarium-switch-slot {
+  position: absolute;
+  inset: 3px;
+  background: var(--chrome-sunken);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+/* The brass bat — hardware you throw. THE sheet's one transition: the bat
+   snaps home on transform (120ms control feedback; collapses under reduced
+   motion via the global rule). */
+.vivarium-bat {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 14px;
+  background: var(--brass);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--brass-hi),
+    inset -1px -1px 0 var(--brass-lo);
+  transition: transform var(--dur-fast) steps(3, end);
+}
+
+.vivarium-switch[aria-checked='true'] .vivarium-bat {
+  transform: translateX(20px);
+}
+
+.vivarium-switch:disabled .vivarium-bat {
+  opacity: 0.55;
+}
+
+/* The state lamp — the tank's life, seated in its own drilled recess. */
+.vivarium-lamp {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--well-ground);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+}
+
+.vivarium-lamp[data-lit='true'] {
+  background-image: radial-gradient(circle at 50% 45%, var(--phosphor) 0 36%, var(--phosphor-dim) 62%, transparent 78%);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi),
+    inset 0 0 5px var(--phosphor-glow);
+}
+
+/* -- the tank (THE phosphor well) --------------------------------------------
+   Chrome ground seats the well; the canvas fills it; the scanline overlay
+   rides above the glass (pointer-transparent, global primitive). Tapping the
+   glass feeds the tank — the whole well is the touch surface. */
+
+.vivarium-content {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 10px;
+  background: var(--chrome-ground);
+}
+
+.vivarium-well {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  cursor: pointer; /* the glass answers a tap */
+}
+
+.vivarium-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.vivarium-canvas:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px; /* the beam stays inside the glass */
+}
+
+/* -- the shared focus beam --------------------------------------------------- */
+
+.vivarium-step:focus-visible,
+.vivarium-switch:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
