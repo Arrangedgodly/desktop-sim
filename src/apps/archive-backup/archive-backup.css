@@ -1,0 +1,360 @@
+/* ----------------------------------------------------------------------------
+   Archive Backup styles (batch-2 brief 10) — app-owned, app-scoped
+   (.backup-*), consuming src/styles/tokens.css + global.css primitives —
+   no custom properties defined here, zero raw hex.
+
+   World law this sheet obeys (DESIGN.md / design-brief.md):
+   · an INSTRUMENT BAY, not a reading room — the whole module is console
+     chrome (the vault is the machine's own hardware); no parchment here
+     because nothing in it is reading matter;
+   · amber phosphor ONLY inside recessed wells — the live count, the export
+     echo, the vault readout, the restored line (all .well, B612 tabular);
+   · brass ONLY at the hardware touchpoint — the DOWNLOAD ARCHIVE action
+     (a button you press is hardware; the one primary brass action);
+   · oxide ONLY where something can be lost — the restore commit (it
+     replaces the living archive) and the refusal's warning ink;
+   · furniture law — every state swap is instant, nothing tweens; the
+     surface is its own reduced-motion story by construction.
+---------------------------------------------------------------------------- */
+
+.backup {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--chrome-ground);
+  color: var(--chrome-ink);
+}
+
+/* -- toolbar (console chrome) ------------------------------------------------ */
+
+.backup-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 5px 10px;
+  background: var(--chrome-raised);
+  border-bottom: 1px solid var(--chrome-edge-lo);
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 25%);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The module's one engraving — cut into the toolbar plate. */
+.backup-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  text-shadow:
+    0 1px 0 rgb(0 0 0 / 70%),
+    0 2px 0 rgb(255 230 176 / 12%);
+}
+
+/* The live hold, counted from the real store — a toolbar well. */
+.backup-live {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  font-size: var(--size-legend);
+  white-space: nowrap;
+}
+
+.backup-live-k {
+  color: var(--phosphor-dim); /* aged amber — the well's secondary ink */
+}
+
+.backup-live-sep {
+  color: var(--phosphor-dim);
+}
+
+/* -- body (the instrument bay) ------------------------------------------------ */
+
+.backup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 14px;
+  overflow-y: auto;
+}
+
+/* Each bay: a raised plate standing proud of the module body. */
+.backup-bay {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 12px 14px 16px;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+}
+
+.backup-legend {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--engraved-ink);
+  text-shadow:
+    0 1px 0 rgb(0 0 0 / 70%),
+    0 2px 0 rgb(255 230 176 / 12%);
+}
+
+/* Dim engraved fragments — never sentences, never below the 11px floor. */
+.backup-note {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+}
+
+/* -- export: the brass action (hardware you press) ---------------------------- */
+
+.backup-export {
+  min-height: 30px;
+  padding: 4px 16px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend-lg);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ground); /* dark ink engraved into brass */
+  text-shadow: 0 1px 0 rgb(255 246 214 / 30%);
+  background: var(--brass);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--brass-hi),
+    inset -1px -1px 0 var(--brass-lo);
+  cursor: pointer;
+}
+
+.backup-export:hover {
+  background: var(--brass-hi);
+  transform: translateY(-1px); /* the catch lifts 1px on its setting */
+}
+
+.backup-export:active {
+  transform: none;
+  box-shadow:
+    inset 1px 1px 0 var(--brass-lo),
+    inset -1px -1px 0 var(--brass-hi);
+}
+
+.backup-export:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* -- import: a chrome control plate over the hidden input --------------------- */
+
+.backup-pick {
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--chrome-ink);
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 var(--chrome-edge-hi),
+    inset -1px -1px 0 rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.backup-pick:hover {
+  background: var(--chrome-ground);
+}
+
+.backup-pick:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 55%),
+    inset -1px -1px 0 rgb(255 230 176 / 7%);
+}
+
+.backup-pick:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* The real input, kept operable for pointer filing but out of the tab ring —
+   the CHOOSE button is the operable control (the picker's own law). */
+.backup-sr-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The held file's name — machine text, B612 (a filename is a readout). */
+.backup-fileline {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--size-legend);
+  letter-spacing: 0.02em;
+  color: var(--engraved-ink);
+  word-break: break-all;
+}
+
+/* -- the refusal strip (oxide ink on a sunken plate — a warning) --------------- */
+
+.backup-refusal {
+  margin: 0;
+  padding: 6px 10px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--oxide-bright); /* warning text on dark chrome (5.2:1) */
+  text-shadow: 0 1px 0 rgb(0 0 0 / 70%);
+  background: var(--chrome-sunken);
+  border: 1px solid var(--chrome-edge-lo);
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 60%),
+    inset -1px -1px 0 var(--chrome-edge-hi);
+  word-break: break-word;
+}
+
+/* -- the vault readout (THE phosphor well) --------------------------------------
+   The manifest summary, engraved as a vault readout: B612 tabular digits on
+   the well ground, aged-amber keys under full-phosphor values. */
+
+.backup-summary {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+}
+
+.backup-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px 20px;
+  margin: 0;
+}
+
+.backup-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.backup-fact dt {
+  font-size: var(--size-legend);
+  letter-spacing: 0.08em;
+  color: var(--phosphor-dim);
+}
+
+.backup-fact dd {
+  margin: 0;
+  font-size: var(--size-legend-lg);
+  font-weight: 700;
+  color: var(--phosphor);
+  overflow-wrap: anywhere;
+}
+
+/* -- the guarded restore strip ---------------------------------------------------
+   The one place something can be lost: restore REPLACES the living archive,
+   so the commit is oxide — deep surface, LIGHT parchment ink, border lights
+   on engagement. First press arms; Esc disarms; the second press commits. */
+
+.backup-restore-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.backup-restore-note {
+  flex: 1 1 22ch;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend-narrow);
+  text-transform: uppercase;
+  color: var(--chrome-ink-dim);
+}
+
+.backup-restore {
+  flex: 0 0 auto;
+  min-height: 22px;
+  padding: 2px 12px;
+  font-family: var(--font-label);
+  font-size: var(--size-legend);
+  font-weight: 600;
+  letter-spacing: var(--track-legend);
+  text-transform: uppercase;
+  color: var(--parchment); /* LIGHT ink on oxide — never dark */
+  text-shadow: 0 1px 0 rgb(255 220 200 / 20%);
+  background: var(--oxide-deep);
+  border: 1px solid var(--oxide);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 255 255 / 14%),
+    inset -1px -1px 0 rgb(0 0 0 / 40%);
+  cursor: pointer;
+}
+
+.backup-restore:hover,
+.backup-restore[data-armed='true'] {
+  /* Engagement lights the border (5.2:1), never the surface. */
+  border-color: var(--oxide-bright);
+}
+
+.backup-restore:active {
+  box-shadow:
+    inset 1px 1px 0 rgb(0 0 0 / 45%),
+    inset -1px -1px 0 rgb(255 220 200 / 10%);
+}
+
+.backup-restore:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* -- well echo lines (export receipt, restored stamp) -------------------------- */
+
+.backup-lastline,
+.backup-restoredline {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 4px 9px;
+  font-size: var(--size-legend);
+  letter-spacing: 0.02em;
+  word-break: break-all;
+}
+
+.backup-restoredline {
+  color: var(--phosphor); /* the full beam — the vault's confirmation line */
+}
