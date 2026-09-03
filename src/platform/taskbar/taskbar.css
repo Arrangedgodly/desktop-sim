@@ -98,6 +98,16 @@
   z-index: 1; /* above the LED channel inside the rail's stacking context */
   min-width: 236px;
   padding: 8px;
+  /* Batch-2 fleet (18 modules): the drawer grew past short viewports — a
+     bottom-anchored menu taller than the screen strand its top rows outside
+     the viewport, and the hold never scrolls (a full-viewport OS), so the
+     notepad itself became pointer-unreachable on 720/768px consoles. Cap the
+     menu to the viewport (rail ~48px + 10px gap + headroom) and scroll the
+     overflow — IM-4c's "every app launchable" holds at any fleet size.
+     COORDINATOR-SANCTIONED platform defect fix (task-level change control,
+     preserved outcome); see docs/ultron/sessions/batch2/integration-log.md. */
+  max-height: calc(100dvh - 120px);
+  overflow-y: auto;
   background: var(--chrome-raised);
   border: 1px solid var(--chrome-edge-lo);
   box-shadow:
